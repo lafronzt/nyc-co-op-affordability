@@ -577,6 +577,14 @@ hr.snap-div {
   .hero-price { font-size: 36px; }
   .app-header .tagline { display: none; }
   .acct-tbl td input[type="text"] { width: 110px; }
+  .how-works-wrap { padding: 0 12px; }
+}
+
+/* ===== HOW THIS WORKS SECTION ===== */
+.how-works-wrap {
+  max-width: 1300px;
+  margin: 0 auto 20px;
+  padding: 0 20px;
 }
 
 /* ===== FOOTER ===== */
@@ -681,7 +689,7 @@ hr.snap-div {
 
 /* ===== PRINT ===== */
 @media print {
-  .inputs-panel, .app-header, .app-footer { display: none !important; }
+  .inputs-panel, .app-header, .app-footer, .how-works-wrap { display: none !important; }
   body { background: #fff; }
   .app-layout { display: block; padding: 0; margin: 0; }
   .results-panel { position: static; max-height: none; overflow: visible; }
@@ -845,28 +853,6 @@ hr.snap-div {
       </div>
     </div>
 
-    <!-- How This Works -->
-    <div class="collapsible">
-      <button class="coll-btn" id="how-btn">
-        <i class="caret">▾</i> How this works
-      </button>
-      <div class="coll-body" id="how-body">
-        <h3>Two constraints, one limit</h3>
-        <p>This calculator finds the lower of two maximum prices:</p>
-        <ul>
-          <li><strong>Cash / Reserves:</strong> Your liquid assets must cover the down payment, all closing costs, and a post-close reserve cushion (typically 24 months of carrying costs — maintenance + mortgage). If you don't have enough cash on hand, this constraint binds.</li>
-          <li><strong>DTI / Income:</strong> Your total monthly housing payment (mortgage P+I + maintenance + other debts) must stay within the board's debt-to-income ratio limit on your gross monthly income. Most NYC boards use 25–30% DTI.</li>
-        </ul>
-        <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
-        <h3>What "Liquidity %" means</h3>
-        <p>Not every dollar in your accounts is freely available. A 401(k) early withdrawal faces income tax plus a 10% penalty — often leaving ~50 cents on the dollar. A Roth IRA has different rules (contributions come out penalty-free, but earnings may not). Set the liquidity % to reflect the actual after-tax, after-penalty dollars you'd actually receive. Accounts at 100% are counted in "Total Liquid." See <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-tax-on-early-distributions" target="_blank" rel="noopener noreferrer">IRS early-distribution rules</a> for details.</p>
-        <h3>Mansion tax is tiered</h3>
-        <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
-        <h3>This is an estimate — verify everything</h3>
-        <p>Co-op board requirements vary significantly. Your building may have stricter DTI limits, different reserve requirements, or an unusual flip tax structure. Always confirm numbers with a <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">licensed mortgage broker</a> (for rate locks and DTI qualification) and a <a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">real estate attorney</a> (for closing costs and the proprietary lease).</p>
-      </div>
-    </div>
-
   </div><!-- /inputs-panel -->
 
 
@@ -995,6 +981,30 @@ hr.snap-div {
   </div><!-- /results-panel -->
 
 </main>
+
+<!-- How This Works -->
+<div class="how-works-wrap">
+  <div class="collapsible">
+    <button class="coll-btn" id="how-btn">
+      <i class="caret">▾</i> How this works
+    </button>
+    <div class="coll-body" id="how-body">
+      <h3>Two constraints, one limit</h3>
+      <p>This calculator finds the lower of two maximum prices:</p>
+      <ul>
+        <li><strong>Cash / Reserves:</strong> Your liquid assets must cover the down payment, all closing costs, and a post-close reserve cushion (typically 24 months of carrying costs — maintenance + mortgage). If you don't have enough cash on hand, this constraint binds.</li>
+        <li><strong>DTI / Income:</strong> Your total monthly housing payment (mortgage P+I + maintenance + other debts) must stay within the board's debt-to-income ratio limit on your gross monthly income. Most NYC boards use 25–30% DTI.</li>
+      </ul>
+      <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
+      <h3>What "Liquidity %" means</h3>
+      <p>Not every dollar in your accounts is freely available. A 401(k) early withdrawal faces income tax plus a 10% penalty — often leaving ~50 cents on the dollar. A Roth IRA has different rules (contributions come out penalty-free, but earnings may not). Set the liquidity % to reflect the actual after-tax, after-penalty dollars you'd actually receive. Accounts at 100% are counted in "Total Liquid." See <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-tax-on-early-distributions" target="_blank" rel="noopener noreferrer">IRS early-distribution rules</a> for details.</p>
+      <h3>Mansion tax is tiered</h3>
+      <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
+      <h3>This is an estimate — verify everything</h3>
+      <p>Co-op board requirements vary significantly. Your building may have stricter DTI limits, different reserve requirements, or an unusual flip tax structure. Always confirm numbers with a <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">licensed mortgage broker</a> (for rate locks and DTI qualification) and a <a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">real estate attorney</a> (for closing costs and the proprietary lease).</p>
+    </div>
+  </div>
+</div>
 
 <footer class="app-footer">
   <div class="footer-inner">
