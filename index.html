@@ -1251,6 +1251,15 @@ hr.snap-div {
         </table>
       </div>
       <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
+      <p style="margin:8px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
+        Defaults reflect a typical NYC co-op buyer (~$150K income, age 35–42) based on
+        2024–25 Federal Reserve SCF, Fidelity, and Vanguard data. Brokerage is 100% liquid
+        here — you can sell and wire proceeds to closing — but note boards typically apply
+        a 70–80% haircut on marketable securities when evaluating post-closing reserves.
+        Retirement accounts (401k, IRA) are excluded from the defaults because most NYC
+        boards do not count them toward post-closing liquidity; add them manually at 0% if
+        you want them reflected in your net worth picture.
+      </p>
       <div class="acct-totals">
         <div>
           <div class="tot-lbl">Total for Down Pmt</div>
@@ -1267,8 +1276,10 @@ hr.snap-div {
     <div class="card">
       <div class="card-title"><span class="snum">2</span> Income &amp; Existing Debts</div>
       <div class="form-row">
-        <label class="lbl" for="annual-income">Annual Gross Income</label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="120000" min="0" step="1000"></div>
+        <label class="lbl" for="annual-income">Annual Gross Income
+          <small>$150K is the minimum needed at 28% DTI to qualify for the city-wide median co-op (~$506K, Q1 2025 — StreetEasy/Baruch CUNY). Typical buyers targeting Manhattan pay considerably more.</small>
+        </label>
+        <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="150000" min="0" step="1000"></div>
       </div>
       <div class="form-row">
         <label class="lbl">Monthly Gross Income <small>Auto-calculated</small></label>
@@ -1286,7 +1297,9 @@ hr.snap-div {
     <div class="card">
       <div class="card-title"><span class="snum">3</span> Mortgage Assumptions</div>
       <div class="form-row">
-        <label class="lbl" for="mtg-rate">Annual Mortgage Rate</label>
+        <label class="lbl" for="mtg-rate">Annual Mortgage Rate
+          <small>30-yr fixed consensus as of Apr 2026 — Freddie Mac (6.23%), Bankrate (6.40%). Co-ops require conventional financing; FHA loans are not permitted.</small>
+        </label>
         <div class="iw w120"><input type="number" id="mtg-rate" value="6.25" min="0" max="30" step="0.05" style="text-align:right"><span class="sx">%</span></div>
       </div>
       <div class="form-row">
@@ -1295,7 +1308,7 @@ hr.snap-div {
       </div>
       <div class="form-row">
         <label class="lbl" for="dp-pct">Down Payment
-          <small>NYC co-ops typically require 20–30%</small>
+          <small>20% is the minimum for most buildings; mid-range Manhattan boards often require 25%; luxury/conservative buildings may require 30–50% — Skybriz, Prevu (2025).</small>
         </label>
         <div class="iw w120"><input type="number" id="dp-pct" value="20" min="0" max="100" step="1" style="text-align:right"><span class="sx">%</span></div>
       </div>
@@ -1306,21 +1319,21 @@ hr.snap-div {
       <div class="card-title"><span class="snum">4</span> Co-op Requirements</div>
       <div class="form-row">
         <label class="lbl" for="reserve-mo">Post-Close Reserve
-          <small>24 months is the NYC co-op standard; verify with your board</small>
+          <small>12 months is the most common standard for typical buildings; conservative/luxury boards require 24+. Only liquid assets count (cash, HYSA, brokerage) — retirement accounts are generally excluded — Prevu, Aaron &amp; Geoff Compass (2026).</small>
         </label>
-        <div class="iw w120"><input type="number" id="reserve-mo" value="24" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
+        <div class="iw w120"><input type="number" id="reserve-mo" value="12" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
       </div>
       <div class="form-row">
         <label class="lbl" for="max-dti">Max DTI Allowed by Board
-          <small>Most NYC co-op boards use 25–30%; some are stricter</small>
+          <small>28% is the long-standing NYC standard. Outer-borough buildings may allow up to 30–35%; Park/Fifth Ave luxury buildings may cap at 20–25% — Prevu, YRE (2025).</small>
         </label>
         <div class="iw w120"><input type="number" id="max-dti" value="28" min="0" max="100" step="0.5" style="text-align:right"><span class="sx">%</span></div>
       </div>
       <div class="form-row">
         <label class="lbl" for="monthly-maint">Projected Monthly Maintenance
-          <small>Includes building's underlying mortgage + property tax share</small>
+          <small>Includes building's underlying mortgage + property tax share (typically 30–50% is tax-deductible). City-wide medians: Queens ~$750, Brooklyn ~$900, Manhattan ~$1,500–$1,800. $1,200 is a mid-range city-wide estimate — Elliman/Miller Samuel Q4 2024.</small>
         </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-maint" value="1800" min="0" step="50"></div>
+        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-maint" value="1200" min="0" step="50"></div>
       </div>
     </div>
 
@@ -1331,8 +1344,8 @@ hr.snap-div {
       <div class="sub-title">Fixed Costs</div>
       <div class="fc-list">
         <div class="fc-row">
-          <label for="fc-atty">Attorney Fees</label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="3000" min="0" step="100"></div>
+          <label for="fc-atty">Attorney Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(NYC range: $2,500–$5,000 in 2025 — Prevu, Brick Underground)</em></label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="4000" min="0" step="100"></div>
         </div>
         <div class="fc-row">
           <label for="fc-bank-atty">Bank Attorney Fees</label>
@@ -1360,9 +1373,7 @@ hr.snap-div {
         <div class="sub-title">Variable Costs</div>
         <div class="form-row" style="margin-bottom:0">
           <label class="lbl" for="var-pct">Combined Variable Rate
-            <small>Default = 1% mansion tax + 1% flip tax + 0.5% loan fees.<br>
-            Mansion tax is tiered (1% at $1M–2M, up to 3.9% at $25M+).<br>
-            Check your building's proprietary lease for the actual flip tax.</small>
+            <small>0.5% default covers loan origination fees for a sub-$1M purchase (no mansion tax, flip tax typically paid by seller). Add 1% if your price crosses $1M (mansion tax kicks in). Add 1–3% if your building charges a buyer-side flip tax — check the proprietary lease.</small>
           </label>
           <div class="iw w120"><input type="number" id="var-pct" value="0.5" min="0" max="20" step="0.1" style="text-align:right"><span class="sx">%</span></div>
         </div>
@@ -1673,7 +1684,7 @@ hr.snap-div {
               <div class="aft-lever-sub" id="lev-cash-sub">—</div>
               <div class="aft-lever-extra" id="lev-cash-extra">
                 <span>At</span>
-                <div class="iw"><span class="px">$</span><input type="number" id="aft-savings-rate" value="2000" min="0" step="100"></div>
+                <div class="iw"><span class="px">$</span><input type="number" id="aft-savings-rate" value="2500" min="0" step="100"></div>
                 <span>/mo, you'd have it in <strong id="lev-cash-months">—</strong>.</span>
               </div>
             </div>
@@ -1752,14 +1763,14 @@ hr.snap-div {
       <h3>Two constraints, one limit</h3>
       <p>This calculator finds the lower of two maximum prices:</p>
       <ul>
-        <li><strong>Cash / Reserves:</strong> Your assets are split into two pools. Only <em>fully liquid</em> (100%) assets can cover the down payment and closing costs. All assets (weighted by liquidity %) count toward the post-close reserve cushion — typically 24 months of carrying costs (maintenance + mortgage). Both pools must have sufficient funds for a deal to work.</li>
+        <li><strong>Cash / Reserves:</strong> Your assets are split into two pools. Only <em>fully liquid</em> (100%) assets can cover the down payment and closing costs. All assets (weighted by liquidity %) count toward the post-close reserve cushion — most boards require 12 months of carrying costs (maintenance + mortgage), though conservative buildings ask for 24+. Both pools must have sufficient funds for a deal to work.</li>
         <li><strong>DTI / Income:</strong> Your total monthly housing payment (mortgage P+I + maintenance + other debts) must stay within the board's debt-to-income ratio limit on your gross monthly income. Most NYC boards use 25–30% DTI.</li>
       </ul>
       <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
       <h3>What "Liquidity %" means</h3>
-      <p>Not every dollar in your accounts is freely available. A 401(k) early withdrawal faces income tax plus a 10% penalty — often leaving ~50 cents on the dollar. A Roth IRA has different rules (contributions come out penalty-free, but earnings may not). Set the liquidity % to reflect the actual after-tax, after-penalty dollars you'd actually receive. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs</strong> — partially-liquid accounts (e.g. retirement funds) can only be used to satisfy the post-close reserve requirement. See <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-tax-on-early-distributions" target="_blank" rel="noopener noreferrer">IRS early-distribution rules</a> for details.</p>
+      <p>The liquidity % reflects how much of each account is available to fund the purchase and satisfy post-closing reserve requirements. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs.</strong> Cash, savings, and brokerage accounts are fully liquid — you can sell securities and wire the proceeds to closing. Retirement accounts (401k, IRA, Roth IRA) are disclosed on the REBNY financial statement for net worth purposes but are <em>generally excluded</em> from post-closing liquidity by most NYC co-op boards — they appear on Schedule D, not as liquid reserves. Some boards may give partial credit; adjust the % if yours does. Note: even though brokerage funds are set to 100% here (you can use them for the DP), boards typically apply a 70–80% haircut when evaluating post-closing reserves for market-volatility risk — the actual reserve cushion your board sees will be somewhat lower than this calculator shows.</p>
       <h3>Mansion tax is tiered</h3>
-      <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
+      <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The default variable rate (0.5%) covers loan origination fees only, assuming a sub-$1M purchase. If your target price crosses $1M, add 1% to the variable rate. Flip tax (typically 1–3% of sale price) is usually paid by the seller, but some buildings charge the buyer — check the proprietary lease.</p>
       <h3>This is an estimate — verify everything</h3>
       <p>Co-op board requirements vary significantly. Your building may have stricter DTI limits, different reserve requirements, or an unusual flip tax structure. Always confirm numbers with a <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">licensed mortgage broker</a> (for rate locks and DTI qualification) and a <a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">real estate attorney</a> (for closing costs and the proprietary lease).</p>
     </div>
@@ -1814,11 +1825,9 @@ hr.snap-div {
 // ═══════════════════════════════════════
 const state = {
   accounts: [
-    { name: 'Checking / Cash',         balance: 15000,   liquidity: 100 },
-    { name: 'Investments / Brokerage', balance: 55000,   liquidity: 100 },
-    { name: '401(k)',                  balance: 75000,   liquidity: 50  },
-    { name: 'Roth IRA',                balance: 20000,   liquidity: 85  },
-    { name: 'Other Liquid Asset',      balance: 0,       liquidity: 100 },
+    { name: 'Checking',                balance: 15000,   liquidity: 100 },
+    { name: 'High-Yield Savings',      balance: 35000,   liquidity: 100 },
+    { name: 'Brokerage / Investments', balance: 70000,   liquidity: 100 },
   ],
   targetOverride: null,   // null = use maxPrice
 };
