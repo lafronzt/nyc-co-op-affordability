@@ -98,9 +98,12 @@ body {
   background: var(--navy);
   padding: 13px 24px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 14px;
   border-bottom: 2px solid #1e3a5f;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 .app-header h1 {
   font-size: 17px;
@@ -625,6 +628,52 @@ hr.snap-div {
   border: 0;
 }
 
+/* ===== SAVE TOGGLE ===== */
+.save-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+.save-toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.toggle-track {
+  width: 30px;
+  height: 16px;
+  background: #2a4a6e;
+  border-radius: 8px;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.toggle-thumb {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  background: #4a6fa5;
+  border-radius: 50%;
+  transition: left .2s, background .2s;
+}
+.save-toggle input:checked + .toggle-track { background: var(--blue); }
+.save-toggle input:checked + .toggle-track .toggle-thumb { left: 16px; background: #fff; }
+.toggle-label {
+  font-size: 11px;
+  color: #8aabcf;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.save-toggle:has(input:checked) .toggle-label { color: #c0d8f0; }
+
 /* ===== PRINT ===== */
 @media print {
   .inputs-panel, .app-header, .app-footer { display: none !important; }
@@ -641,6 +690,11 @@ hr.snap-div {
 <header class="app-header">
   <h1>NYC <em>Co-op</em> Affordability Finder</h1>
   <span class="tagline">Reverse-engineer your max purchase price from your financial profile</span>
+  <label class="save-toggle" title="Save your inputs to this browser so they persist on your next visit">
+    <input type="checkbox" id="save-toggle-cb">
+    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+    <span class="toggle-label">Save inputs</span>
+  </label>
 </header>
 
 <main class="app-layout">
@@ -995,6 +1049,76 @@ const state = {
 };
 
 // ═══════════════════════════════════════
+// LOCAL STORAGE
+// ═══════════════════════════════════════
+const LS_KEY = 'nyc_coop_inputs';
+
+function isSaveEnabled() {
+  return $('save-toggle-cb').checked;
+}
+
+function saveToStorage() {
+  if (!isSaveEnabled()) return;
+  const inp = readInputs();
+  const data = {
+    saveEnabled: true,
+    accounts: inp.accounts,
+    inputs: {
+      annualIncome: inp.annualIncome,
+      otherDebts:   inp.otherDebts,
+      mtgRate:      inp.mortgageRate,
+      loanTerm:     inp.loanTerm,
+      dpPct:        inp.dpPct,
+      reserveMo:    inp.reserveMo,
+      maxDti:       inp.maxDTIPct,
+      monthlyMaint: inp.maint,
+      fcAtty:       inp.fcAtty,
+      fcBankAtty:   inp.fcBankAtty,
+      fcCoop:       inp.fcCoop,
+      fcMoveIn:     inp.fcMoveIn,
+      fcOther:      inp.fcOther,
+      varPct:       inp.varPct,
+    }
+  };
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function clearStorage() {
+  try { localStorage.removeItem(LS_KEY); } catch(e) {}
+}
+
+function restoreInputs(data) {
+  if (!data) return;
+  if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+    state.accounts = data.accounts;
+  }
+  const inp = data.inputs;
+  if (!inp) return;
+  const setVal = (id, val) => { const el = $(id); if (el && val !== undefined) el.value = val; };
+  setVal('annual-income', inp.annualIncome);
+  setVal('other-debts',   inp.otherDebts);
+  setVal('mtg-rate',      inp.mtgRate);
+  setVal('loan-term',     inp.loanTerm);
+  setVal('dp-pct',        inp.dpPct);
+  setVal('reserve-mo',    inp.reserveMo);
+  setVal('max-dti',       inp.maxDti);
+  setVal('monthly-maint', inp.monthlyMaint);
+  setVal('fc-atty',       inp.fcAtty);
+  setVal('fc-bank-atty',  inp.fcBankAtty);
+  setVal('fc-coop',       inp.fcCoop);
+  setVal('fc-movein',     inp.fcMoveIn);
+  setVal('fc-other',      inp.fcOther);
+  setVal('var-pct',       inp.varPct);
+}
+
+// ═══════════════════════════════════════
 // PURE CALCULATE FUNCTION
 // ═══════════════════════════════════════
 function calculate(inp) {
@@ -1312,12 +1436,29 @@ function setPill(pillId, detailId, ok, detail) {
 function onChange() {
   const r = calculate(readInputs());
   updateResults(r);
+  saveToStorage();
 }
 
 // ═══════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+
+  // Restore saved inputs if the user previously enabled saving
+  const saved = loadFromStorage();
+  if (saved && saved.saveEnabled) {
+    $('save-toggle-cb').checked = true;
+    restoreInputs(saved);   // sets state.accounts + scalar DOM values
+  }
+
+  // Toggle: enable saves immediately, or clear storage when turned off
+  $('save-toggle-cb').addEventListener('change', e => {
+    if (e.target.checked) {
+      saveToStorage();
+    } else {
+      clearStorage();
+    }
+  });
 
   // Accounts table
   renderAccounts();
