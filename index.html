@@ -566,6 +566,261 @@ hr.snap-div {
 }
 .coll-body li { margin-bottom: 3px; }
 
+/* ===== TABS ===== */
+.results-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--g500);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color .15s, border-color .15s, background .15s;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--g800); background: var(--g50); }
+.tab-btn.active {
+  color: var(--navy);
+  border-bottom-color: var(--gold);
+}
+
+/* ===== OPTIMIZER VIEW ===== */
+.opt-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.opt-card[hidden] { display: none; }
+.opt-hero {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  padding: 18px 20px 16px;
+  text-align: center;
+  color: #f0f9ff;
+}
+.opt-hero-eyebrow {
+  font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--gold); margin-bottom: 8px;
+}
+.opt-hero-price {
+  font-size: 36px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1.5px;
+  line-height: 1.05; margin-bottom: 4px;
+}
+.opt-hero-sub {
+  font-size: 12px; color: #c0d8f0;
+  margin-bottom: 8px;
+}
+.opt-hero-sub strong { color: #fff; }
+.opt-hero-gain {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(245,158,11,.15);
+  border: 1px solid rgba(245,158,11,.35);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; color: var(--gold); font-weight: 600;
+}
+.opt-hero-gain.zero { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: #c0d8f0; }
+
+.opt-body { padding: 14px 17px 18px; }
+
+.opt-section { margin-bottom: 18px; }
+.opt-section:last-child { margin-bottom: 0; }
+.opt-section-title {
+  font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--g400); margin-bottom: 8px;
+}
+
+/* Chart */
+.opt-chart-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.opt-chart-wrap canvas {
+  width: 100%;
+  height: 280px;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+}
+.opt-chart-tip {
+  position: absolute;
+  background: rgba(10,22,40,.95);
+  color: #fff;
+  border-radius: 5px;
+  padding: 6px 9px;
+  font-size: 11px;
+  line-height: 1.5;
+  pointer-events: none;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+  display: none;
+  z-index: 5;
+}
+.opt-chart-tip b { color: var(--gold); font-weight: 700; }
+.opt-legend {
+  display: flex; flex-wrap: wrap;
+  gap: 4px 14px; margin-top: 6px;
+  font-size: 11px; color: var(--g600);
+}
+.opt-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.opt-legend i {
+  display: inline-block; width: 14px; height: 2px;
+  border-radius: 1px; vertical-align: middle;
+  font-style: normal;
+}
+.opt-legend i.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+
+/* Slider */
+.opt-slider-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--g50);
+  border: 1px solid var(--g200);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 12px;
+}
+.opt-slider-row .slbl {
+  font-size: 11px; font-weight: 600;
+  color: var(--g600);
+  white-space: nowrap;
+  min-width: 90px;
+}
+.opt-slider-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--blue);
+  min-width: 0;
+}
+.opt-slider-val {
+  font-size: 12px; font-weight: 700;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: right;
+}
+.opt-mini {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 16px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--g200);
+  font-size: 11.5px;
+}
+.opt-mini > div { display: flex; justify-content: space-between; gap: 8px; }
+.opt-mini .mlbl { color: var(--g500); }
+.opt-mini .mval { font-weight: 600; color: var(--g800); font-variant-numeric: tabular-nums; }
+.opt-mini .mval.bind-dti { color: var(--blue); }
+.opt-mini .mval.bind-cash { color: var(--gold); }
+
+/* Explainer */
+.opt-explainer {
+  background: var(--blue-xlt);
+  border: 1px solid var(--blue-lt);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--g700);
+}
+.opt-explainer.warn {
+  background: var(--red-bg);
+  border-color: var(--red-bd);
+  color: #7f1d1d;
+}
+.opt-explainer.ok {
+  background: var(--green-bg);
+  border-color: var(--green-bd);
+  color: #14532d;
+}
+.opt-explainer strong { color: inherit; }
+
+/* Comparison table */
+.opt-comp {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.opt-comp th, .opt-comp td {
+  padding: 6px 8px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--g100);
+}
+.opt-comp th:first-child, .opt-comp td:first-child {
+  text-align: left;
+  color: var(--g600);
+  font-weight: 500;
+}
+.opt-comp thead th {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--g500);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid var(--g300);
+  padding-bottom: 7px;
+}
+.opt-comp .col-opt {
+  background: rgba(245,158,11,.07);
+  font-weight: 600;
+  color: var(--g900);
+}
+.opt-comp thead .col-opt { color: var(--gold); }
+
+/* Sensitivity */
+.opt-sens {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.opt-sens th, .opt-sens td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--g100);
+}
+.opt-sens th {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--g500);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-align: left;
+  border-bottom: 1px solid var(--g300);
+}
+.opt-sens th.r, .opt-sens td.r {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.opt-sens td.delta-pos { color: var(--green); font-weight: 600; }
+.opt-sens td.delta-neg { color: var(--red); font-weight: 600; }
+.opt-sens td.delta-zero { color: var(--g400); }
+
+/* Optimizer notice (infeasible cases) */
+.opt-notice {
+  padding: 22px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--g600);
+  line-height: 1.55;
+}
+.opt-notice strong { display: block; color: var(--red); font-size: 14px; margin-bottom: 5px; }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .app-layout {
@@ -578,6 +833,10 @@ hr.snap-div {
   .app-header .tagline { display: none; }
   .acct-tbl td input[type="text"] { width: 110px; }
   .how-works-wrap { padding: 0 12px; }
+  .opt-chart-wrap canvas { height: 240px; }
+  .opt-comp th, .opt-comp td { padding: 5px 6px; font-size: 12px; }
+  .opt-sens th, .opt-sens td { padding: 4px 6px; font-size: 12px; }
+  .tab-btn { font-size: 11.5px; padding: 9px 8px; }
 }
 
 /* ===== HOW THIS WORKS SECTION ===== */
@@ -860,7 +1119,13 @@ hr.snap-div {
        RIGHT — RESULTS
   ═══════════════════════════════════════ -->
   <div class="results-panel">
-    <div class="results-card">
+
+    <div class="results-tabs" role="tablist">
+      <button class="tab-btn active" id="tab-standard" role="tab" aria-selected="true" aria-controls="view-standard" data-tab="standard">Standard</button>
+      <button class="tab-btn" id="tab-optimizer" role="tab" aria-selected="false" aria-controls="view-optimizer" data-tab="optimizer">⚡ True Max Optimizer</button>
+    </div>
+
+    <div class="results-card" id="view-standard" role="tabpanel" aria-labelledby="tab-standard">
 
       <!-- Hero -->
       <div class="hero">
@@ -978,6 +1243,107 @@ hr.snap-div {
 
       </div><!-- /results-body -->
     </div><!-- /results-card -->
+
+    <!-- ═══════════════════════════════════════
+         OPTIMIZER VIEW
+    ═══════════════════════════════════════ -->
+    <div class="opt-card" id="view-optimizer" role="tabpanel" aria-labelledby="tab-optimizer" hidden>
+
+      <!-- Notice for infeasible scenarios; replaces all content below when shown -->
+      <div class="opt-notice" id="opt-notice" hidden>
+        <strong id="opt-notice-title">—</strong>
+        <span id="opt-notice-detail">—</span>
+      </div>
+
+      <div id="opt-content">
+        <!-- Hero -->
+        <div class="opt-hero">
+          <div class="opt-hero-eyebrow">⚡ True Maximum Price</div>
+          <div class="opt-hero-price" id="opt-hero-price">$—</div>
+          <div class="opt-hero-sub">at <strong id="opt-hero-dp">—</strong> down (<strong id="opt-hero-dpamt">—</strong>)</div>
+          <div class="opt-hero-gain" id="opt-hero-gain">
+            Basic: <span id="opt-hero-basic">—</span> · Unlock <span id="opt-hero-delta">—</span>
+          </div>
+        </div>
+
+        <div class="opt-body">
+
+          <!-- Chart -->
+          <div class="opt-section">
+            <div class="opt-section-title">Constraint Curves</div>
+            <div class="opt-chart-wrap">
+              <canvas id="opt-chart"></canvas>
+              <div class="opt-chart-tip" id="opt-chart-tip"></div>
+            </div>
+            <div class="opt-legend">
+              <span><i style="background:#2563eb"></i> DTI ceiling</span>
+              <span><i style="background:#f59e0b"></i> Cash ceiling</span>
+              <span><i style="background:#16a34a;height:3px"></i> Achievable</span>
+              <span><i class="dot" style="background:#f59e0b;border:1.5px solid #92400e"></i> True max</span>
+              <span><i class="dot" style="background:#9ca3af"></i> Basic calc</span>
+            </div>
+
+            <!-- Slider -->
+            <div class="opt-slider-row">
+              <span class="slbl">Try a down %:</span>
+              <input type="range" id="opt-slider" min="0" max="100" step="0.1" value="20" aria-label="Down payment percentage">
+              <span class="opt-slider-val" id="opt-slider-val">—%</span>
+            </div>
+            <div class="opt-mini" id="opt-mini">
+              <div><span class="mlbl">Price</span><span class="mval" id="opt-m-price">—</span></div>
+              <div><span class="mlbl">Binding</span><span class="mval" id="opt-m-bind">—</span></div>
+              <div><span class="mlbl">Monthly</span><span class="mval" id="opt-m-monthly">—</span></div>
+              <div><span class="mlbl">DTI</span><span class="mval" id="opt-m-dti">—</span></div>
+              <div><span class="mlbl">Down $</span><span class="mval" id="opt-m-dpamt">—</span></div>
+              <div><span class="mlbl">Cash surplus</span><span class="mval" id="opt-m-surplus">—</span></div>
+            </div>
+          </div>
+
+          <!-- Plain-English explainer -->
+          <div class="opt-section">
+            <div class="opt-section-title">What this means</div>
+            <div class="opt-explainer" id="opt-explainer">—</div>
+          </div>
+
+          <!-- Comparison table -->
+          <div class="opt-section">
+            <div class="opt-section-title">Basic vs. Optimized</div>
+            <table class="opt-comp">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Basic <span id="opt-comp-basic-dp" style="font-weight:500">(—)</span></th>
+                  <th class="col-opt">Optimized <span id="opt-comp-opt-dp" style="font-weight:500">(—)</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Purchase Price</td><td id="cmp-b-price">—</td><td class="col-opt" id="cmp-o-price">—</td></tr>
+                <tr><td>Down Payment $</td><td id="cmp-b-dp">—</td><td class="col-opt" id="cmp-o-dp">—</td></tr>
+                <tr><td>Loan Amount</td><td id="cmp-b-loan">—</td><td class="col-opt" id="cmp-o-loan">—</td></tr>
+                <tr><td>Monthly Mortgage</td><td id="cmp-b-mtg">—</td><td class="col-opt" id="cmp-o-mtg">—</td></tr>
+                <tr><td>Total Monthly</td><td id="cmp-b-mtot">—</td><td class="col-opt" id="cmp-o-mtot">—</td></tr>
+                <tr><td>DTI</td><td id="cmp-b-dti">—</td><td class="col-opt" id="cmp-o-dti">—</td></tr>
+                <tr><td>Total Cash Needed</td><td id="cmp-b-cash">—</td><td class="col-opt" id="cmp-o-cash">—</td></tr>
+                <tr><td>Cash Surplus</td><td id="cmp-b-surp">—</td><td class="col-opt" id="cmp-o-surp">—</td></tr>
+                <tr><td>Reserve Months</td><td id="cmp-b-res">—</td><td class="col-opt" id="cmp-o-res">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Sensitivity strip -->
+          <div class="opt-section">
+            <div class="opt-section-title">Sensitivity (change one input, re-optimize)</div>
+            <table class="opt-sens">
+              <thead>
+                <tr><th>What changes</th><th class="r">New Max</th><th class="r">Δ Price</th></tr>
+              </thead>
+              <tbody id="opt-sens-tbody"></tbody>
+            </table>
+          </div>
+
+        </div><!-- /opt-body -->
+      </div><!-- /opt-content -->
+    </div><!-- /opt-card -->
   </div><!-- /results-panel -->
 
 </main>
@@ -1446,12 +1812,562 @@ function setPill(pillId, detailId, ok, detail) {
 }
 
 // ═══════════════════════════════════════
+// OPTIMIZER MATH
+// ═══════════════════════════════════════
+// Derived constants from input set, reused by optimizer + chart
+function deriveConstants(inp) {
+  const avail = inp.accounts.reduce((s, a) => s + (a.balance || 0) * (a.liquidity || 0) / 100, 0);
+  const moInc = (inp.annualIncome || 0) / 12;
+  const rateMonthly = (inp.mortgageRate || 0) / 100 / 12;
+  const nMonths = (inp.loanTerm || 30) * 12;
+  const dtiMax = (inp.maxDTIPct || 0) / 100;
+  const resMo = inp.reserveMo || 0;
+  const maintMo = inp.maint || 0;
+  const oDebts = inp.otherDebts || 0;
+  const fixedCC = (inp.fcAtty||0)+(inp.fcBankAtty||0)+(inp.fcCoop||0)+(inp.fcMoveIn||0)+(inp.fcOther||0);
+  const varFrac = (inp.varPct || 0) / 100;
+  const minDp = (inp.dpPct || 0) / 100;
+
+  let K = 0;
+  if (nMonths > 0) {
+    K = (rateMonthly === 0) ? 1 / nMonths
+        : rateMonthly / (1 - Math.pow(1 + rateMonthly, -nMonths));
+  }
+
+  const A = dtiMax * moInc - maintMo - oDebts;             // monthly mortgage budget
+  const B = avail - fixedCC - resMo * maintMo;             // cash budget for the price formula
+
+  return { avail, moInc, dtiMax, resMo, maintMo, oDebts, fixedCC, varFrac, minDp, K, A, B };
+}
+
+// Price ceilings as a function of dp (0..1)
+function priceAtDp(c, dp) {
+  const d = (dp + c.varFrac + c.resMo * (1 - dp) * c.K);
+  const pCash = (d > 0 && c.B > 0) ? c.B / d : 0;
+  const denomDti = (1 - dp) * c.K;
+  const pDti = (denomDti > 0 && c.A > 0) ? c.A / denomDti : (c.A > 0 ? Infinity : 0);
+  const pAch = Math.min(pCash, isFinite(pDti) ? pDti : pCash);
+  return { pCash, pDti, pAch };
+}
+
+// Full deal snapshot at a given price + dp
+function dealAtPriceDp(c, price, dp) {
+  const downPmt      = price * dp;
+  const loanAmt      = price * (1 - dp);
+  const moMtg        = loanAmt * c.K;
+  const varCC        = price * c.varFrac;
+  const totalAtClose = downPmt + c.fixedCC + varCC;
+  const maintRes     = c.resMo * c.maintMo;
+  const mtgRes       = c.resMo * moMtg;
+  const totalCash    = totalAtClose + maintRes + mtgRes;
+  const surplus      = c.avail - totalCash;
+  const moTotal      = moMtg + c.maintMo;
+  const dti          = c.moInc > 0 ? (moTotal + c.oDebts) / c.moInc : 0;
+  const pcLiquid     = c.avail - totalAtClose;
+  const pcMonths     = moTotal > 0 ? pcLiquid / moTotal : 0;
+  return { downPmt, loanAmt, moMtg, varCC, totalAtClose, maintRes, mtgRes, totalCash, surplus, moTotal, dti, pcLiquid, pcMonths };
+}
+
+function computeOptimizer(inp) {
+  const c = deriveConstants(inp);
+  const HARD_DP_MAX = 0.80;
+
+  // Infeasibility checks
+  if (c.A <= 0) {
+    return { ok: false, reason: 'A_NEG', c,
+      title: 'Income insufficient for this maintenance level',
+      detail: 'Maintenance plus existing debts already exceed your DTI budget. There is no down payment that lets you qualify — increase income, reduce DTI limit, or pick a building with lower maintenance.' };
+  }
+  if (c.B <= 0) {
+    return { ok: false, reason: 'B_NEG', c,
+      title: 'Insufficient assets',
+      detail: 'After fixed closing costs and the maintenance reserve, no cash remains for a down payment. Increase liquid assets, lower the reserve months, or reduce closing costs.' };
+  }
+
+  // Unclamped intersection
+  const num = c.K * c.B - c.A * (c.varFrac + c.resMo * c.K);
+  const den = c.A * (1 - c.resMo * c.K) + c.K * c.B;
+  let dpUnclamped = (den !== 0) ? num / den : c.minDp;
+
+  // Clamp range: at least min_dp_required, at most 80%
+  let dpOptimal = dpUnclamped;
+  let clampedAt = null;
+  if (dpOptimal < c.minDp) { dpOptimal = c.minDp; clampedAt = 'min'; }
+  if (dpOptimal > HARD_DP_MAX) { dpOptimal = HARD_DP_MAX; clampedAt = 'max'; }
+
+  // True max price = min of the two ceilings at the (clamped) optimal dp
+  const optPrices = priceAtDp(c, dpOptimal);
+  const pMaxTrue = Math.max(0, optPrices.pAch);
+
+  // "Basic" baseline at min_dp_required
+  const basePrices = priceAtDp(c, c.minDp);
+  const pStandard = Math.max(0, basePrices.pAch);
+
+  const gain = pMaxTrue - pStandard;
+
+  // Determine which constraint binds at minDp (for explainer)
+  // pCash < pDti ⇒ cash is binding (more dp hurts); pDti < pCash ⇒ DTI binding (more dp helps)
+  const eps = 1; // dollars
+  const baseBind = (basePrices.pCash <= basePrices.pDti - eps) ? 'cash'
+                  : (basePrices.pDti <= basePrices.pCash - eps) ? 'dti'
+                  : 'both';
+
+  return {
+    ok: true, c,
+    dpUnclamped, dpOptimal, clampedAt,
+    pMaxTrue, pStandard, gain,
+    baseBind,
+    optPrices, basePrices,
+    HARD_DP_MAX
+  };
+}
+
+// Sensitivity: re-run optimizer with one input changed
+function runSensitivity(baseInp, basePrice) {
+  const tweaks = [
+    { label: '+$25k more cash', mod: i => addCash(i, 25000) },
+    { label: '+$50k more cash', mod: i => addCash(i, 50000) },
+    { label: '+$10k/yr income', mod: i => ({ ...i, annualIncome: (i.annualIncome||0) + 10000 }) },
+    { label: '+$25k/yr income', mod: i => ({ ...i, annualIncome: (i.annualIncome||0) + 25000 }) },
+    { label: 'DTI limit → 30%', mod: i => ({ ...i, maxDTIPct: 30 }) },
+    { label: 'Reserves → 12 months', mod: i => ({ ...i, reserveMo: 12 }) },
+  ];
+  return tweaks.map(t => {
+    const modified = t.mod(baseInp);
+    const opt = computeOptimizer(modified);
+    const newPrice = opt.ok ? opt.pMaxTrue : 0;
+    return { label: t.label, newPrice, delta: newPrice - basePrice, ok: opt.ok };
+  });
+}
+
+function addCash(inp, amount) {
+  const accounts = inp.accounts.concat([{ name: '__sensitivity', balance: amount, liquidity: 100 }]);
+  return { ...inp, accounts };
+}
+
+// ═══════════════════════════════════════
+// OPTIMIZER CHART (Canvas 2D)
+// ═══════════════════════════════════════
+function drawOptimizerChart(canvas, opt, hoverDp) {
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const cssW = canvas.clientWidth;
+  const cssH = canvas.clientHeight;
+  if (cssW <= 0 || cssH <= 0) return;
+
+  // Resize backing store for crisp rendering
+  if (canvas.width !== Math.round(cssW * dpr) || canvas.height !== Math.round(cssH * dpr)) {
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  if (!opt.ok) return;
+  const c = opt.c;
+  const HARD_DP_MAX = opt.HARD_DP_MAX;
+
+  // Plot range: from minDp to min(80%, max where achievable > 0). Compute samples first.
+  const xMin = Math.max(0, Math.min(c.minDp, HARD_DP_MAX - 0.01));
+  const xMax = HARD_DP_MAX;
+  const N = 121;
+  const samples = [];
+  let yMaxRaw = 0;
+  for (let i = 0; i < N; i++) {
+    const dp = xMin + (xMax - xMin) * (i / (N - 1));
+    const p = priceAtDp(c, dp);
+    samples.push({ dp, ...p });
+    if (isFinite(p.pCash)) yMaxRaw = Math.max(yMaxRaw, p.pCash);
+    if (isFinite(p.pDti))  yMaxRaw = Math.max(yMaxRaw, p.pDti);
+  }
+  // Cap pDti for plotting if it explodes near dp=1 (it won't here since xMax=0.8, but be safe)
+  yMaxRaw = Math.min(yMaxRaw, opt.pStandard * 8 + 1e6);
+  if (yMaxRaw <= 0) yMaxRaw = 1;
+  const yMax = niceRound(yMaxRaw * 1.08);
+
+  // Layout
+  const padL = 56, padR = 14, padT = 14, padB = 30;
+  const plotW = cssW - padL - padR;
+  const plotH = cssH - padT - padB;
+
+  const xToPx = dp => padL + ((dp - xMin) / (xMax - xMin)) * plotW;
+  const pxToDp = px => xMin + ((px - padL) / plotW) * (xMax - xMin);
+  const yToPx = price => padT + plotH - (price / yMax) * plotH;
+
+  // Zone tints — left of intersection: DTI-constrained (faint blue); right: cash-constrained (faint orange)
+  const splitDp = clamp(opt.dpUnclamped, xMin, xMax);
+  // Actually: at low dp, pDti is low so DTI binds. At high dp, pCash drops so cash binds.
+  // Left of intersection = DTI-binding (blue tint). Right = cash-binding (orange tint).
+  ctx.fillStyle = 'rgba(37,99,235,0.045)';
+  ctx.fillRect(padL, padT, xToPx(splitDp) - padL, plotH);
+  ctx.fillStyle = 'rgba(245,158,11,0.05)';
+  ctx.fillRect(xToPx(splitDp), padT, padL + plotW - xToPx(splitDp), plotH);
+
+  // Y gridlines (5 lines) + labels
+  ctx.strokeStyle = '#f3f4f6';
+  ctx.lineWidth = 1;
+  ctx.fillStyle = '#9ca3af';
+  ctx.font = '10px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + plotH * (i / 4);
+    const v = yMax * (1 - i / 4);
+    ctx.beginPath();
+    ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y);
+    ctx.stroke();
+    ctx.fillText(fmtShort$(v), padL - 6, y);
+  }
+
+  // X axis labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const xTicks = niceTicks(xMin, xMax, 6);
+  xTicks.forEach(tickDp => {
+    const x = xToPx(tickDp);
+    ctx.strokeStyle = '#f3f4f6';
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + plotH); ctx.stroke();
+    ctx.fillStyle = '#9ca3af';
+    ctx.fillText((tickDp * 100).toFixed(0) + '%', x, padT + plotH + 5);
+  });
+
+  // Axis labels
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '10px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Down Payment %', padL + plotW / 2, cssH - 10);
+
+  ctx.save();
+  ctx.translate(14, padT + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Affordable Price', 0, 0);
+  ctx.restore();
+
+  // Build achievable polygon for fill
+  ctx.fillStyle = 'rgba(22,163,74,0.10)';
+  ctx.beginPath();
+  ctx.moveTo(xToPx(samples[0].dp), yToPx(0));
+  samples.forEach(s => ctx.lineTo(xToPx(s.dp), yToPx(Math.max(0, s.pAch))));
+  ctx.lineTo(xToPx(samples[samples.length - 1].dp), yToPx(0));
+  ctx.closePath();
+  ctx.fill();
+
+  // DTI line (blue)
+  ctx.strokeStyle = '#2563eb';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  samples.forEach((s, i) => {
+    const y = yToPx(Math.min(yMax, isFinite(s.pDti) ? s.pDti : yMax));
+    if (i === 0) ctx.moveTo(xToPx(s.dp), y); else ctx.lineTo(xToPx(s.dp), y);
+  });
+  ctx.stroke();
+
+  // Cash line (orange)
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  samples.forEach((s, i) => {
+    const y = yToPx(Math.min(yMax, Math.max(0, s.pCash)));
+    if (i === 0) ctx.moveTo(xToPx(s.dp), y); else ctx.lineTo(xToPx(s.dp), y);
+  });
+  ctx.stroke();
+
+  // Achievable line (bold dark green)
+  ctx.strokeStyle = '#15803d';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  samples.forEach((s, i) => {
+    const y = yToPx(Math.max(0, s.pAch));
+    if (i === 0) ctx.moveTo(xToPx(s.dp), y); else ctx.lineTo(xToPx(s.dp), y);
+  });
+  ctx.stroke();
+
+  // Red dashed vertical at min_dp_required
+  ctx.save();
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = '#dc2626';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(xToPx(c.minDp), padT);
+  ctx.lineTo(xToPx(c.minDp), padT + plotH);
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#dc2626';
+  ctx.font = '9.5px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('Board min', xToPx(c.minDp) + 4, padT + 2);
+
+  // Crosshairs from the gold dot
+  ctx.save();
+  ctx.setLineDash([3, 3]);
+  ctx.strokeStyle = 'rgba(245,158,11,0.55)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(xToPx(opt.dpOptimal), yToPx(opt.pMaxTrue));
+  ctx.lineTo(padL, yToPx(opt.pMaxTrue));
+  ctx.moveTo(xToPx(opt.dpOptimal), yToPx(opt.pMaxTrue));
+  ctx.lineTo(xToPx(opt.dpOptimal), padT + plotH);
+  ctx.stroke();
+  ctx.restore();
+
+  // Gray dot at basic calc
+  drawDot(ctx, xToPx(c.minDp), yToPx(opt.pStandard), 5, '#9ca3af', '#4b5563');
+
+  // Gold dot at optimum (drawn last so it's on top)
+  drawDot(ctx, xToPx(opt.dpOptimal), yToPx(opt.pMaxTrue), 6.5, '#f59e0b', '#92400e');
+
+  // Annotation text near the gold dot
+  ctx.fillStyle = '#92400e';
+  ctx.font = '600 11px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'bottom';
+  const goldX = xToPx(opt.dpOptimal);
+  const goldY = yToPx(opt.pMaxTrue);
+  const annoTxt = 'True Max: ' + fmt$(opt.pMaxTrue) + ' at ' + (opt.dpOptimal * 100).toFixed(1) + '% down';
+  // Place annotation to the left if too close to right edge
+  const annoW = ctx.measureText(annoTxt).width;
+  let annoX = goldX + 9;
+  if (annoX + annoW > padL + plotW - 4) annoX = goldX - annoW - 9;
+  ctx.fillText(annoTxt, annoX, goldY - 8);
+
+  // Arrow basic → optimum (only if there's a meaningful gain)
+  if (opt.gain > 1000 && Math.abs(xToPx(c.minDp) - xToPx(opt.dpOptimal)) > 8) {
+    drawArrow(ctx, xToPx(c.minDp), yToPx(opt.pStandard), xToPx(opt.dpOptimal), yToPx(opt.pMaxTrue), '#6b7280');
+    ctx.fillStyle = '#374151';
+    ctx.font = '10.5px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    const midX = (xToPx(c.minDp) + xToPx(opt.dpOptimal)) / 2;
+    const midY = (yToPx(opt.pStandard) + yToPx(opt.pMaxTrue)) / 2 - 6;
+    ctx.fillText('+' + fmt$(opt.gain), midX, midY);
+  }
+
+  // Hover crosshair
+  if (typeof hoverDp === 'number' && hoverDp >= xMin && hoverDp <= xMax) {
+    const hx = xToPx(hoverDp);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(31,41,55,0.55)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + plotH);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Stash for hover lookup
+  canvas._chartState = {
+    padL, padR, padT, padB, plotW, plotH, xMin, xMax, yMax,
+    xToPx, pxToDp, yToPx, samples
+  };
+}
+
+function drawDot(ctx, x, y, r, fill, stroke) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = stroke;
+  ctx.stroke();
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Arrowhead
+  const ang = Math.atan2(y2 - y1, x2 - x1);
+  const ah = 6;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - ah * Math.cos(ang - 0.4), y2 - ah * Math.sin(ang - 0.4));
+  ctx.lineTo(x2 - ah * Math.cos(ang + 0.4), y2 - ah * Math.sin(ang + 0.4));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+function niceRound(v) {
+  if (v <= 0) return 1;
+  const exp = Math.floor(Math.log10(v));
+  const base = Math.pow(10, exp);
+  const m = v / base;
+  let nice;
+  if (m <= 1) nice = 1;
+  else if (m <= 2) nice = 2;
+  else if (m <= 2.5) nice = 2.5;
+  else if (m <= 5) nice = 5;
+  else nice = 10;
+  return nice * base;
+}
+function niceTicks(min, max, count) {
+  const range = max - min;
+  const step = niceRound(range / Math.max(1, count));
+  const start = Math.ceil(min / step) * step;
+  const out = [];
+  for (let v = start; v <= max + 1e-9; v += step) out.push(+v.toFixed(4));
+  return out;
+}
+function fmtShort$(v) {
+  if (v >= 1e6) return '$' + (v / 1e6).toFixed(v >= 1e7 ? 0 : 1) + 'M';
+  if (v >= 1e3) return '$' + Math.round(v / 1e3) + 'k';
+  return '$' + Math.round(v);
+}
+
+// ═══════════════════════════════════════
+// OPTIMIZER VIEW RENDER
+// ═══════════════════════════════════════
+let optState = { sliderDp: null, hoverDp: null, lastOpt: null, lastInp: null };
+
+function renderOptimizerView(inp) {
+  const opt = computeOptimizer(inp);
+  optState.lastOpt = opt;
+  optState.lastInp = inp;
+
+  const notice = $('opt-notice');
+  const content = $('opt-content');
+
+  if (!opt.ok) {
+    notice.hidden = false;
+    content.hidden = true;
+    tx('opt-notice-title', opt.title);
+    tx('opt-notice-detail', opt.detail);
+    return;
+  }
+  notice.hidden = true;
+  content.hidden = false;
+
+  const c = opt.c;
+
+  // Hero
+  tx('opt-hero-price', fmt$(opt.pMaxTrue));
+  tx('opt-hero-dp', (opt.dpOptimal * 100).toFixed(1) + '%');
+  tx('opt-hero-dpamt', fmt$(opt.pMaxTrue * opt.dpOptimal));
+  tx('opt-hero-basic', fmt$(opt.pStandard));
+  const gainEl = $('opt-hero-gain');
+  if (opt.gain > 0) {
+    tx('opt-hero-delta', '+' + fmt$(opt.gain));
+    gainEl.classList.remove('zero');
+  } else {
+    tx('opt-hero-delta', fmt$(0));
+    gainEl.classList.add('zero');
+  }
+
+  // Slider — initialize to optimal dp on first render or if out of range
+  const sl = $('opt-slider');
+  const xMin = Math.max(0, Math.min(c.minDp, opt.HARD_DP_MAX - 0.01));
+  const xMax = opt.HARD_DP_MAX;
+  sl.min = (xMin * 100).toFixed(2);
+  sl.max = Math.min(60, xMax * 100).toFixed(2);  // spec: slider goes from min_dp to 60%
+  sl.step = '0.1';
+  // Keep prior slider position if within range; else default to optimal
+  let curDp;
+  if (optState.sliderDp !== null && optState.sliderDp >= xMin && optState.sliderDp <= xMax) {
+    curDp = optState.sliderDp;
+  } else {
+    curDp = clamp(opt.dpOptimal, parseFloat(sl.min) / 100, parseFloat(sl.max) / 100);
+    optState.sliderDp = curDp;
+  }
+  sl.value = (curDp * 100).toFixed(1);
+  updateSliderReadout(curDp);
+
+  // Comparison table
+  const basicDeal = dealAtPriceDp(c, opt.pStandard, c.minDp);
+  const optDeal   = dealAtPriceDp(c, opt.pMaxTrue, opt.dpOptimal);
+  tx('opt-comp-basic-dp', '(' + (c.minDp * 100).toFixed(1) + '% down)');
+  tx('opt-comp-opt-dp',   '(' + (opt.dpOptimal * 100).toFixed(1) + '% down)');
+  tx('cmp-b-price', fmt$(opt.pStandard));         tx('cmp-o-price', fmt$(opt.pMaxTrue));
+  tx('cmp-b-dp',    fmt$(basicDeal.downPmt));     tx('cmp-o-dp',    fmt$(optDeal.downPmt));
+  tx('cmp-b-loan',  fmt$(basicDeal.loanAmt));     tx('cmp-o-loan',  fmt$(optDeal.loanAmt));
+  tx('cmp-b-mtg',   fmt$(basicDeal.moMtg));       tx('cmp-o-mtg',   fmt$(optDeal.moMtg));
+  tx('cmp-b-mtot',  fmt$(basicDeal.moTotal));     tx('cmp-o-mtot',  fmt$(optDeal.moTotal));
+  tx('cmp-b-dti',   fmtPct(basicDeal.dti));       tx('cmp-o-dti',   fmtPct(optDeal.dti));
+  tx('cmp-b-cash',  fmt$(basicDeal.totalCash));   tx('cmp-o-cash',  fmt$(optDeal.totalCash));
+  tx('cmp-b-surp',  fmt$(basicDeal.surplus));     tx('cmp-o-surp',  fmt$(optDeal.surplus));
+  tx('cmp-b-res',   basicDeal.pcMonths.toFixed(1) + ' mo'); tx('cmp-o-res', optDeal.pcMonths.toFixed(1) + ' mo');
+
+  // Explainer
+  const expl = $('opt-explainer');
+  expl.classList.remove('warn', 'ok');
+  if (opt.clampedAt === 'max') {
+    expl.classList.add('warn');
+    expl.innerHTML = 'The math wants <strong>' + (opt.dpUnclamped * 100).toFixed(1) +
+      '%</strong> down, which exceeds 80%. Clamped to 80% — at this level you should consult a mortgage broker, since most NYC co-op lenders cap loans at this LTV.';
+  } else if (opt.clampedAt === 'min' || opt.baseBind === 'cash') {
+    expl.innerHTML = '<strong>Cash-limited.</strong> Your cash runs out before income does. Putting more down would just shrink your reserves — it does not unlock a higher price. Your maximum is the standard calculation: <strong>' + fmt$(opt.pStandard) + '</strong> at ' + (c.minDp * 100).toFixed(1) + '% down.';
+  } else if (opt.baseBind === 'both' || opt.gain < 1000) {
+    expl.classList.add('ok');
+    expl.innerHTML = '<strong>Already optimal.</strong> Both constraints bind simultaneously at ' + (c.minDp * 100).toFixed(1) + '% down. You are already at the ceiling — no down-payment adjustment buys more price.';
+  } else {
+    // DTI-limited with surplus — the interesting case
+    const surplusAtBasic = c.B - opt.pStandard * c.minDp - opt.pStandard * c.varFrac - c.resMo * opt.pStandard * (1 - c.minDp) * c.K;
+    const unusedCash = Math.max(0, basicDeal.surplus);
+    expl.innerHTML = '<strong>DTI-limited with surplus cash.</strong> At ' + (c.minDp * 100).toFixed(1) +
+      '% down your income caps you at <strong>' + fmt$(opt.pStandard) + '</strong>, but you have <strong>' + fmt$(unusedCash) +
+      '</strong> in unused cash sitting on the table. Putting <strong>' + (opt.dpOptimal * 100).toFixed(1) +
+      '% down</strong> shrinks the loan enough to qualify for <strong>' + fmt$(opt.pMaxTrue) + '</strong> — your true ceiling.';
+  }
+
+  // Sensitivity
+  const sensRows = runSensitivity(inp, opt.pMaxTrue);
+  const tbody = $('opt-sens-tbody');
+  tbody.innerHTML = '';
+  sensRows.forEach(row => {
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td');
+    td1.textContent = row.label;
+    const td2 = document.createElement('td');
+    td2.className = 'r';
+    td2.textContent = row.ok ? fmt$(row.newPrice) : '—';
+    const td3 = document.createElement('td');
+    td3.className = 'r ' + (row.delta > 1 ? 'delta-pos' : row.delta < -1 ? 'delta-neg' : 'delta-zero');
+    td3.textContent = row.ok ? (row.delta >= 0 ? '+' : '') + fmt$(row.delta) : '—';
+    tr.append(td1, td2, td3);
+    tbody.appendChild(tr);
+  });
+
+  // Chart
+  drawOptimizerChart($('opt-chart'), opt, optState.hoverDp);
+}
+
+function updateSliderReadout(dp) {
+  const opt = optState.lastOpt;
+  if (!opt || !opt.ok) return;
+  const c = opt.c;
+  tx('opt-slider-val', (dp * 100).toFixed(1) + '%');
+  const p = priceAtDp(c, dp);
+  const price = Math.max(0, p.pAch);
+  const deal = dealAtPriceDp(c, price, dp);
+  const binding = (p.pCash <= p.pDti - 1) ? 'Cash' : (p.pDti <= p.pCash - 1) ? 'DTI' : 'Both';
+  tx('opt-m-price', fmt$(price));
+  const bindEl = $('opt-m-bind');
+  bindEl.textContent = binding;
+  bindEl.className = 'mval ' + (binding === 'Cash' ? 'bind-cash' : binding === 'DTI' ? 'bind-dti' : '');
+  tx('opt-m-monthly', fmt$(deal.moTotal));
+  tx('opt-m-dti', fmtPct(deal.dti));
+  tx('opt-m-dpamt', fmt$(deal.downPmt));
+  tx('opt-m-surplus', fmt$(deal.surplus));
+}
+
+// ═══════════════════════════════════════
 // MAIN onChange — runs on every input event
 // ═══════════════════════════════════════
 function onChange() {
   const inp = readInputs();
   const r = calculate(inp);
   updateResults(r);
+  renderOptimizerView(inp);
   saveToStorage(inp);
 }
 
@@ -1501,6 +2417,102 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btn-reset-tgt').addEventListener('click', () => {
     state.targetOverride = null;
     onChange();
+  });
+
+  // ───── Tabs ─────
+  const tabs = document.querySelectorAll('.tab-btn');
+  const views = { standard: $('view-standard'), optimizer: $('view-optimizer') };
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const which = btn.dataset.tab;
+      tabs.forEach(b => {
+        const active = b.dataset.tab === which;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      Object.entries(views).forEach(([k, el]) => { el.hidden = (k !== which); });
+      if (which === 'optimizer') {
+        // Redraw chart now that the canvas is visible (had 0 width while hidden)
+        if (optState.lastOpt) drawOptimizerChart($('opt-chart'), optState.lastOpt, optState.hoverDp);
+      }
+    });
+  });
+
+  // ───── Optimizer slider ─────
+  const optSlider = $('opt-slider');
+  optSlider.addEventListener('input', e => {
+    const dp = parseFloat(e.target.value) / 100;
+    optState.sliderDp = dp;
+    updateSliderReadout(dp);
+  });
+
+  // ───── Optimizer chart hover/touch ─────
+  const chart = $('opt-chart');
+  const tip = $('opt-chart-tip');
+  function moveTip(clientX, clientY) {
+    const state = chart._chartState;
+    if (!state || !optState.lastOpt || !optState.lastOpt.ok) return;
+    const rect = chart.getBoundingClientRect();
+    const x = clientX - rect.left;
+    if (x < state.padL || x > state.padL + state.plotW) {
+      tip.style.display = 'none';
+      optState.hoverDp = null;
+      drawOptimizerChart(chart, optState.lastOpt, null);
+      return;
+    }
+    const dp = clamp(state.pxToDp(x), state.xMin, state.xMax);
+    optState.hoverDp = dp;
+    const c = optState.lastOpt.c;
+    const p = priceAtDp(c, dp);
+    tip.innerHTML =
+      '<b>' + (dp * 100).toFixed(1) + '% down</b><br>' +
+      'Achievable: ' + fmt$(Math.max(0, p.pAch)) + '<br>' +
+      'DTI ceiling: ' + (isFinite(p.pDti) ? fmt$(p.pDti) : '—') + '<br>' +
+      'Cash ceiling: ' + fmt$(Math.max(0, p.pCash));
+    // Position tip
+    tip.style.display = 'block';
+    const tRect = tip.getBoundingClientRect();
+    let tipX = x + 12;
+    if (tipX + tRect.width > rect.width - 4) tipX = x - tRect.width - 12;
+    let tipY = (clientY - rect.top) - tRect.height - 8;
+    if (tipY < 4) tipY = (clientY - rect.top) + 14;
+    tip.style.left = tipX + 'px';
+    tip.style.top = tipY + 'px';
+    drawOptimizerChart(chart, optState.lastOpt, dp);
+  }
+  chart.addEventListener('mousemove', e => moveTip(e.clientX, e.clientY));
+  chart.addEventListener('mouseleave', () => {
+    tip.style.display = 'none';
+    optState.hoverDp = null;
+    if (optState.lastOpt) drawOptimizerChart(chart, optState.lastOpt, null);
+  });
+  chart.addEventListener('touchstart', e => {
+    if (e.touches.length) {
+      e.preventDefault();
+      moveTip(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+  chart.addEventListener('touchmove', e => {
+    if (e.touches.length) {
+      e.preventDefault();
+      moveTip(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+  chart.addEventListener('touchend', () => {
+    tip.style.display = 'none';
+    optState.hoverDp = null;
+    if (optState.lastOpt) drawOptimizerChart(chart, optState.lastOpt, null);
+  });
+
+  // ───── Redraw chart on resize ─────
+  let resizeRaf = 0;
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(() => {
+      if (optState.lastOpt && !$('view-optimizer').hidden) {
+        drawOptimizerChart(chart, optState.lastOpt, optState.hoverDp);
+      }
+    });
   });
 
   // Collapsible
