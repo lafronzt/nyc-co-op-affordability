@@ -1757,7 +1757,7 @@ hr.snap-div {
       </ul>
       <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
       <h3>What "Liquidity %" means</h3>
-      <p>The liquidity % reflects how much of each account a co-op board will count toward post-closing reserves. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs.</strong> Boards evaluate assets differently: cash and savings count in full; publicly traded brokerage accounts are typically haircut to 70–80% to account for market fluctuation; retirement accounts (401k, IRA, Roth IRA) are disclosed on the REBNY financial statement for net worth purposes but are <em>generally excluded</em> from post-closing liquidity by most NYC co-op boards — they appear on Schedule D, not as liquid reserves. Some flexible buildings may give partial credit for retirement funds; adjust the % if your building does.</p>
+      <p>The liquidity % reflects how much of each account is available to fund the purchase and satisfy post-closing reserve requirements. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs.</strong> Cash, savings, and brokerage accounts are fully liquid — you can sell securities and wire the proceeds to closing. Retirement accounts (401k, IRA, Roth IRA) are disclosed on the REBNY financial statement for net worth purposes but are <em>generally excluded</em> from post-closing liquidity by most NYC co-op boards — they appear on Schedule D, not as liquid reserves. Some boards may give partial credit; adjust the % if yours does. Note: even though brokerage funds are set to 100% here (you can use them for the DP), boards typically apply a 70–80% haircut when evaluating post-closing reserves for market-volatility risk — the actual reserve cushion your board sees will be somewhat lower than this calculator shows.</p>
       <h3>Mansion tax is tiered</h3>
       <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
       <h3>This is an estimate — verify everything</h3>
@@ -1814,9 +1814,9 @@ hr.snap-div {
 // ═══════════════════════════════════════
 const state = {
   accounts: [
-    { name: 'Checking',                balance: 10000,   liquidity: 100 },
-    { name: 'High-Yield Savings',      balance: 25000,   liquidity: 100 },
-    { name: 'Brokerage / Investments', balance: 50000,   liquidity: 75  },
+    { name: 'Checking',                balance: 15000,   liquidity: 100 },
+    { name: 'High-Yield Savings',      balance: 35000,   liquidity: 100 },
+    { name: 'Brokerage / Investments', balance: 70000,   liquidity: 100 },
     { name: '401(k)',                  balance: 110000,  liquidity: 0   },
     { name: 'Roth IRA',                balance: 45000,   liquidity: 0   },
   ],
