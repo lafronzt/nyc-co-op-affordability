@@ -2820,7 +2820,7 @@ function computeAffordTarget(inp) {
   const dpForCashCapped = Math.min(dpForCash, HARD_DP_MAX);
 
   const dpLo = Math.max(c.minDp, isFinite(dpForDti) ? dpForDti : Infinity);
-  const dpHi = Math.min(HARD_DP_MAX, isFinite(dpForCashCapped) ? dpForCashCapped : -Infinity);
+  const dpHi = Math.min(HARD_DP_MAX, isFinite(dpForCashCapped) ? dpForCashCapped : 0);
 
   let dpOutcome;
   if (!isFinite(dpForDti) || dpForDti > HARD_DP_MAX) {
@@ -2830,7 +2830,7 @@ function computeAffordTarget(inp) {
   } else if (dpForDti < c.minDp) {
     dpOutcome = 'C';                 // DTI fine at min, only cash matters
   } else {
-    dpOutcome = 'A';                 // feasible range [dpLo, dpHi] exists
+    dpOutcome = 'A';                 // dpForDti >= c.minDp and dpHi >= dpLo: feasible range [dpLo, dpHi]
   }
 
   // -- Lever 4: max maintenance at target & current dp/income --
