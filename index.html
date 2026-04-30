@@ -1938,10 +1938,12 @@ function calculate(inp) {
   // --- DP/CC-constrained max price (only 100%-liquid assets cover DP + closing costs) ---
   const dpCCNum = totLiquid - fixedCC;
   const dpCCDen = dp + varFrac;
-  const dpCCMax = (dpCCDen > 0) ? Math.max(0, dpCCNum / dpCCDen) : reserveMax;
+  // When dpCCDen is 0 (no DP and no variable CC), the DP/CC constraint does not bind — use Infinity.
+  // When dpCCNum <= 0, not even fixed closing costs are covered — no deal is possible.
+  const dpCCMax = (dpCCDen > 0) ? Math.max(0, dpCCNum / dpCCDen) : (dpCCNum > 0 ? Infinity : 0);
 
   // --- Effective cash ceiling is the tighter of the two constraints ---
-  const cashMax = Math.min(reserveMax, dpCCMax);
+  const cashMax = Math.min(reserveMax, isFinite(dpCCMax) ? dpCCMax : reserveMax);
 
   // --- DTI-constrained max price ---
   const maxMoMtg    = dtiMax * moInc - maintMo - oDebts;
@@ -2282,9 +2284,18 @@ function priceAtDp(c, dp) {
   const d = (dp + c.varFrac + c.resMo * (1 - dp) * c.K);
   const pRes = (d > 0 && c.B > 0) ? c.B / d : 0;
 
-  // DP/CC constraint: only 100%-liquid assets cover DP + variable CC
+  // DP/CC constraint: only 100%-liquid assets cover DP + variable CC.
+  // When dDpCC is 0 (no DP and no variable CC), this constraint does not bind (Infinity).
+  // When dpCCNum <= 0, the constraint is violated at any positive price (0).
   const dDpCC = dp + c.varFrac;
-  const pDpCC = (dDpCC > 0) ? (c.dpCCNum > 0 ? c.dpCCNum / dDpCC : 0) : Infinity;
+  let pDpCC;
+  if (dDpCC <= 0) {
+    pDpCC = Infinity;             // no DP or variable CC — constraint doesn't apply
+  } else if (c.dpCCNum <= 0) {
+    pDpCC = 0;                    // 100%-liquid assets don't even cover fixed CC
+  } else {
+    pDpCC = c.dpCCNum / dDpCC;
+  }
 
   // Effective cash ceiling: tighter of reserve and DP/CC constraints
   const pCash = isFinite(pDpCC) ? Math.min(pRes, pDpCC) : pRes;
@@ -2348,19 +2359,24 @@ function computeOptimizer(inp) {
   const dpDpCC = (dpCCDen2 !== 0) ? (c.dpCCNum * c.K - c.A * c.varFrac) / dpCCDen2 : c.minDp;
 
   const dpHardMax = Math.max(HARD_DP_MAX, c.minDp);
-  // Evaluate both candidate dp values and the minDp; pick the one yielding highest pAch
+  // Evaluate both candidate dp values and the minDp; pick the one yielding highest pAch.
+  // Store pAch for each clamped candidate to avoid redundant calls later.
   const candidates = [dpAnalytical, dpDpCC, c.minDp];
   let dpOptimal = c.minDp;
   let bestPAch = -Infinity;
+  const candidatePAch = {};
   for (const dpCand of candidates) {
     const dpClamped = Math.max(c.minDp, Math.min(dpHardMax, dpCand));
     const pAch = priceAtDp(c, dpClamped).pAch;
+    candidatePAch[dpCand] = { dpClamped, pAch };
     if (pAch > bestPAch) { bestPAch = pAch; dpOptimal = dpClamped; }
   }
-  let clampedAt = null;
-  if (dpAnalytical < c.minDp || dpDpCC < c.minDp) clampedAt = 'min';
-  else if (dpAnalytical > dpHardMax || dpDpCC > dpHardMax) clampedAt = 'max';
-  const dpUnclamped = priceAtDp(c, dpAnalytical).pAch >= priceAtDp(c, dpDpCC).pAch ? dpAnalytical : dpDpCC;
+  // Clamping status: check whether the selected optimal dp was clamped
+  const clampedAt = dpOptimal === c.minDp && (dpAnalytical < c.minDp || dpDpCC < c.minDp) ? 'min'
+    : dpOptimal === dpHardMax ? 'max'
+    : null;
+  // dpUnclamped: pick the analytical candidate with the higher unclamped pAch (used for chart annotation)
+  const dpUnclamped = candidatePAch[dpAnalytical].pAch >= candidatePAch[dpDpCC].pAch ? dpAnalytical : dpDpCC;
 
   // True max price
   const optPrices = priceAtDp(c, dpOptimal);
