@@ -2819,17 +2819,18 @@ function computeAffordTarget(inp) {
   const HARD_DP_MAX = 0.80;
   const dpForCashCapped = Math.min(dpForCash, HARD_DP_MAX);
 
+  const dpLo = Math.max(c.minDp, isFinite(dpForDti) ? dpForDti : Infinity);
+  const dpHi = Math.min(HARD_DP_MAX, isFinite(dpForCashCapped) ? dpForCashCapped : -Infinity);
+
   let dpOutcome;
   if (!isFinite(dpForDti) || dpForDti > HARD_DP_MAX) {
     dpOutcome = 'B';                 // no dp value works (income can't satisfy DTI at any dp)
-  } else if (!isFinite(dpForCash) || dpForCashCapped < c.minDp) {
-    dpOutcome = 'B';                 // cash ceiling is below the board minimum — no room
+  } else if (dpHi < dpLo) {
+    dpOutcome = 'B';                 // no feasible dp within board/cash bounds
   } else if (dpForDti < c.minDp) {
     dpOutcome = 'C';                 // DTI fine at min, only cash matters
-  } else if (dpForDti <= dpForCashCapped) {
-    dpOutcome = 'A';                 // feasible range [dpForDti, dpForCashCapped] inside [minDp, HARD]
   } else {
-    dpOutcome = 'B';                 // DTI floor above cash ceiling
+    dpOutcome = 'A';                 // feasible range [dpLo, dpHi] exists
   }
 
   // -- Lever 4: max maintenance at target & current dp/income --
@@ -2894,7 +2895,7 @@ function computeAffordTarget(inp) {
     cashOk, incomeOk,
     cashGap, cashNeededAtT, incomeGap, incomeNeededAnn,
     mortAtTarget,
-    dpForDti, dpForCash, dpForCashCapped, dpOutcome, HARD_DP_MAX,
+    dpForDti, dpForCash, dpForCashCapped, dpLo, dpHi, dpOutcome, HARD_DP_MAX,
     maxMaintenance, maintGap, maintDtiMax, maintCashMax,
     rateNeeded, currentRate, rateFloor,
     grid, cashSteps, incomeSteps,
@@ -2910,11 +2911,17 @@ function renderAffordTargetView(inp) {
   const successEl  = $('aft-success');
   const analysisEl = $('aft-analysis');
 
-  // Sync target input value
+  // Sync target input value — mirrors the standard-view behaviour:
+  // show the computed max price when no override is active.
   const tIn = $('aft-target-price');
   if (document.activeElement !== tIn) {
-    tIn.value = (inp.targetOverride !== null && isFinite(inp.targetOverride))
-                ? Math.round(inp.targetOverride) : '';
+    if (inp.targetOverride !== null && isFinite(inp.targetOverride)) {
+      tIn.value = Math.round(inp.targetOverride);
+    } else if (r.standardMax > 0) {
+      tIn.value = Math.round(r.standardMax);
+    } else {
+      tIn.value = '';
+    }
   }
 
   if (r.state === 'no-target') {
@@ -3031,8 +3038,8 @@ function renderDpLever(r, c) {
   if (r.dpOutcome === 'A') {
     badge.textContent = '✓ FEASIBLE';
     badge.className = 'badge ok';
-    const lo = Math.max(c.minDp, r.dpForDti);
-    const hi = Math.min(HARD, r.dpForCashCapped);
+    const lo = r.dpLo;
+    const hi = r.dpHi;
     sub.innerHTML = 'You can afford <strong>' + fmt$(r.target) + '</strong> at any down between <strong>' +
       (lo * 100).toFixed(1) + '%</strong> (' + fmt$(r.target * lo) + ') and <strong>' +
       (hi * 100).toFixed(1) + '%</strong> (' + fmt$(r.target * hi) + '). Lower end uses less cash; higher end leaves more monthly headroom.';
@@ -3071,7 +3078,7 @@ function renderDpLever(r, c) {
     } else {
       sub.innerHTML = 'No down payment resolves this — you need more cash, more income, or both. ' +
         'DTI floor: <strong>' + (r.dpForDti * 100).toFixed(1) + '%</strong> · ' +
-        'Cash ceiling: <strong>' + (Math.min(r.dpForCash, HARD) * 100).toFixed(1) + '%</strong>. ' +
+        'Cash ceiling: <strong>' + (Math.max(0, Math.min(r.dpForCash, HARD)) * 100).toFixed(1) + '%</strong>. ' +
         'The DTI floor sits above the cash ceiling — that gap is your combined shortfall.';
     }
 
@@ -3144,7 +3151,7 @@ function renderGapGrid(r) {
   trh.appendChild(corner);
   r.incomeSteps.forEach(d => {
     const th = document.createElement('th');
-    th.textContent = d === 0 ? '+$0' : '+' + fmtShort$(d);
+    th.textContent = d === 0 ? '+$0/yr' : '+' + fmtShort$(d) + '/yr';
     trh.appendChild(th);
   });
   thead.appendChild(trh);
