@@ -1268,7 +1268,7 @@ hr.snap-div {
       <div class="card-title"><span class="snum">2</span> Income &amp; Existing Debts</div>
       <div class="form-row">
         <label class="lbl" for="annual-income">Annual Gross Income</label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="120000" min="0" step="1000"></div>
+        <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="150000" min="0" step="1000"></div>
       </div>
       <div class="form-row">
         <label class="lbl">Monthly Gross Income <small>Auto-calculated</small></label>
@@ -1306,9 +1306,9 @@ hr.snap-div {
       <div class="card-title"><span class="snum">4</span> Co-op Requirements</div>
       <div class="form-row">
         <label class="lbl" for="reserve-mo">Post-Close Reserve
-          <small>24 months is the NYC co-op standard; verify with your board</small>
+          <small>12 months is the most common standard; luxury/conservative boards may require 24+</small>
         </label>
-        <div class="iw w120"><input type="number" id="reserve-mo" value="24" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
+        <div class="iw w120"><input type="number" id="reserve-mo" value="12" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
       </div>
       <div class="form-row">
         <label class="lbl" for="max-dti">Max DTI Allowed by Board
@@ -1320,7 +1320,7 @@ hr.snap-div {
         <label class="lbl" for="monthly-maint">Projected Monthly Maintenance
           <small>Includes building's underlying mortgage + property tax share</small>
         </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-maint" value="1800" min="0" step="50"></div>
+        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-maint" value="1200" min="0" step="50"></div>
       </div>
     </div>
 
@@ -1332,7 +1332,7 @@ hr.snap-div {
       <div class="fc-list">
         <div class="fc-row">
           <label for="fc-atty">Attorney Fees</label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="3000" min="0" step="100"></div>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="4000" min="0" step="100"></div>
         </div>
         <div class="fc-row">
           <label for="fc-bank-atty">Bank Attorney Fees</label>
@@ -1673,7 +1673,7 @@ hr.snap-div {
               <div class="aft-lever-sub" id="lev-cash-sub">—</div>
               <div class="aft-lever-extra" id="lev-cash-extra">
                 <span>At</span>
-                <div class="iw"><span class="px">$</span><input type="number" id="aft-savings-rate" value="2000" min="0" step="100"></div>
+                <div class="iw"><span class="px">$</span><input type="number" id="aft-savings-rate" value="2500" min="0" step="100"></div>
                 <span>/mo, you'd have it in <strong id="lev-cash-months">—</strong>.</span>
               </div>
             </div>
@@ -1814,10 +1814,10 @@ hr.snap-div {
 // ═══════════════════════════════════════
 const state = {
   accounts: [
-    { name: 'Checking / Cash',         balance: 15000,   liquidity: 100 },
-    { name: 'Investments / Brokerage', balance: 55000,   liquidity: 100 },
-    { name: '401(k)',                  balance: 75000,   liquidity: 50  },
-    { name: 'Roth IRA',                balance: 20000,   liquidity: 85  },
+    { name: 'Checking / Cash',         balance: 30000,   liquidity: 100 },
+    { name: 'Investments / Brokerage', balance: 90000,   liquidity: 100 },
+    { name: '401(k)',                  balance: 110000,  liquidity: 50  },
+    { name: 'Roth IRA',                balance: 30000,   liquidity: 85  },
     { name: 'Other Liquid Asset',      balance: 0,       liquidity: 100 },
   ],
   targetOverride: null,   // null = use maxPrice
