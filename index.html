@@ -1256,8 +1256,9 @@ hr.snap-div {
         2024–25 Federal Reserve SCF, Fidelity, and Vanguard data. Brokerage is 100% liquid
         here — you can sell and wire proceeds to closing — but note boards typically apply
         a 70–80% haircut on marketable securities when evaluating post-closing reserves.
-        Retirement accounts are 0%: most NYC boards exclude them from post-closing liquidity
-        (they appear on REBNY Schedule D for net worth, not as liquid reserves).
+        Retirement accounts (401k, IRA) are excluded from the defaults because most NYC
+        boards do not count them toward post-closing liquidity; add them manually at 0% if
+        you want them reflected in your net worth picture.
       </p>
       <div class="acct-totals">
         <div>
@@ -1827,8 +1828,6 @@ const state = {
     { name: 'Checking',                balance: 15000,   liquidity: 100 },
     { name: 'High-Yield Savings',      balance: 35000,   liquidity: 100 },
     { name: 'Brokerage / Investments', balance: 70000,   liquidity: 100 },
-    { name: '401(k)',                  balance: 110000,  liquidity: 0   },
-    { name: 'Roth IRA',                balance: 45000,   liquidity: 0   },
   ],
   targetOverride: null,   // null = use maxPrice
 };
