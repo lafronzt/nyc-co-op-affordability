@@ -281,8 +281,12 @@ table.acct-tbl {
   border-bottom: 1px solid var(--g200);
   white-space: nowrap;
 }
-.acct-tbl th.r { text-align: right; }
+/* Right-aligned headers: match the 10px right offset of cell content (3px td padding + 7px input padding) */
+.acct-tbl th.r { text-align: right; padding-right: 10px; }
 .acct-tbl td { padding: 3px 3px; vertical-align: middle; }
+/* Right-align number-input cells so inputs sit flush with their column headers */
+.acct-tbl td:nth-child(2),
+.acct-tbl td:nth-child(3) { text-align: right; }
 .acct-tbl td input[type="text"] {
   border: 1px solid var(--g200);
   border-radius: 4px;
@@ -321,13 +325,52 @@ table.acct-tbl {
   font-variant-numeric: tabular-nums;
   color: var(--g700);
   font-weight: 600;
-  padding: 5px 10px;
+  padding: 5px 7px;
   min-width: 88px;
   font-size: 12px;
   white-space: nowrap;
   border: 1px solid var(--g100);
 }
 .avail-cell.dim { color: var(--g400); font-weight: 400; }
+/* Closing Cash column: green tint when account qualifies for down payment */
+.avail-cell.dp-ok {
+  background: var(--green-bg);
+  border-color: var(--green-bd);
+  color: var(--green);
+}
+.dp-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-right: 4px;
+  vertical-align: middle;
+  opacity: 0.8;
+}
+
+/* Two-pool callout */
+.pool-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--g50);
+  border: 1px solid var(--g200);
+  border-radius: 6px;
+  padding: 9px 12px;
+  margin: 10px 0 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--g700);
+}
+.pool-row { display: flex; gap: 8px; align-items: flex-start; }
+.pool-dot {
+  flex-shrink: 0;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+}
+.pool-dot.green { background: var(--green); }
+.pool-dot.blue  { background: var(--blue); }
 .del-cell { text-align: center; width: 26px; }
 .btn-del {
   background: none; border: none;
@@ -1241,9 +1284,9 @@ hr.snap-div {
             <tr>
               <th>Account</th>
               <th class="r">Balance ($)</th>
-              <th class="r">Liquidity %</th>
-              <th class="r">For DP <span class="th-note">(100%)</span></th>
-              <th class="r">For Reserves</th>
+              <th class="r">Reserve %</th>
+              <th class="r">Closing Cash</th>
+              <th class="r">Reserve Value</th>
               <th></th>
             </tr>
           </thead>
@@ -1251,22 +1294,30 @@ hr.snap-div {
         </table>
       </div>
       <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
-      <p style="margin:8px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
+
+      <!-- Two-pool explanation -->
+      <div class="pool-callout">
+        <div class="pool-row">
+          <span class="pool-dot green"></span>
+          <span><strong>Closing Cash</strong> (Reserve % = 100%) — wired at closing to cover the down payment + closing costs. Cash, HYSA, and brokerage accounts you plan to liquidate should be 100%.</span>
+        </div>
+        <div class="pool-row">
+          <span class="pool-dot blue"></span>
+          <span><strong>Reserve Value</strong> (all accounts × Reserve %) — counts toward the board's post-close cushion. Boards typically apply a 70–80% haircut on brokerage and exclude retirement accounts (401k, IRA) — set those to 0% or your board's actual credit.</span>
+        </div>
+      </div>
+
+      <p style="margin:4px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
         Defaults reflect a typical NYC co-op buyer (~$150K income, age 35–42) based on
-        2024–25 Federal Reserve SCF, Fidelity, and Vanguard data. Brokerage is 100% liquid
-        here — you can sell and wire proceeds to closing — but note boards typically apply
-        a 70–80% haircut on marketable securities when evaluating post-closing reserves.
-        Retirement accounts (401k, IRA) are excluded from the defaults because most NYC
-        boards do not count them toward post-closing liquidity; add them manually at 0% if
-        you want them reflected in your net worth picture.
+        2024–25 Federal Reserve SCF, Fidelity, and Vanguard data.
       </p>
       <div class="acct-totals">
         <div>
-          <div class="tot-lbl">Total for Down Pmt</div>
+          <div class="tot-lbl">Total Closing Cash</div>
           <div class="tot-val" id="tot-liquid">—</div>
         </div>
         <div>
-          <div class="tot-lbl">Total for Reserves</div>
+          <div class="tot-lbl">Total Reserve Value</div>
           <div class="tot-val primary" id="tot-avail">—</div>
         </div>
       </div>
@@ -2062,13 +2113,21 @@ function renderAccounts() {
     });
     tdLiq.appendChild(inLiq);
 
-    // "For DP" column — full balance only if 100% liquid
+    // "Closing Cash" column — full balance only if 100% liquid
     const tdDp = document.createElement('td');
     const divDp = document.createElement('div');
     const isFullLiquid = (acct.liquidity || 0) === 100;
-    divDp.className = 'avail-cell' + (isFullLiquid ? '' : ' dim');
+    divDp.className = 'avail-cell' + (isFullLiquid ? ' dp-ok' : ' dim');
     divDp.id = 'dp-' + i;
-    divDp.textContent = isFullLiquid ? fmt$(acct.balance || 0) : '—';
+    if (isFullLiquid) {
+      const badge = document.createElement('span');
+      badge.className = 'dp-badge';
+      badge.textContent = '✓';
+      divDp.appendChild(badge);
+      divDp.appendChild(document.createTextNode(fmt$(acct.balance || 0)));
+    } else {
+      divDp.textContent = '—';
+    }
     tdDp.appendChild(divDp);
 
     // "For Reserves" column — balance × liquidity (read-only calculated)
@@ -2111,8 +2170,17 @@ function refreshAvailCell(i) {
   const elDp = $('dp-' + i);
   if (elDp) {
     const isFullLiquid = (a.liquidity || 0) === 100;
-    elDp.className = 'avail-cell' + (isFullLiquid ? '' : ' dim');
-    elDp.textContent = isFullLiquid ? fmt$(a.balance || 0) : '—';
+    elDp.className = 'avail-cell' + (isFullLiquid ? ' dp-ok' : ' dim');
+    elDp.innerHTML = '';
+    if (isFullLiquid) {
+      const badge = document.createElement('span');
+      badge.className = 'dp-badge';
+      badge.textContent = '✓';
+      elDp.appendChild(badge);
+      elDp.appendChild(document.createTextNode(fmt$(a.balance || 0)));
+    } else {
+      elDp.textContent = '—';
+    }
   }
   refreshTotals();
 }
