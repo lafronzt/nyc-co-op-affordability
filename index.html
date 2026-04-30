@@ -821,6 +821,254 @@ hr.snap-div {
 }
 .opt-notice strong { display: block; color: var(--red); font-size: 14px; margin-bottom: 5px; }
 
+/* ===== AFFORD-TARGET VIEW ===== */
+.aft-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.aft-card[hidden] { display: none; }
+
+.aft-target-row {
+  background: var(--navy);
+  padding: 14px 17px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.aft-target-row .lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.aft-target-row .tgt-wrap {
+  flex: 1; min-width: 130px;
+  border: 1px solid #2a4a6e;
+  background: #142240;
+}
+.aft-target-row .tgt-wrap .px { background: #1e3554; border-right-color: #2a4a6e; color: #c0d8f0; }
+.aft-target-row .tgt-wrap input { color: #fff; font-weight: 700; }
+.aft-target-row .tgt-wrap:focus-within { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(245,158,11,.3); }
+
+.aft-prompt {
+  padding: 28px 22px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--g600);
+  line-height: 1.6;
+}
+.aft-prompt strong { display: block; color: var(--g800); font-size: 15px; margin-bottom: 6px; }
+
+.aft-success {
+  padding: 22px 20px;
+  text-align: center;
+  background: var(--green-bg);
+  border-bottom: 1px solid var(--green-bd);
+}
+.aft-success .ok-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%; background: var(--green); color: #fff;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 10px;
+}
+.aft-success-title { font-size: 16px; font-weight: 700; color: #14532d; margin-bottom: 4px; }
+.aft-success-sub { font-size: 12.5px; color: #166534; }
+
+.aft-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding: 13px 17px;
+  background: var(--g50);
+  border-bottom: 1px solid var(--border);
+}
+.aft-summary > div { padding: 0 8px; border-right: 1px solid var(--g200); }
+.aft-summary > div:last-child { border-right: none; }
+.aft-sum-lbl {
+  font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--g500); margin-bottom: 3px;
+}
+.aft-sum-val {
+  font-size: 16px; font-weight: 700;
+  color: var(--g900);
+  font-variant-numeric: tabular-nums;
+}
+.aft-sum-val.neg { color: var(--red); }
+
+.aft-body { padding: 14px 17px 18px; }
+
+.aft-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+  margin-bottom: 18px;
+}
+.aft-lever {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+}
+.aft-lever-title {
+  font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--g500); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.aft-lever-title .badge {
+  font-size: 9px; font-weight: 700;
+  padding: 2px 6px; border-radius: 10px;
+  background: var(--g200); color: var(--g600);
+  letter-spacing: 0.4px;
+}
+.aft-lever-title .badge.ok   { background: var(--green-bg); color: #14532d; }
+.aft-lever-title .badge.warn { background: var(--red-bg);   color: #7f1d1d; }
+.aft-lever-title .badge.info { background: var(--blue-xlt); color: #1d4ed8; }
+.aft-lever-big {
+  font-size: 20px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--g900);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.aft-lever-big.ok  { color: var(--green); }
+.aft-lever-big.neg { color: var(--red); }
+.aft-lever-sub {
+  font-size: 11.5px; color: var(--g600); line-height: 1.45;
+}
+.aft-lever-sub strong { color: var(--g800); }
+.aft-lever-extra {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed var(--g200);
+  font-size: 11.5px; color: var(--g600);
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.aft-lever-extra .iw {
+  flex: 0 0 auto;
+  border-color: var(--g200);
+}
+.aft-lever-extra .iw input { padding: 4px 7px; font-size: 12px; width: 70px; }
+
+/* DP feasibility range bar */
+.aft-range {
+  margin-top: 6px;
+  position: relative;
+  height: 22px;
+  background: var(--g100);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.aft-range-zone {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: linear-gradient(180deg, rgba(22,163,74,.22), rgba(22,163,74,.32));
+  border-left: 2px solid var(--green);
+  border-right: 2px solid var(--green);
+}
+.aft-range-zone.fail {
+  background: linear-gradient(180deg, rgba(220,38,38,.18), rgba(220,38,38,.28));
+  border-color: var(--red);
+}
+.aft-range-marker {
+  position: absolute;
+  top: -2px; bottom: -2px;
+  width: 2px;
+  background: var(--g600);
+}
+.aft-range-marker.boardmin { background: var(--red); }
+.aft-range-marker.dti   { background: var(--blue); }
+.aft-range-marker.cash  { background: var(--gold); }
+.aft-range-axis {
+  display: flex; justify-content: space-between;
+  margin-top: 3px;
+  font-size: 10px; color: var(--g400);
+  font-variant-numeric: tabular-nums;
+}
+.aft-range-legend {
+  display: flex; flex-wrap: wrap; gap: 4px 12px;
+  margin-top: 6px;
+  font-size: 11px; color: var(--g600);
+}
+.aft-range-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.aft-range-legend i {
+  display: inline-block; width: 10px; height: 2px;
+  vertical-align: middle; font-style: normal;
+}
+
+/* Combined gap grid */
+.aft-section-title {
+  font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.9px;
+  color: var(--g400); margin-bottom: 8px;
+}
+.aft-grid-wrap { overflow-x: auto; margin: 0 -2px; }
+.aft-gap-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.aft-gap-table th {
+  font-size: 10px; font-weight: 700;
+  color: var(--g500);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 4px 6px; text-align: center;
+  white-space: nowrap;
+}
+.aft-gap-table th.row-h { text-align: right; color: var(--g600); }
+.aft-gap-table td {
+  padding: 7px 6px;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.aft-gap-table td.cell-green {
+  background: var(--green-bg);
+  border: 1px solid var(--green-bd);
+  color: #14532d;
+}
+.aft-gap-table td.cell-yellow {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+.aft-gap-table td.cell-red {
+  background: var(--red-bg);
+  border: 1px solid var(--red-bd);
+  color: #7f1d1d;
+}
+.aft-gap-table .corner {
+  font-size: 9.5px;
+  color: var(--g400);
+  font-weight: 600;
+}
+
+/* Rate needed line */
+.aft-rate-row {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--blue-xlt);
+  border: 1px solid var(--blue-lt);
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--g700);
+  line-height: 1.5;
+}
+.aft-rate-row strong { color: var(--blue); }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .app-layout {
@@ -837,6 +1085,11 @@ hr.snap-div {
   .opt-comp th, .opt-comp td { padding: 5px 6px; font-size: 12px; }
   .opt-sens th, .opt-sens td { padding: 4px 6px; font-size: 12px; }
   .tab-btn { font-size: 11.5px; padding: 9px 8px; }
+  .aft-grid { grid-template-columns: 1fr; }
+  .aft-summary { grid-template-columns: 1fr; gap: 8px 0; }
+  .aft-summary > div { border-right: none; border-bottom: 1px solid var(--g200); padding-bottom: 8px; }
+  .aft-summary > div:last-child { border-bottom: none; padding-bottom: 0; }
+  .aft-gap-table th, .aft-gap-table td { padding: 5px 4px; font-size: 11px; }
 }
 
 /* ===== HOW THIS WORKS SECTION ===== */
@@ -1122,7 +1375,8 @@ hr.snap-div {
 
     <div class="results-tabs" role="tablist">
       <button class="tab-btn active" id="tab-standard" role="tab" aria-selected="true" aria-controls="view-standard" data-tab="standard">Standard</button>
-      <button class="tab-btn" id="tab-optimizer" role="tab" aria-selected="false" aria-controls="view-optimizer" data-tab="optimizer">⚡ True Max Optimizer</button>
+      <button class="tab-btn" id="tab-optimizer" role="tab" aria-selected="false" aria-controls="view-optimizer" data-tab="optimizer">⚡ Optimizer</button>
+      <button class="tab-btn" id="tab-afford" role="tab" aria-selected="false" aria-controls="view-afford" data-tab="afford">🎯 Afford Target</button>
     </div>
 
     <div class="results-card" id="view-standard" role="tabpanel" aria-labelledby="tab-standard">
@@ -1345,6 +1599,133 @@ hr.snap-div {
         </div><!-- /opt-body -->
       </div><!-- /opt-content -->
     </div><!-- /opt-card -->
+
+    <!-- ═══════════════════════════════════════
+         AFFORD TARGET VIEW
+    ═══════════════════════════════════════ -->
+    <div class="aft-card" id="view-afford" role="tabpanel" aria-labelledby="tab-afford" hidden>
+
+      <!-- Target input header — always visible inside this view -->
+      <div class="aft-target-row">
+        <span class="lbl">🎯 Target</span>
+        <div class="iw tgt-wrap">
+          <span class="px">$</span>
+          <input type="number" id="aft-target-price" min="0" step="1000" placeholder="Enter your target price">
+        </div>
+      </div>
+
+      <!-- State A: no target set -->
+      <div class="aft-prompt" id="aft-prompt" hidden>
+        <strong>What does it take to afford a specific price?</strong>
+        Enter a target price above to see how cash, income, down payment, maintenance, and rate would each need to move to get you there.
+      </div>
+
+      <!-- State B: success / already feasible -->
+      <div class="aft-success" id="aft-success" hidden>
+        <div class="ok-icon">✓</div>
+        <div class="aft-success-title" id="aft-success-title">You already qualify</div>
+        <div class="aft-success-sub" id="aft-success-sub">—</div>
+      </div>
+
+      <!-- State C: full gap analysis -->
+      <div id="aft-analysis" hidden>
+
+        <!-- Summary row -->
+        <div class="aft-summary">
+          <div>
+            <div class="aft-sum-lbl">Target</div>
+            <div class="aft-sum-val" id="aft-sum-target">—</div>
+          </div>
+          <div>
+            <div class="aft-sum-lbl">Current Max</div>
+            <div class="aft-sum-val" id="aft-sum-max">—</div>
+          </div>
+          <div>
+            <div class="aft-sum-lbl">Gap</div>
+            <div class="aft-sum-val neg" id="aft-sum-gap">—</div>
+          </div>
+        </div>
+
+        <div class="aft-body">
+
+          <!-- 4 lever cards in 2×2 -->
+          <div class="aft-grid">
+
+            <!-- Lever 1 — Cash -->
+            <div class="aft-lever" id="lev-cash">
+              <div class="aft-lever-title">
+                Lever 1 · Additional Cash
+                <span class="badge" id="lev-cash-badge">—</span>
+              </div>
+              <div class="aft-lever-big" id="lev-cash-big">—</div>
+              <div class="aft-lever-sub" id="lev-cash-sub">—</div>
+              <div class="aft-lever-extra" id="lev-cash-extra">
+                <span>At</span>
+                <div class="iw"><span class="px">$</span><input type="number" id="aft-savings-rate" value="2000" min="0" step="100"></div>
+                <span>/mo, you'd have it in <strong id="lev-cash-months">—</strong>.</span>
+              </div>
+            </div>
+
+            <!-- Lever 2 — Income -->
+            <div class="aft-lever" id="lev-inc">
+              <div class="aft-lever-title">
+                Lever 2 · Additional Income
+                <span class="badge" id="lev-inc-badge">—</span>
+              </div>
+              <div class="aft-lever-big" id="lev-inc-big">—</div>
+              <div class="aft-lever-sub" id="lev-inc-sub">—</div>
+            </div>
+
+            <!-- Lever 3 — DP range -->
+            <div class="aft-lever" id="lev-dp" style="grid-column: 1 / -1;">
+              <div class="aft-lever-title">
+                Lever 3 · Down Payment Feasibility
+                <span class="badge" id="lev-dp-badge">—</span>
+              </div>
+              <div class="aft-lever-sub" id="lev-dp-sub">—</div>
+              <div class="aft-range" id="lev-dp-range">
+                <div class="aft-range-zone" id="lev-dp-zone" hidden></div>
+                <div class="aft-range-marker boardmin" id="lev-dp-mk-min"></div>
+                <div class="aft-range-marker dti" id="lev-dp-mk-dti" hidden></div>
+                <div class="aft-range-marker cash" id="lev-dp-mk-cash" hidden></div>
+              </div>
+              <div class="aft-range-axis"><span>0%</span><span>40%</span><span>80%</span></div>
+              <div class="aft-range-legend">
+                <span><i style="background:var(--red)"></i> Board min</span>
+                <span><i style="background:var(--blue)"></i> DTI floor</span>
+                <span><i style="background:var(--gold)"></i> Cash ceiling</span>
+                <span><i style="background:var(--green);height:8px;width:14px;border-radius:2px"></i> Feasible zone</span>
+              </div>
+            </div>
+
+            <!-- Lever 4 — Maintenance -->
+            <div class="aft-lever" id="lev-maint" style="grid-column: 1 / -1;">
+              <div class="aft-lever-title">
+                Lever 4 · Maintenance Ceiling
+                <span class="badge" id="lev-maint-badge">—</span>
+              </div>
+              <div class="aft-lever-big" id="lev-maint-big">—</div>
+              <div class="aft-lever-sub" id="lev-maint-sub">—</div>
+            </div>
+
+          </div>
+
+          <!-- Combined gap grid -->
+          <div>
+            <div class="aft-section-title">Combined: Extra Cash × Extra Income</div>
+            <div class="aft-grid-wrap">
+              <table class="aft-gap-table" id="aft-gap-grid"></table>
+            </div>
+          </div>
+
+          <!-- Lever 5 — Rate needed -->
+          <div class="aft-rate-row" id="lev-rate">
+            <span id="lev-rate-text">—</span>
+          </div>
+
+        </div><!-- /aft-body -->
+      </div><!-- /aft-analysis -->
+    </div><!-- /aft-card -->
   </div><!-- /results-panel -->
 
 </main>
@@ -1754,9 +2135,15 @@ function updateResults(r) {
   tx('s-res-mo1', r.resMo);
   tx('s-res-mo2', r.resMo);
 
-  // Target price input — only sync when not overridden
-  if (state.targetOverride === null) {
-    $('target-price').value = Math.round(r.maxPrice);
+  // Target price input — track maxPrice when no override; otherwise mirror the override
+  // (skip if user is currently typing in this field)
+  const tgtIn = $('target-price');
+  if (document.activeElement !== tgtIn) {
+    if (state.targetOverride === null) {
+      tgtIn.value = Math.round(r.maxPrice);
+    } else if (isFinite(state.targetOverride)) {
+      tgtIn.value = Math.round(state.targetOverride);
+    }
   }
 
   // Cash Waterfall
@@ -2370,13 +2757,471 @@ function updateSliderReadout(dp) {
 }
 
 // ═══════════════════════════════════════
+// AFFORD-TARGET MATH
+// ═══════════════════════════════════════
+function computeAffordTarget(inp) {
+  const c = deriveConstants(inp);
+  // Accept any non-negative finite value as a "set" target — matches calculate()'s rule.
+  const target = (typeof inp.targetOverride === 'number' && isFinite(inp.targetOverride) && inp.targetOverride >= 0)
+                 ? inp.targetOverride : null;
+
+  // Standard max at min_dp_required (basic)
+  const basePrices = priceAtDp(c, c.minDp);
+  const standardMax = Math.max(0, basePrices.pAch);
+
+  // Optimizer max (used to know if dp adjustment alone clears it)
+  const opt = computeOptimizer(inp);
+  const optMax = (opt.ok ? opt.pMaxTrue : 0);
+
+  if (target === null) return { state: 'no-target', c, standardMax, optMax };
+
+  // At dp = min_dp_required and target price:
+  const mortAtTarget   = target * (1 - c.minDp) * c.K;
+  const cashNeededAtT  = target * (c.minDp + c.varFrac + c.resMo * (1 - c.minDp) * c.K) + c.fixedCC + c.resMo * c.maintMo;
+  const cashGap        = Math.max(0, cashNeededAtT - c.avail);
+
+  const incomeNeededMo  = c.dtiMax > 0 ? (mortAtTarget + c.maintMo + c.oDebts) / c.dtiMax : Infinity;
+  const incomeNeededAnn = incomeNeededMo * 12;
+  const incomeGap       = Math.max(0, incomeNeededAnn - (inp.annualIncome || 0));
+
+  const cashOk   = cashGap <= 0.5;
+  const incomeOk = incomeGap <= 0.5;
+  const feasible = cashOk && incomeOk;
+
+  if (feasible) {
+    return {
+      state: 'feasible', c, target, standardMax, optMax,
+      cashOk, incomeOk, mortAtTarget, cashNeededAtT,
+    };
+  }
+
+  // -- Lever 3: dp feasibility range at target_price --
+  // dp_for_dti: minimum dp such that DTI is satisfied
+  let dpForDti;
+  if (c.A <= 0) {
+    dpForDti = Infinity;             // income can't cover any loan at this maint+debts
+  } else if (target <= 0 || c.K <= 0) {
+    dpForDti = 0;
+  } else {
+    dpForDti = 1 - c.A / (target * c.K);
+  }
+  // dp_for_cash: maximum dp such that cash still covers everything
+  let dpForCash;
+  const cashDen = (1 - c.resMo * c.K);
+  if (c.B <= 0 || target <= 0) {
+    dpForCash = -Infinity;
+  } else if (cashDen <= 0) {
+    dpForCash = Infinity;            // unusual rate/reserve combo
+  } else {
+    dpForCash = (c.B / target - c.varFrac - c.resMo * c.K) / cashDen;
+  }
+
+  const HARD_DP_MAX = 0.80;
+  const dpForCashCapped = Math.min(dpForCash, HARD_DP_MAX);
+
+  const dpLo = Math.max(c.minDp, isFinite(dpForDti) ? dpForDti : Infinity);
+  const dpHi = Math.min(HARD_DP_MAX, isFinite(dpForCashCapped) ? dpForCashCapped : 0);
+
+  let dpOutcome;
+  if (!isFinite(dpForDti) || dpForDti > HARD_DP_MAX) {
+    dpOutcome = 'B';                 // no dp value works (income can't satisfy DTI at any dp)
+  } else if (dpHi < dpLo) {
+    dpOutcome = 'B';                 // no feasible dp within board/cash bounds
+  } else if (dpForDti < c.minDp) {
+    dpOutcome = 'C';                 // DTI fine at min, only cash matters
+  } else {
+    dpOutcome = 'A';                 // dpForDti >= c.minDp and dpHi >= dpLo: feasible range [dpLo, dpHi]
+  }
+
+  // -- Lever 4: max maintenance at target & current dp/income --
+  const maintDtiMax  = c.dtiMax * c.moInc - mortAtTarget - c.oDebts;
+  const maintCashMax = c.resMo > 0
+    ? (c.avail - target * (c.minDp + c.varFrac + c.resMo * (1 - c.minDp) * c.K) - c.fixedCC) / c.resMo
+    : Infinity;
+  const maxMaintenance = Math.min(maintDtiMax, maintCashMax);
+  const maintGap = Math.max(0, c.maintMo - maxMaintenance);
+
+  // -- Lever 5: rate needed --
+  // Sentinel meanings:
+  //   rateNeeded === currentRate → already works at current rate (via dp lever)
+  //   rateNeeded < currentRate   → rates would need to fall to this value
+  //   rateNeeded === null        → even at the floor (rateFloor), the gap remains
+  const currentRate = inp.mortgageRate || 0;
+  // Floor: 2% by default, but never above currentRate (so we always do at least one
+  // probe at currentRate when currentRate is already below 2%).
+  const rateFloor = Math.min(2.0, currentRate);
+  let rateNeeded;
+  if (optMax >= target) {
+    rateNeeded = currentRate;
+  } else if (currentRate <= rateFloor + 1e-9) {
+    // Already at or below the floor — no room to search.
+    rateNeeded = null;
+  } else {
+    const startRate = Math.min(currentRate, 12);
+    let foundAt = null;
+    for (let r = startRate; r >= rateFloor - 1e-9; r -= 0.125) {
+      const o = computeOptimizer({ ...inp, mortgageRate: +r.toFixed(3) });
+      if (o.ok && o.pMaxTrue >= target) {
+        foundAt = +r.toFixed(3);
+        break;
+      }
+    }
+    rateNeeded = foundAt;
+  }
+
+  // -- Combined gap grid (cash × income) --
+  const cashSteps   = [0, 25000, 50000, 100000];
+  const incomeSteps = [0, 10000, 25000, 50000];
+  const grid = cashSteps.map(dCash => incomeSteps.map(dInc => {
+    const modified = {
+      ...inp,
+      annualIncome: (inp.annualIncome || 0) + dInc,
+      accounts: dCash > 0
+        ? inp.accounts.concat([{ name: '__sens', balance: dCash, liquidity: 100 }])
+        : inp.accounts,
+    };
+    const o = computeOptimizer(modified);
+    const newMax = (o.ok ? o.pMaxTrue : 0);
+    const gap = target - newMax;
+    let cls;
+    if (newMax >= target) cls = 'green';
+    else if (gap / target <= 0.05) cls = 'yellow';
+    else cls = 'red';
+    return { newMax, gap, cls };
+  }));
+
+  return {
+    state: 'analysis', c, target, standardMax, optMax,
+    cashOk, incomeOk,
+    cashGap, cashNeededAtT, incomeGap, incomeNeededAnn,
+    mortAtTarget,
+    dpForDti, dpForCash, dpForCashCapped, dpLo, dpHi, dpOutcome, HARD_DP_MAX,
+    maxMaintenance, maintGap, maintDtiMax, maintCashMax,
+    rateNeeded, currentRate, rateFloor,
+    grid, cashSteps, incomeSteps,
+  };
+}
+
+// ═══════════════════════════════════════
+// AFFORD-TARGET RENDER
+// ═══════════════════════════════════════
+function renderAffordTargetView(inp) {
+  const r = computeAffordTarget(inp);
+  const promptEl   = $('aft-prompt');
+  const successEl  = $('aft-success');
+  const analysisEl = $('aft-analysis');
+
+  // Sync target input value — mirrors the standard-view behaviour:
+  // show the computed max price when no override is active.
+  const tIn = $('aft-target-price');
+  if (document.activeElement !== tIn) {
+    if (inp.targetOverride !== null && isFinite(inp.targetOverride)) {
+      tIn.value = Math.round(inp.targetOverride);
+    } else if (r.standardMax > 0) {
+      tIn.value = Math.round(r.standardMax);
+    } else {
+      tIn.value = '';
+    }
+  }
+
+  if (r.state === 'no-target') {
+    promptEl.hidden = false;
+    successEl.hidden = true;
+    analysisEl.hidden = true;
+    return;
+  }
+
+  if (r.state === 'feasible') {
+    promptEl.hidden = true;
+    successEl.hidden = false;
+    analysisEl.hidden = true;
+    tx('aft-success-title', '✓ You already qualify for ' + fmt$(r.target));
+    tx('aft-success-sub', 'At ' + (r.c.minDp * 100).toFixed(0) + '% down with current income, assets, and rate, both DTI and cash constraints are satisfied.');
+    return;
+  }
+
+  // state === 'analysis'
+  promptEl.hidden = true;
+  successEl.hidden = true;
+  analysisEl.hidden = false;
+  const c = r.c;
+
+  // Summary
+  tx('aft-sum-target', fmt$(r.target));
+  tx('aft-sum-max',    fmt$(r.standardMax));
+  tx('aft-sum-gap',    fmt$(r.target - r.standardMax));
+
+  // ── Lever 1: Cash ──
+  renderCashLever(r, c, inp);
+  // ── Lever 2: Income ──
+  renderIncomeLever(r);
+  // ── Lever 3: DP range ──
+  renderDpLever(r, c);
+  // ── Lever 4: Maintenance ──
+  renderMaintLever(r, c);
+  // ── Combined grid ──
+  renderGapGrid(r);
+  // ── Lever 5: Rate ──
+  renderRateLever(r);
+}
+
+function renderCashLever(r, c, inp) {
+  const big   = $('lev-cash-big');
+  const sub   = $('lev-cash-sub');
+  const badge = $('lev-cash-badge');
+  const extra = $('lev-cash-extra');
+
+  if (r.cashOk) {
+    badge.textContent = 'OK';
+    badge.className = 'badge ok';
+    big.textContent = fmt$(0);
+    big.className = 'aft-lever-big ok';
+    sub.innerHTML = '✓ Your assets already cover the cash side at ' + (c.minDp * 100).toFixed(0) + '% down. The gap here is on the income side.';
+    extra.style.display = 'none';
+  } else {
+    badge.textContent = r.incomeOk ? 'NEEDED' : 'PARTIAL';
+    badge.className = 'badge ' + (r.incomeOk ? 'info' : 'warn');
+    big.textContent = fmt$(r.cashGap);
+    big.className = 'aft-lever-big neg';
+    sub.innerHTML = r.incomeOk
+      ? 'Add this much in liquid assets and you qualify at ' + (c.minDp * 100).toFixed(0) + '% down — DTI is already fine.'
+      : 'Cash alone won\'t solve it — income is also short. You\'d need both.';
+    extra.style.display = '';
+    // Months-to-save
+    const rate = parseFloat($('aft-savings-rate').value) || 0;
+    if (rate > 0) {
+      const months = Math.ceil(r.cashGap / rate);
+      const yrs = months / 12;
+      tx('lev-cash-months', months + ' months' + (yrs >= 1 ? ' (~' + yrs.toFixed(1) + ' yrs)' : ''));
+    } else {
+      tx('lev-cash-months', '—');
+    }
+  }
+}
+
+function renderIncomeLever(r) {
+  const big   = $('lev-inc-big');
+  const sub   = $('lev-inc-sub');
+  const badge = $('lev-inc-badge');
+
+  if (r.incomeOk) {
+    badge.textContent = 'OK';
+    badge.className = 'badge ok';
+    big.textContent = fmt$(0) + '/yr';
+    big.className = 'aft-lever-big ok';
+    sub.innerHTML = '✓ Your income already passes the DTI test at this price. The gap here is on the cash side.';
+  } else {
+    badge.textContent = r.cashOk ? 'NEEDED' : 'PARTIAL';
+    badge.className = 'badge ' + (r.cashOk ? 'info' : 'warn');
+    big.textContent = '+' + fmt$(r.incomeGap) + '/yr';
+    big.className = 'aft-lever-big neg';
+    sub.innerHTML = r.cashOk
+      ? 'You\'d need this much more annual income — your assets already cover the cash side.'
+      : 'Income is short and so is cash. Both need to move (or use the dp lever).';
+  }
+}
+
+function renderDpLever(r, c) {
+  const sub   = $('lev-dp-sub');
+  const badge = $('lev-dp-badge');
+  const zone  = $('lev-dp-zone');
+  const mkMin = $('lev-dp-mk-min');
+  const mkDti = $('lev-dp-mk-dti');
+  const mkCash = $('lev-dp-mk-cash');
+
+  // Bar maps 0% .. 80% → 0% .. 100%
+  const HARD = r.HARD_DP_MAX;
+  const pct = v => clamp(v / HARD, 0, 1) * 100;
+
+  mkMin.style.left = pct(c.minDp) + '%';
+
+  if (r.dpOutcome === 'A') {
+    badge.textContent = '✓ FEASIBLE';
+    badge.className = 'badge ok';
+    const lo = r.dpLo;
+    const hi = r.dpHi;
+    sub.innerHTML = 'You can afford <strong>' + fmt$(r.target) + '</strong> at any down between <strong>' +
+      (lo * 100).toFixed(1) + '%</strong> (' + fmt$(r.target * lo) + ') and <strong>' +
+      (hi * 100).toFixed(1) + '%</strong> (' + fmt$(r.target * hi) + '). Lower end uses less cash; higher end leaves more monthly headroom.';
+    zone.hidden = false;
+    zone.classList.remove('fail');
+    zone.style.left  = pct(lo) + '%';
+    zone.style.width = (pct(hi) - pct(lo)) + '%';
+    mkDti.hidden = false;  mkDti.style.left  = pct(r.dpForDti) + '%';
+    mkCash.hidden = false; mkCash.style.left = pct(Math.min(r.dpForCash, HARD)) + '%';
+  } else if (r.dpOutcome === 'C') {
+    badge.textContent = 'CASH ONLY';
+    badge.className = 'badge warn';
+    sub.innerHTML = 'DTI is already satisfied at <strong>' + (c.minDp * 100).toFixed(1) +
+      '%</strong> down — only cash is short. See Lever 1 above. The cash ceiling is at <strong>' +
+      (Math.min(r.dpForCash, HARD) * 100).toFixed(1) + '%</strong> down.';
+    zone.hidden = true;
+    mkDti.hidden = true;
+    mkCash.hidden = false; mkCash.style.left = pct(Math.min(r.dpForCash, HARD)) + '%';
+  } else {
+    // B — no dp value satisfies both constraints
+    badge.textContent = '✗ NO DP WORKS';
+    badge.className = 'badge warn';
+    const dtiFinite  = isFinite(r.dpForDti);
+    const cashFinite = isFinite(r.dpForCash);
+
+    if (!dtiFinite) {
+      sub.innerHTML = 'Income can\'t cover the carrying costs at <strong>' + fmt$(r.target) +
+        '</strong> at any down payment — even 100% cash purchase fails the DTI test on maintenance + debts. Try Lever 4 (lower maintenance) or boost income.';
+    } else if (!cashFinite) {
+      sub.innerHTML = 'After fixed closing costs and the maintenance reserve, no cash budget remains for a down payment at <strong>' +
+        fmt$(r.target) + '</strong>. Add liquid assets, reduce reserve months, or lower closing costs before any dp lever can help.';
+    } else if (r.dpForCashCapped < c.minDp) {
+      sub.innerHTML = 'Your cash only covers up to <strong>' + (Math.max(0, r.dpForCash) * 100).toFixed(1) +
+        '%</strong> down at <strong>' + fmt$(r.target) + '</strong> — below the board minimum of <strong>' +
+        (c.minDp * 100).toFixed(1) + '%</strong>. Add cash (Lever 1) or aim lower.';
+    } else {
+      sub.innerHTML = 'No down payment resolves this — you need more cash, more income, or both. ' +
+        'DTI floor: <strong>' + (r.dpForDti * 100).toFixed(1) + '%</strong> · ' +
+        'Cash ceiling: <strong>' + (Math.max(0, Math.min(r.dpForCash, HARD)) * 100).toFixed(1) + '%</strong>. ' +
+        'The DTI floor sits above the cash ceiling — that gap is your combined shortfall.';
+    }
+
+    // Range bar: only draw the no-fly zone when both ceilings are finite AND
+    // the DTI floor sits above the cash ceiling (the canonical B case).
+    if (dtiFinite && cashFinite && r.dpForDti > Math.max(0, r.dpForCash)) {
+      const lo = Math.min(HARD, Math.max(0, r.dpForCash));
+      const hi = Math.min(HARD, r.dpForDti);
+      zone.hidden = false;
+      zone.classList.add('fail');
+      zone.style.left  = pct(lo) + '%';
+      zone.style.width = Math.max(2, pct(hi) - pct(lo)) + '%';
+    } else {
+      zone.hidden = true;
+    }
+
+    mkDti.hidden = !dtiFinite;
+    if (!mkDti.hidden) mkDti.style.left = pct(Math.min(r.dpForDti, HARD)) + '%';
+    mkCash.hidden = !cashFinite;
+    if (!mkCash.hidden) mkCash.style.left = pct(Math.min(Math.max(0, r.dpForCash), HARD)) + '%';
+  }
+}
+
+function renderMaintLever(r, c) {
+  const big   = $('lev-maint-big');
+  const sub   = $('lev-maint-sub');
+  const badge = $('lev-maint-badge');
+
+  if (r.maxMaintenance < 0 || !isFinite(r.maxMaintenance)) {
+    badge.textContent = 'IMPOSSIBLE';
+    badge.className = 'badge warn';
+    big.textContent = '—';
+    big.className = 'aft-lever-big neg';
+    sub.innerHTML = 'No maintenance level gets you to <strong>' + fmt$(r.target) +
+      '</strong> at current income, assets, and dp. Other levers must move first.';
+    return;
+  }
+
+  const bindLabel = (r.maintCashMax < r.maintDtiMax) ? 'cash-bound' : 'income-bound';
+  if (r.maintGap <= 0) {
+    badge.textContent = 'OK';
+    badge.className = 'badge ok';
+    big.textContent = fmt$(r.maxMaintenance) + '/mo';
+    big.className = 'aft-lever-big ok';
+    sub.innerHTML = '✓ Your maintenance estimate (<strong>' + fmt$(c.maintMo) +
+      '/mo</strong>) fits — the ceiling at this price is <strong>' + fmt$(r.maxMaintenance) +
+      '/mo</strong> (' + bindLabel + ').';
+  } else {
+    badge.textContent = 'TOO HIGH';
+    badge.className = 'badge warn';
+    big.textContent = '≤ ' + fmt$(r.maxMaintenance) + '/mo';
+    big.className = 'aft-lever-big neg';
+    sub.innerHTML = 'At <strong>' + fmt$(r.target) +
+      '</strong> you need a building with maintenance ≤ <strong>' + fmt$(r.maxMaintenance) +
+      '/mo</strong>. Your current assumption (' + fmt$(c.maintMo) + '/mo) is <strong>' +
+      fmt$(r.maintGap) + '/mo too high</strong> (' + bindLabel + ').';
+  }
+}
+
+function renderGapGrid(r) {
+  const tbl = $('aft-gap-grid');
+  tbl.innerHTML = '';
+
+  // Header row
+  const thead = document.createElement('thead');
+  const trh = document.createElement('tr');
+  const corner = document.createElement('th');
+  corner.className = 'corner';
+  corner.textContent = '↓ cash · income →';
+  trh.appendChild(corner);
+  r.incomeSteps.forEach(d => {
+    const th = document.createElement('th');
+    th.textContent = d === 0 ? '+$0/yr' : '+' + fmtShort$(d) + '/yr';
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh);
+  tbl.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  r.cashSteps.forEach((dCash, i) => {
+    const tr = document.createElement('tr');
+    const th = document.createElement('th');
+    th.className = 'row-h';
+    th.textContent = dCash === 0 ? '+$0' : '+' + fmtShort$(dCash);
+    tr.appendChild(th);
+
+    r.grid[i].forEach(cell => {
+      const td = document.createElement('td');
+      td.className = 'cell-' + cell.cls;
+      td.textContent = cell.cls === 'green' ? '✓' : '−' + fmtShort$(Math.abs(cell.gap));
+      td.title = cell.cls === 'green'
+        ? 'Reaches ' + fmt$(cell.newMax) + ' (≥ target)'
+        : 'New max: ' + fmt$(cell.newMax) + ' · still short ' + fmt$(cell.gap);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+}
+
+function renderRateLever(r) {
+  const txt = $('lev-rate-text');
+  if (r.rateNeeded === null) {
+    txt.innerHTML = '⚠ Even at <strong>' + r.rateFloor.toFixed(2) +
+      '%</strong>, this price doesn\'t pencil out at your current income and assets — rate alone can\'t close the gap. Use the cash, income, or maintenance levers.';
+  } else if (r.rateNeeded >= r.currentRate - 1e-6) {
+    txt.innerHTML = '✓ This price <strong>works at current rates</strong> (' + r.currentRate.toFixed(2) +
+      '%) — the down-payment lever (Lever 3) gets you there. No rate change needed.';
+  } else {
+    txt.innerHTML = 'Rates would need to drop to <strong>' + r.rateNeeded.toFixed(2) +
+      '%</strong> for this price to work at your current income and assets ' +
+      '(current rate: <strong>' + r.currentRate.toFixed(2) + '%</strong>).';
+  }
+}
+
+// ═══════════════════════════════════════
 // MAIN onChange — runs on every input event
 // ═══════════════════════════════════════
+// The afford-target view runs ~50 optimizer evaluations (rate sweep + 4×4 grid)
+// per render. Skip it entirely when its tab is hidden, and coalesce rapid
+// keystrokes into one render per animation frame when visible.
+let aftRenderPending = false;
+let aftRenderInp = null;
+function scheduleAffordRender(inp) {
+  aftRenderInp = inp;
+  const view = $('view-afford');
+  if (!view || view.hidden) return;          // skip work entirely while hidden
+  if (aftRenderPending) return;
+  aftRenderPending = true;
+  requestAnimationFrame(() => {
+    aftRenderPending = false;
+    if (!$('view-afford').hidden && aftRenderInp) {
+      renderAffordTargetView(aftRenderInp);
+    }
+  });
+}
+
 function onChange() {
   const inp = readInputs();
   const r = calculate(inp);
   updateResults(r);
   renderOptimizerView(inp);
+  scheduleAffordRender(inp);
   saveToStorage(inp);
 }
 
@@ -2416,21 +3261,32 @@ document.addEventListener('DOMContentLoaded', () => {
     'fc-atty','fc-bank-atty','fc-coop','fc-movein','fc-other','var-pct'
   ].forEach(id => $(id).addEventListener('input', onChange));
 
-  // Target price override
-  $('target-price').addEventListener('input', e => {
-    const v = parseFloat(e.target.value);
-    state.targetOverride = (e.target.value === '' || isNaN(v)) ? null : v;
+  // Target price override — both inputs (standard view + afford view) share state.targetOverride
+  function onTargetInput(rawVal) {
+    const v = parseFloat(rawVal);
+    state.targetOverride = (rawVal === '' || isNaN(v)) ? null : v;
     onChange();
-  });
+  }
+  $('target-price').addEventListener('input', e => onTargetInput(e.target.value));
+  $('aft-target-price').addEventListener('input', e => onTargetInput(e.target.value));
 
   $('btn-reset-tgt').addEventListener('click', () => {
     state.targetOverride = null;
     onChange();
   });
 
+  // Savings rate input (Lever 1) — re-render afford view only
+  $('aft-savings-rate').addEventListener('input', () => {
+    renderAffordTargetView(readInputs());
+  });
+
   // ───── Tabs ─────
   const tabs = document.querySelectorAll('.tab-btn');
-  const views = { standard: $('view-standard'), optimizer: $('view-optimizer') };
+  const views = {
+    standard:  $('view-standard'),
+    optimizer: $('view-optimizer'),
+    afford:    $('view-afford'),
+  };
   tabs.forEach(btn => {
     btn.addEventListener('click', () => {
       const which = btn.dataset.tab;
@@ -2443,6 +3299,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (which === 'optimizer') {
         // Redraw chart now that the canvas is visible (had 0 width while hidden)
         if (optState.lastOpt) drawOptimizerChart($('opt-chart'), optState.lastOpt, optState.hoverDp);
+      } else if (which === 'afford') {
+        // Render now that the view is visible (we skip rendering while hidden for perf)
+        renderAffordTargetView(readInputs());
       }
     });
   });
