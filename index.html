@@ -3,7 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Co-op Affordability Finder</title>
+<title>NYC Co-op Affordability Finder | Calculate Your Max Purchase Price</title>
+<meta name="description" content="Free NYC co-op affordability calculator. Enter your income, assets, and mortgage assumptions to instantly find your maximum purchase price — factoring in down payment, closing costs, DTI limits, and post-close reserves.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.nyc-co-op-affordability.com/">
+
+<!-- Open Graph -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://www.nyc-co-op-affordability.com/">
+<meta property="og:title"       content="NYC Co-op Affordability Finder | Calculate Your Max Purchase Price">
+<meta property="og:description" content="Free NYC co-op affordability calculator. Find your max purchase price from your financial profile — covering down payment, closing costs, DTI limits, and post-close reserve requirements.">
+<meta property="og:locale"      content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary">
+<meta name="twitter:title"       content="NYC Co-op Affordability Finder">
+<meta name="twitter:description" content="Free NYC co-op affordability calculator. Reverse-engineer your max purchase price from your income, assets, and mortgage assumptions.">
+
+<!-- JSON-LD structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "NYC Co-op Affordability Finder",
+  "url": "https://www.nyc-co-op-affordability.com/",
+  "description": "A free calculator that reverse-engineers your maximum NYC co-op purchase price from your financial profile, covering down payment, closing costs, debt-to-income limits, and post-close reserve requirements.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "New York City",
+    "sameAs": "https://www.wikidata.org/wiki/Q60"
+  }
+}
+</script>
+
 <!--
   DEPLOYMENT (Cloudflare Pages):
   1. Push this file to a GitHub/GitLab repo as /index.html
@@ -73,7 +112,7 @@ body {
 .app-header h1 em { font-style: normal; color: var(--gold); }
 .app-header .tagline {
   font-size: 12px;
-  color: #4a6fa5;
+  color: #ffffff;
   line-height: 1.3;
 }
 
@@ -367,7 +406,7 @@ table.acct-tbl {
 .hero-eyebrow {
   font-size: 9.5px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1.5px;
-  color: #3d5a8a; margin-bottom: 6px;
+  color: #ffffff; margin-bottom: 6px;
   display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .hero-eyebrow::before, .hero-eyebrow::after {
@@ -385,7 +424,7 @@ table.acct-tbl {
   background: rgba(255,255,255,.055);
   border: 1px solid rgba(255,255,255,.09);
   border-radius: 20px; padding: 5px 14px;
-  font-size: 12px; color: #6b8ab8;
+  font-size: 12px; color: #ffffff;
 }
 .binding-val { color: var(--gold); font-weight: 700; }
 .hero-warn {
@@ -536,9 +575,59 @@ hr.snap-div {
   .acct-tbl td input[type="text"] { width: 110px; }
 }
 
+/* ===== FOOTER ===== */
+.app-footer {
+  background: var(--navy);
+  color: #4a6fa5;
+  font-size: 12px;
+  padding: 22px 24px;
+  line-height: 1.7;
+  border-top: 2px solid #1e3a5f;
+}
+.app-footer .footer-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 48px;
+}
+.app-footer .footer-col { flex: 1; min-width: 160px; }
+.app-footer .footer-heading {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b8ab8;
+  margin-bottom: 8px;
+}
+.app-footer a {
+  color: #4a6fa5;
+  text-decoration: none;
+}
+.app-footer a:hover { color: #e2e8f0; text-decoration: underline; }
+.app-footer .footer-disclaimer {
+  width: 100%;
+  border-top: 1px solid #1e3a5f;
+  margin-top: 16px;
+  padding-top: 14px;
+  font-size: 11px;
+  color: #ffffff;
+}
+
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ===== PRINT ===== */
 @media print {
-  .inputs-panel, .app-header { display: none !important; }
+  .inputs-panel, .app-header, .app-footer { display: none !important; }
   body { background: #fff; }
   .app-layout { display: block; padding: 0; margin: 0; }
   .results-panel { position: static; max-height: none; overflow: visible; }
@@ -711,11 +800,11 @@ hr.snap-div {
         </ul>
         <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
         <h3>What "Liquidity %" means</h3>
-        <p>Not every dollar in your accounts is freely available. A 401(k) early withdrawal faces income tax plus a 10% penalty — often leaving ~50 cents on the dollar. A Roth IRA has different rules (contributions come out penalty-free, but earnings may not). Set the liquidity % to reflect the actual after-tax, after-penalty dollars you'd actually receive. Accounts at 100% are counted in "Total Liquid."</p>
+        <p>Not every dollar in your accounts is freely available. A 401(k) early withdrawal faces income tax plus a 10% penalty — often leaving ~50 cents on the dollar. A Roth IRA has different rules (contributions come out penalty-free, but earnings may not). Set the liquidity % to reflect the actual after-tax, after-penalty dollars you'd actually receive. Accounts at 100% are counted in "Total Liquid." See <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-tax-on-early-distributions" target="_blank" rel="noopener noreferrer">IRS early-distribution rules</a> for details.</p>
         <h3>Mansion tax is tiered</h3>
-        <p>New York's mansion tax starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
+        <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
         <h3>This is an estimate — verify everything</h3>
-        <p>Co-op board requirements vary significantly. Your building may have stricter DTI limits, different reserve requirements, or an unusual flip tax structure. Always confirm numbers with a mortgage broker (for rate locks and DTI qualification) and a real estate attorney (for closing costs and the proprietary lease).</p>
+        <p>Co-op board requirements vary significantly. Your building may have stricter DTI limits, different reserve requirements, or an unusual flip tax structure. Always confirm numbers with a <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">licensed mortgage broker</a> (for rate locks and DTI qualification) and a <a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">real estate attorney</a> (for closing costs and the proprietary lease).</p>
       </div>
     </div>
 
@@ -847,6 +936,46 @@ hr.snap-div {
   </div><!-- /results-panel -->
 
 </main>
+
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="footer-heading">NYC Housing Resources</div>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <li><a href="https://www.nyc.gov/site/hpd/index.page" target="_blank" rel="noopener noreferrer">NYC HPD (Housing Preservation &amp; Development)</a></li>
+        <li><a href="https://www.nychdc.com/" target="_blank" rel="noopener noreferrer">NYC Housing Development Corp.</a></li>
+        <li><a href="https://portal.hud.gov/hudportal/HUD?src=/states/new_york" target="_blank" rel="noopener noreferrer">HUD New York Resources</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Mortgage &amp; Financing</div>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <li><a href="https://www.consumerfinance.gov/owning-a-home/" target="_blank" rel="noopener noreferrer">CFPB: Owning a Home Guide</a></li>
+        <li><a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">Verify Your Mortgage Broker (NMLS)</a></li>
+        <li><a href="https://www.federalreserve.gov/releases/h15/" target="_blank" rel="noopener noreferrer">Current Interest Rate Data (Fed)</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-heading">Taxes &amp; Closing Costs</div>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <li><a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">NY Mansion Tax Guide (NYS Tax Dept.)</a></li>
+        <li><a href="https://www.nyc.gov/site/finance/taxes/property-real-property-transfer-tax-rptt.page" target="_blank" rel="noopener noreferrer">NYC Real Property Transfer Tax</a></li>
+        <li><a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">Find a Real Estate Attorney (NYC Bar)</a></li>
+      </ul>
+    </div>
+    <!-- <div class="footer-col">
+      <div class="footer-heading">About This Tool</div>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <li><a href="https://github.com/lafronzt/nyc-co-op-affordability" target="_blank" rel="noopener noreferrer">Source Code on GitHub</a></li>
+      </ul>
+    </div> -->
+    <p class="footer-disclaimer">
+      This calculator is for informational purposes only and does not constitute financial, legal, or mortgage advice.
+      Co-op board requirements, tax rates, and closing costs vary by building and transaction. Always verify all figures
+      with a licensed mortgage professional and real estate attorney before making any purchase decisions.
+    </p>
+  </div>
+</footer>
 
 <script>
 'use strict';
@@ -1223,6 +1352,11 @@ document.addEventListener('DOMContentLoaded', () => {
   howBtn.addEventListener('click', () => {
     howBtn.classList.toggle('open');
     howBody.classList.toggle('open');
+  });
+
+  // Announce new-tab links to screen readers
+  document.querySelectorAll('a[target="_blank"]').forEach(a => {
+    a.insertAdjacentHTML('beforeend', '<span class="sr-only"> (opens in new tab)</span>');
   });
 
   // Initial render
