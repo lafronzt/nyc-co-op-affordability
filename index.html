@@ -673,7 +673,11 @@ hr.snap-div {
   font-weight: 500;
   white-space: nowrap;
 }
-.save-toggle:has(input:checked) .toggle-label { color: #c0d8f0; }
+.save-toggle input:checked ~ .toggle-label { color: #c0d8f0; }
+.save-toggle input:focus-visible + .toggle-track {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
 
 /* ===== PRINT ===== */
 @media print {
@@ -1058,11 +1062,10 @@ function isSaveEnabled() {
   return $('save-toggle-cb').checked;
 }
 
-function saveToStorage() {
+function saveToStorage(inp) {
   if (!isSaveEnabled()) return;
-  const inp = readInputs();
+  if (!inp) inp = readInputs();
   const data = {
-    saveEnabled: true,
     accounts: inp.accounts,
     inputs: {
       annualIncome:   inp.annualIncome,
@@ -1240,7 +1243,7 @@ function renderAccounts() {
     inName.value = acct.name;
     inName.addEventListener('input', e => {
       state.accounts[i].name = e.target.value;
-      // no recalc needed for name change
+      saveToStorage();  // persist name change without recalculating
     });
     tdName.appendChild(inName);
 
@@ -1436,9 +1439,10 @@ function setPill(pillId, detailId, ok, detail) {
 // MAIN onChange — runs on every input event
 // ═══════════════════════════════════════
 function onChange() {
-  const r = calculate(readInputs());
+  const inp = readInputs();
+  const r = calculate(inp);
   updateResults(r);
-  saveToStorage();
+  saveToStorage(inp);
 }
 
 // ═══════════════════════════════════════
@@ -1448,7 +1452,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Restore saved inputs if the user previously enabled saving
   const saved = loadFromStorage();
-  if (saved && saved.saveEnabled) {
+  if (saved != null) {
     $('save-toggle-cb').checked = true;
     restoreInputs(saved);   // sets state.accounts + scalar DOM values
   }
