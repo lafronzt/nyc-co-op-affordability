@@ -2761,7 +2761,8 @@ function updateSliderReadout(dp) {
 // ═══════════════════════════════════════
 function computeAffordTarget(inp) {
   const c = deriveConstants(inp);
-  const target = (typeof inp.targetOverride === 'number' && isFinite(inp.targetOverride) && inp.targetOverride > 0)
+  // Accept any non-negative finite value as a "set" target — matches calculate()'s rule.
+  const target = (typeof inp.targetOverride === 'number' && isFinite(inp.targetOverride) && inp.targetOverride >= 0)
                  ? inp.targetOverride : null;
 
   // Standard max at min_dp_required (basic)
@@ -2820,11 +2821,13 @@ function computeAffordTarget(inp) {
 
   let dpOutcome;
   if (!isFinite(dpForDti) || dpForDti > HARD_DP_MAX) {
-    dpOutcome = 'B';                 // no dp value works
-  } else if (dpForDti < c.minDp && dpForCashCapped >= c.minDp) {
+    dpOutcome = 'B';                 // no dp value works (income can't satisfy DTI at any dp)
+  } else if (!isFinite(dpForCash) || dpForCashCapped < c.minDp) {
+    dpOutcome = 'B';                 // cash ceiling is below the board minimum — no room
+  } else if (dpForDti < c.minDp) {
     dpOutcome = 'C';                 // DTI fine at min, only cash matters
   } else if (dpForDti <= dpForCashCapped) {
-    dpOutcome = 'A';                 // feasible range exists
+    dpOutcome = 'A';                 // feasible range [dpForDti, dpForCashCapped] inside [minDp, HARD]
   } else {
     dpOutcome = 'B';                 // DTI floor above cash ceiling
   }
@@ -2838,22 +2841,31 @@ function computeAffordTarget(inp) {
   const maintGap = Math.max(0, c.maintMo - maxMaintenance);
 
   // -- Lever 5: rate needed --
-  let rateNeeded = null;             // null if achievable at current rate
+  // Sentinel meanings:
+  //   rateNeeded === currentRate → already works at current rate (via dp lever)
+  //   rateNeeded < currentRate   → rates would need to fall to this value
+  //   rateNeeded === null        → even at the floor (rateFloor), the gap remains
   const currentRate = inp.mortgageRate || 0;
+  // Floor: 2% by default, but never above currentRate (so we always do at least one
+  // probe at currentRate when currentRate is already below 2%).
+  const rateFloor = Math.min(2.0, currentRate);
+  let rateNeeded;
   if (optMax >= target) {
-    rateNeeded = currentRate;        // already works (via dp adjustment)
+    rateNeeded = currentRate;
+  } else if (currentRate <= rateFloor + 1e-9) {
+    // Already at or below the floor — no room to search.
+    rateNeeded = null;
   } else {
-    // Sweep down from current rate to 2.0% in 0.125% steps
     const startRate = Math.min(currentRate, 12);
     let foundAt = null;
-    for (let r = startRate; r >= 2.0 - 1e-9; r -= 0.125) {
+    for (let r = startRate; r >= rateFloor - 1e-9; r -= 0.125) {
       const o = computeOptimizer({ ...inp, mortgageRate: +r.toFixed(3) });
       if (o.ok && o.pMaxTrue >= target) {
         foundAt = +r.toFixed(3);
         break;
       }
     }
-    rateNeeded = foundAt;            // null = even 2% can't reach target
+    rateNeeded = foundAt;
   }
 
   // -- Combined gap grid (cash × income) --
@@ -2884,7 +2896,7 @@ function computeAffordTarget(inp) {
     mortAtTarget,
     dpForDti, dpForCash, dpForCashCapped, dpOutcome, HARD_DP_MAX,
     maxMaintenance, maintGap, maintDtiMax, maintCashMax,
-    rateNeeded, currentRate,
+    rateNeeded, currentRate, rateFloor,
     grid, cashSteps, incomeSteps,
   };
 }
@@ -3040,30 +3052,45 @@ function renderDpLever(r, c) {
     mkDti.hidden = true;
     mkCash.hidden = false; mkCash.style.left = pct(Math.min(r.dpForCash, HARD)) + '%';
   } else {
-    // B
+    // B — no dp value satisfies both constraints
     badge.textContent = '✗ NO DP WORKS';
     badge.className = 'badge warn';
-    if (!isFinite(r.dpForDti)) {
+    const dtiFinite  = isFinite(r.dpForDti);
+    const cashFinite = isFinite(r.dpForCash);
+
+    if (!dtiFinite) {
       sub.innerHTML = 'Income can\'t cover the carrying costs at <strong>' + fmt$(r.target) +
         '</strong> at any down payment — even 100% cash purchase fails the DTI test on maintenance + debts. Try Lever 4 (lower maintenance) or boost income.';
+    } else if (!cashFinite) {
+      sub.innerHTML = 'After fixed closing costs and the maintenance reserve, no cash budget remains for a down payment at <strong>' +
+        fmt$(r.target) + '</strong>. Add liquid assets, reduce reserve months, or lower closing costs before any dp lever can help.';
+    } else if (r.dpForCashCapped < c.minDp) {
+      sub.innerHTML = 'Your cash only covers up to <strong>' + (Math.max(0, r.dpForCash) * 100).toFixed(1) +
+        '%</strong> down at <strong>' + fmt$(r.target) + '</strong> — below the board minimum of <strong>' +
+        (c.minDp * 100).toFixed(1) + '%</strong>. Add cash (Lever 1) or aim lower.';
     } else {
       sub.innerHTML = 'No down payment resolves this — you need more cash, more income, or both. ' +
         'DTI floor: <strong>' + (r.dpForDti * 100).toFixed(1) + '%</strong> · ' +
         'Cash ceiling: <strong>' + (Math.min(r.dpForCash, HARD) * 100).toFixed(1) + '%</strong>. ' +
         'The DTI floor sits above the cash ceiling — that gap is your combined shortfall.';
     }
-    zone.hidden = (!isFinite(r.dpForDti) || !isFinite(r.dpForCash));
-    if (!zone.hidden) {
-      // Show the "no-fly" gap in red between cash ceiling and dti floor
+
+    // Range bar: only draw the no-fly zone when both ceilings are finite AND
+    // the DTI floor sits above the cash ceiling (the canonical B case).
+    if (dtiFinite && cashFinite && r.dpForDti > Math.max(0, r.dpForCash)) {
       const lo = Math.min(HARD, Math.max(0, r.dpForCash));
-      const hi = Math.min(HARD, Math.max(0, r.dpForDti));
+      const hi = Math.min(HARD, r.dpForDti);
+      zone.hidden = false;
       zone.classList.add('fail');
       zone.style.left  = pct(lo) + '%';
       zone.style.width = Math.max(2, pct(hi) - pct(lo)) + '%';
+    } else {
+      zone.hidden = true;
     }
-    mkDti.hidden  = !isFinite(r.dpForDti);
+
+    mkDti.hidden = !dtiFinite;
     if (!mkDti.hidden) mkDti.style.left = pct(Math.min(r.dpForDti, HARD)) + '%';
-    mkCash.hidden = !isFinite(r.dpForCash);
+    mkCash.hidden = !cashFinite;
     if (!mkCash.hidden) mkCash.style.left = pct(Math.min(Math.max(0, r.dpForCash), HARD)) + '%';
   }
 }
@@ -3148,26 +3175,46 @@ function renderGapGrid(r) {
 function renderRateLever(r) {
   const txt = $('lev-rate-text');
   if (r.rateNeeded === null) {
-    txt.innerHTML = '⚠ Even at <strong>2.00%</strong>, this price doesn\'t pencil out at your current income and assets — rate alone can\'t close the gap. Use the cash, income, or maintenance levers.';
+    txt.innerHTML = '⚠ Even at <strong>' + r.rateFloor.toFixed(2) +
+      '%</strong>, this price doesn\'t pencil out at your current income and assets — rate alone can\'t close the gap. Use the cash, income, or maintenance levers.';
   } else if (r.rateNeeded >= r.currentRate - 1e-6) {
     txt.innerHTML = '✓ This price <strong>works at current rates</strong> (' + r.currentRate.toFixed(2) +
       '%) — the down-payment lever (Lever 3) gets you there. No rate change needed.';
   } else {
     txt.innerHTML = 'Rates would need to drop to <strong>' + r.rateNeeded.toFixed(2) +
-      '%</strong> for this price to work at your current income, assets, and the optimal down payment ' +
-      '(currently <strong>' + r.currentRate.toFixed(2) + '%</strong>).';
+      '%</strong> for this price to work at your current income and assets ' +
+      '(current rate: <strong>' + r.currentRate.toFixed(2) + '%</strong>).';
   }
 }
 
 // ═══════════════════════════════════════
 // MAIN onChange — runs on every input event
 // ═══════════════════════════════════════
+// The afford-target view runs ~50 optimizer evaluations (rate sweep + 4×4 grid)
+// per render. Skip it entirely when its tab is hidden, and coalesce rapid
+// keystrokes into one render per animation frame when visible.
+let aftRenderPending = false;
+let aftRenderInp = null;
+function scheduleAffordRender(inp) {
+  aftRenderInp = inp;
+  const view = $('view-afford');
+  if (!view || view.hidden) return;          // skip work entirely while hidden
+  if (aftRenderPending) return;
+  aftRenderPending = true;
+  requestAnimationFrame(() => {
+    aftRenderPending = false;
+    if (!$('view-afford').hidden && aftRenderInp) {
+      renderAffordTargetView(aftRenderInp);
+    }
+  });
+}
+
 function onChange() {
   const inp = readInputs();
   const r = calculate(inp);
   updateResults(r);
   renderOptimizerView(inp);
-  renderAffordTargetView(inp);
+  scheduleAffordRender(inp);
   saveToStorage(inp);
 }
 
@@ -3245,6 +3292,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (which === 'optimizer') {
         // Redraw chart now that the canvas is visible (had 0 width while hidden)
         if (optState.lastOpt) drawOptimizerChart($('opt-chart'), optState.lastOpt, optState.hoverDp);
+      } else if (which === 'afford') {
+        // Render now that the view is visible (we skip rendering while hidden for perf)
+        renderAffordTargetView(readInputs());
       }
     });
   });
