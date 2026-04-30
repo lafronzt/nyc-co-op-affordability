@@ -1752,12 +1752,12 @@ hr.snap-div {
       <h3>Two constraints, one limit</h3>
       <p>This calculator finds the lower of two maximum prices:</p>
       <ul>
-        <li><strong>Cash / Reserves:</strong> Your assets are split into two pools. Only <em>fully liquid</em> (100%) assets can cover the down payment and closing costs. All assets (weighted by liquidity %) count toward the post-close reserve cushion — typically 24 months of carrying costs (maintenance + mortgage). Both pools must have sufficient funds for a deal to work.</li>
+        <li><strong>Cash / Reserves:</strong> Your assets are split into two pools. Only <em>fully liquid</em> (100%) assets can cover the down payment and closing costs. All assets (weighted by liquidity %) count toward the post-close reserve cushion — most boards require 12 months of carrying costs (maintenance + mortgage), though conservative buildings ask for 24+. Both pools must have sufficient funds for a deal to work.</li>
         <li><strong>DTI / Income:</strong> Your total monthly housing payment (mortgage P+I + maintenance + other debts) must stay within the board's debt-to-income ratio limit on your gross monthly income. Most NYC boards use 25–30% DTI.</li>
       </ul>
       <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
       <h3>What "Liquidity %" means</h3>
-      <p>Not every dollar in your accounts is freely available. A 401(k) early withdrawal faces income tax plus a 10% penalty — often leaving ~50 cents on the dollar. A Roth IRA has different rules (contributions come out penalty-free, but earnings may not). Set the liquidity % to reflect the actual after-tax, after-penalty dollars you'd actually receive. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs</strong> — partially-liquid accounts (e.g. retirement funds) can only be used to satisfy the post-close reserve requirement. See <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-tax-on-early-distributions" target="_blank" rel="noopener noreferrer">IRS early-distribution rules</a> for details.</p>
+      <p>The liquidity % reflects how much of each account a co-op board will count toward post-closing reserves. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs.</strong> Boards evaluate assets differently: cash and savings count in full; publicly traded brokerage accounts are typically haircut to 70–80% to account for market fluctuation; retirement accounts (401k, IRA, Roth IRA) are disclosed on the REBNY financial statement for net worth purposes but are <em>generally excluded</em> from post-closing liquidity by most NYC co-op boards — they appear on Schedule D, not as liquid reserves. Some flexible buildings may give partial credit for retirement funds; adjust the % if your building does.</p>
       <h3>Mansion tax is tiered</h3>
       <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The 2.5% default assumes a ~$1M purchase. Adjust the variable cost % if your target price moves into a higher tier.</p>
       <h3>This is an estimate — verify everything</h3>
@@ -1814,11 +1814,11 @@ hr.snap-div {
 // ═══════════════════════════════════════
 const state = {
   accounts: [
-    { name: 'Checking / Cash',         balance: 30000,   liquidity: 100 },
-    { name: 'Investments / Brokerage', balance: 90000,   liquidity: 100 },
-    { name: '401(k)',                  balance: 110000,  liquidity: 50  },
-    { name: 'Roth IRA',                balance: 30000,   liquidity: 85  },
-    { name: 'Other Liquid Asset',      balance: 0,       liquidity: 100 },
+    { name: 'Checking',                balance: 10000,   liquidity: 100 },
+    { name: 'High-Yield Savings',      balance: 25000,   liquidity: 100 },
+    { name: 'Brokerage / Investments', balance: 50000,   liquidity: 75  },
+    { name: '401(k)',                  balance: 110000,  liquidity: 0   },
+    { name: 'Roth IRA',                balance: 45000,   liquidity: 0   },
   ],
   targetOverride: null,   // null = use maxPrice
 };
