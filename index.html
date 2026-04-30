@@ -1270,9 +1270,10 @@ hr.snap-div {
 
           <!-- Chart -->
           <div class="opt-section">
-            <div class="opt-section-title">Constraint Curves</div>
+            <div class="opt-section-title" id="opt-chart-title">Constraint Curves</div>
             <div class="opt-chart-wrap">
-              <canvas id="opt-chart"></canvas>
+              <canvas id="opt-chart" role="img" aria-labelledby="opt-chart-title" aria-describedby="opt-chart-desc"></canvas>
+              <div id="opt-chart-desc" class="sr-only">Line chart of affordable purchase price as a function of down payment percentage. Shows the DTI ceiling (rises with down payment), the cash ceiling (falls with down payment), and the achievable price (the lower of the two). The optimum where they meet, the basic-calculator result at the board minimum, and the binding-constraint zones are also shown. Key values are summarized in the hero, comparison table, and slider panel below.</div>
               <div class="opt-chart-tip" id="opt-chart-tip"></div>
             </div>
             <div class="opt-legend">
@@ -1870,7 +1871,9 @@ function dealAtPriceDp(c, price, dp) {
 
 function computeOptimizer(inp) {
   const c = deriveConstants(inp);
-  const HARD_DP_MAX = 0.80;
+  // Lender / co-op LTV cap. If the user's board minimum is already at or above
+  // 80%, expand the cap so the upper clamp can't pull dpOptimal back below minDp.
+  const HARD_DP_MAX = Math.max(0.80, c.minDp);
 
   // Infeasibility checks
   if (c.A <= 0) {
@@ -2268,17 +2271,24 @@ function renderOptimizerView(inp) {
   const sl = $('opt-slider');
   const xMin = Math.max(0, Math.min(c.minDp, opt.HARD_DP_MAX - 0.01));
   const xMax = opt.HARD_DP_MAX;
-  sl.min = (xMin * 100).toFixed(2);
-  sl.max = Math.min(60, xMax * 100).toFixed(2);  // spec: slider goes from min_dp to 60%
+  // Slider goes from minDp to 60% (per spec); never let max < min if minDp > 60%.
+  const slMinPct = xMin * 100;
+  const slMaxPct = Math.max(slMinPct, Math.min(60, xMax * 100));
+  sl.min = slMinPct.toFixed(2);
+  sl.max = slMaxPct.toFixed(2);
   sl.step = '0.1';
-  // Keep prior slider position if within range; else default to optimal
+  sl.disabled = (slMaxPct <= slMinPct);
+  const sliderMin = slMinPct / 100;
+  const sliderMax = slMaxPct / 100;
+  // Keep prior slider position if within the actual slider range; else default to optimal
   let curDp;
-  if (optState.sliderDp !== null && optState.sliderDp >= xMin && optState.sliderDp <= xMax) {
+  if (optState.sliderDp !== null && optState.sliderDp >= sliderMin && optState.sliderDp <= sliderMax) {
     curDp = optState.sliderDp;
   } else {
-    curDp = clamp(opt.dpOptimal, parseFloat(sl.min) / 100, parseFloat(sl.max) / 100);
+    curDp = clamp(opt.dpOptimal, sliderMin, sliderMax);
     optState.sliderDp = curDp;
   }
+  curDp = clamp(curDp, sliderMin, sliderMax);
   sl.value = (curDp * 100).toFixed(1);
   updateSliderReadout(curDp);
 
@@ -2311,7 +2321,6 @@ function renderOptimizerView(inp) {
     expl.innerHTML = '<strong>Already optimal.</strong> Both constraints bind simultaneously at ' + (c.minDp * 100).toFixed(1) + '% down. You are already at the ceiling — no down-payment adjustment buys more price.';
   } else {
     // DTI-limited with surplus — the interesting case
-    const surplusAtBasic = c.B - opt.pStandard * c.minDp - opt.pStandard * c.varFrac - c.resMo * opt.pStandard * (1 - c.minDp) * c.K;
     const unusedCash = Math.max(0, basicDeal.surplus);
     expl.innerHTML = '<strong>DTI-limited with surplus cash.</strong> At ' + (c.minDp * 100).toFixed(1) +
       '% down your income caps you at <strong>' + fmt$(opt.pStandard) + '</strong>, but you have <strong>' + fmt$(unusedCash) +
@@ -2449,10 +2458,40 @@ document.addEventListener('DOMContentLoaded', () => {
   // ───── Optimizer chart hover/touch ─────
   const chart = $('opt-chart');
   const tip = $('opt-chart-tip');
-  function moveTip(clientX, clientY) {
+
+  // Cache the chart's bounding rect for the duration of a hover session;
+  // invalidate on layout-changing events. getBoundingClientRect forces layout,
+  // so we must NOT call it on every mousemove.
+  let chartHoverRect = null;
+  const refreshChartRect = () => { chartHoverRect = chart.getBoundingClientRect(); };
+  const invalidateChartRect = () => { chartHoverRect = null; };
+  window.addEventListener('resize', invalidateChartRect);
+  window.addEventListener('scroll', invalidateChartRect, true);
+
+  // Coalesce hover redraws to one per animation frame.
+  let hoverFramePending = false;
+  let pendingHover = null;       // { clientX, clientY } or 'leave'
+  function scheduleHoverFrame() {
+    if (hoverFramePending) return;
+    hoverFramePending = true;
+    requestAnimationFrame(() => {
+      hoverFramePending = false;
+      const ev = pendingHover;
+      pendingHover = null;
+      if (ev === 'leave') {
+        tip.style.display = 'none';
+        optState.hoverDp = null;
+        if (optState.lastOpt) drawOptimizerChart(chart, optState.lastOpt, null);
+      } else if (ev) {
+        renderHover(ev.clientX, ev.clientY);
+      }
+    });
+  }
+
+  function renderHover(clientX, clientY) {
     const state = chart._chartState;
     if (!state || !optState.lastOpt || !optState.lastOpt.ok) return;
-    const rect = chart.getBoundingClientRect();
+    const rect = chartHoverRect || (refreshChartRect(), chartHoverRect);
     const x = clientX - rect.left;
     if (x < state.padL || x > state.padL + state.plotW) {
       tip.style.display = 'none';
@@ -2469,7 +2508,6 @@ document.addEventListener('DOMContentLoaded', () => {
       'Achievable: ' + fmt$(Math.max(0, p.pAch)) + '<br>' +
       'DTI ceiling: ' + (isFinite(p.pDti) ? fmt$(p.pDti) : '—') + '<br>' +
       'Cash ceiling: ' + fmt$(Math.max(0, p.pCash));
-    // Position tip
     tip.style.display = 'block';
     const tRect = tip.getBoundingClientRect();
     let tipX = x + 12;
@@ -2477,32 +2515,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let tipY = (clientY - rect.top) - tRect.height - 8;
     if (tipY < 4) tipY = (clientY - rect.top) + 14;
     tip.style.left = tipX + 'px';
-    tip.style.top = tipY + 'px';
+    tip.style.top  = tipY + 'px';
     drawOptimizerChart(chart, optState.lastOpt, dp);
   }
-  chart.addEventListener('mousemove', e => moveTip(e.clientX, e.clientY));
-  chart.addEventListener('mouseleave', () => {
-    tip.style.display = 'none';
-    optState.hoverDp = null;
-    if (optState.lastOpt) drawOptimizerChart(chart, optState.lastOpt, null);
-  });
+
+  function queueHover(clientX, clientY) {
+    pendingHover = { clientX, clientY };
+    scheduleHoverFrame();
+  }
+  function queueLeave() {
+    pendingHover = 'leave';
+    scheduleHoverFrame();
+  }
+
+  chart.addEventListener('mouseenter', refreshChartRect);
+  chart.addEventListener('mousemove', e => queueHover(e.clientX, e.clientY));
+  chart.addEventListener('mouseleave', queueLeave);
   chart.addEventListener('touchstart', e => {
     if (e.touches.length) {
       e.preventDefault();
-      moveTip(e.touches[0].clientX, e.touches[0].clientY);
+      refreshChartRect();
+      queueHover(e.touches[0].clientX, e.touches[0].clientY);
     }
   }, { passive: false });
   chart.addEventListener('touchmove', e => {
     if (e.touches.length) {
       e.preventDefault();
-      moveTip(e.touches[0].clientX, e.touches[0].clientY);
+      queueHover(e.touches[0].clientX, e.touches[0].clientY);
     }
   }, { passive: false });
-  chart.addEventListener('touchend', () => {
-    tip.style.display = 'none';
-    optState.hoverDp = null;
-    if (optState.lastOpt) drawOptimizerChart(chart, optState.lastOpt, null);
-  });
+  chart.addEventListener('touchend', queueLeave);
 
   // ───── Redraw chart on resize ─────
   let resizeRaf = 0;
