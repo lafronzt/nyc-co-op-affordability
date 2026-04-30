@@ -2279,11 +2279,14 @@ function computeOptimizer(inp) {
   const den = c.A * (1 - c.resMo * c.K) + c.K * c.B;
   let dpUnclamped = (den !== 0) ? num / den : c.minDp;
 
-  // Clamp range: at least min_dp_required, at most 80%
+  // Clamp range: at least min_dp_required, at most HARD_DP_MAX.
+  // When minDp > HARD_DP_MAX (e.g. board requires 85%), raise the effective
+  // ceiling to minDp so dpOptimal is never below the board minimum.
+  const dpHardMax = Math.max(HARD_DP_MAX, c.minDp);
   let dpOptimal = dpUnclamped;
   let clampedAt = null;
   if (dpOptimal < c.minDp) { dpOptimal = c.minDp; clampedAt = 'min'; }
-  if (dpOptimal > HARD_DP_MAX) { dpOptimal = HARD_DP_MAX; clampedAt = 'max'; }
+  if (dpOptimal > dpHardMax) { dpOptimal = dpHardMax; clampedAt = 'max'; }
 
   // True max price = min of the two ceilings at the (clamped) optimal dp
   const optPrices = priceAtDp(c, dpOptimal);
@@ -2911,14 +2914,13 @@ function renderAffordTargetView(inp) {
   const successEl  = $('aft-success');
   const analysisEl = $('aft-analysis');
 
-  // Sync target input value — mirrors the standard-view behaviour:
-  // show the computed max price when no override is active.
+  // Sync target input value.
+  // When no override is active leave the field blank so the placeholder and
+  // the "no-target" prompt state are consistent with each other.
   const tIn = $('aft-target-price');
   if (document.activeElement !== tIn) {
     if (inp.targetOverride !== null && isFinite(inp.targetOverride)) {
       tIn.value = Math.round(inp.targetOverride);
-    } else if (r.standardMax > 0) {
-      tIn.value = Math.round(r.standardMax);
     } else {
       tIn.value = '';
     }
@@ -3216,11 +3218,30 @@ function scheduleAffordRender(inp) {
   });
 }
 
+// The optimizer view runs multiple computeOptimizer() evaluations per render
+// (sensitivity table, slider, chart). Skip it entirely when its tab is hidden,
+// and coalesce rapid keystrokes into one render per animation frame when visible.
+let optRenderPending = false;
+let optRenderInp = null;
+function scheduleOptimizerRender(inp) {
+  optRenderInp = inp;
+  const view = $('view-optimizer');
+  if (!view || view.hidden) return;          // skip work entirely while hidden
+  if (optRenderPending) return;
+  optRenderPending = true;
+  requestAnimationFrame(() => {
+    optRenderPending = false;
+    if (!$('view-optimizer').hidden && optRenderInp) {
+      renderOptimizerView(optRenderInp);
+    }
+  });
+}
+
 function onChange() {
   const inp = readInputs();
   const r = calculate(inp);
   updateResults(r);
-  renderOptimizerView(inp);
+  scheduleOptimizerRender(inp);
   scheduleAffordRender(inp);
   saveToStorage(inp);
 }
@@ -3281,27 +3302,60 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ───── Tabs ─────
-  const tabs = document.querySelectorAll('.tab-btn');
+  // Use an Array so we can look up neighbours for keyboard navigation.
+  const tabs = Array.from(document.querySelectorAll('.tab-btn'));
   const views = {
     standard:  $('view-standard'),
     optimizer: $('view-optimizer'),
     afford:    $('view-afford'),
   };
+
+  function activateTab(btn, moveFocus = false) {
+    const which = btn.dataset.tab;
+    tabs.forEach(b => {
+      const active = b.dataset.tab === which;
+      b.classList.toggle('active', active);
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+      // Roving tabindex: only the active tab is in the tab order
+      b.setAttribute('tabindex', active ? '0' : '-1');
+      if (active && moveFocus) b.focus();
+    });
+    Object.entries(views).forEach(([k, el]) => { el.hidden = (k !== which); });
+    if (which === 'optimizer') {
+      // Redraw chart now that the canvas is visible (had 0 width while hidden)
+      if (optState.lastOpt) drawOptimizerChart($('opt-chart'), optState.lastOpt, optState.hoverDp);
+      // Render the optimizer view if it hasn't been rendered yet (was skipped while hidden)
+      if (optRenderInp) renderOptimizerView(optRenderInp);
+    } else if (which === 'afford') {
+      // Render now that the view is visible (we skip rendering while hidden for perf)
+      renderAffordTargetView(readInputs());
+    }
+  }
+
+  // Set initial roving tabindex on page load
   tabs.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const which = btn.dataset.tab;
-      tabs.forEach(b => {
-        const active = b.dataset.tab === which;
-        b.classList.toggle('active', active);
-        b.setAttribute('aria-selected', active ? 'true' : 'false');
-      });
-      Object.entries(views).forEach(([k, el]) => { el.hidden = (k !== which); });
-      if (which === 'optimizer') {
-        // Redraw chart now that the canvas is visible (had 0 width while hidden)
-        if (optState.lastOpt) drawOptimizerChart($('opt-chart'), optState.lastOpt, optState.hoverDp);
-      } else if (which === 'afford') {
-        // Render now that the view is visible (we skip rendering while hidden for perf)
-        renderAffordTargetView(readInputs());
+    btn.setAttribute('tabindex', btn.classList.contains('active') ? '0' : '-1');
+  });
+
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => activateTab(btn));
+
+    // WAI-ARIA keyboard interaction for tab widget
+    btn.addEventListener('keydown', e => {
+      const idx = tabs.indexOf(btn);
+      let nextTabIndex = null;
+      if (e.key === 'ArrowRight') {
+        nextTabIndex = (idx + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft') {
+        nextTabIndex = (idx - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        nextTabIndex = 0;
+      } else if (e.key === 'End') {
+        nextTabIndex = tabs.length - 1;
+      }
+      if (nextTabIndex !== null) {
+        e.preventDefault();
+        activateTab(tabs[nextTabIndex], true);
       }
     });
   });
