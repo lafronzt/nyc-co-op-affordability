@@ -6,11 +6,11 @@
 <title>NYC Co-op Affordability Finder | Calculate Your Max Purchase Price</title>
 <meta name="description" content="Free NYC co-op affordability calculator. Enter your income, assets, and mortgage assumptions to instantly find your maximum purchase price — factoring in down payment, closing costs, DTI limits, and post-close reserves.">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.nyc-co-op-affordability.com/">
+<link rel="canonical" href="https://www.nyc-affordability.com/coop/">
 
 <!-- Open Graph -->
 <meta property="og:type"        content="website">
-<meta property="og:url"         content="https://www.nyc-co-op-affordability.com/">
+<meta property="og:url"         content="https://www.nyc-affordability.com/coop/">
 <meta property="og:title"       content="NYC Co-op Affordability Finder | Calculate Your Max Purchase Price">
 <meta property="og:description" content="Free NYC co-op affordability calculator. Find your max purchase price from your financial profile — covering down payment, closing costs, DTI limits, and post-close reserve requirements.">
 <meta property="og:locale"      content="en_US">
@@ -26,7 +26,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "NYC Co-op Affordability Finder",
-  "url": "https://www.nyc-co-op-affordability.com/",
+  "url": "https://www.nyc-affordability.com/coop/",
   "description": "A free calculator that reverse-engineers your maximum NYC co-op purchase price from your financial profile, covering down payment, closing costs, debt-to-income limits, and post-close reserve requirements.",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
@@ -1963,6 +1963,39 @@ function clearStorage() {
   try { localStorage.removeItem(LS_KEY); } catch(e) {}
 }
 
+function importMigratedLocalStorage() {
+  const marker = '#migrate-local-storage=';
+  if (!window.location.hash.startsWith(marker)) return false;
+
+  let imported = false;
+  try {
+    const encoded = decodeURIComponent(window.location.hash.slice(marker.length));
+    const payload = JSON.parse(decodeUtf8Base64(encoded));
+    [LS_KEY, SHARED_KEY].forEach(key => {
+      if (typeof payload[key] === 'string') {
+        localStorage.setItem(key, payload[key]);
+        imported = true;
+      }
+    });
+  } catch(e) {
+    imported = false;
+  }
+
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+  return imported;
+}
+
+function decodeUtf8Base64(value) {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 function restoreInputs(data) {
   if (!data) return;
   if (Array.isArray(data.accounts) && data.accounts.length > 0) {
@@ -3478,6 +3511,8 @@ function onChange() {
 // BOOT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+
+  importMigratedLocalStorage();
 
   // Restore saved inputs if the user previously enabled saving
   const saved = loadFromStorage();

@@ -5,7 +5,7 @@ A suite of free, single-page NYC housing affordability calculators, each deploye
 | Calculator | Domain | Path |
 |---|---|---|
 | Landing page | [nyc-affordability.com](https://www.nyc-affordability.com/) | `/` |
-| Co-op Affordability | [nyc-co-op-affordability.com](https://www.nyc-co-op-affordability.com/) | `/coop/` |
+| Co-op Affordability | [nyc-affordability.com/coop](https://www.nyc-affordability.com/coop/) | `/coop/` |
 | Condo Affordability | [nyc-condo-affordability.com](https://www.nyc-condo-affordability.com/) | `/condo/` |
 | Rent Affordability | [nyc-rent-affordability.com](https://www.nyc-rent-affordability.com/) | `/rent/` |
 
@@ -16,14 +16,17 @@ A suite of free, single-page NYC housing affordability calculators, each deploye
 A single Cloudflare Pages Function at [`/functions/[[path]].js`](functions/%5B%5Bpath%5D%5D.js) intercepts every request and routes based on the incoming `hostname`:
 
 ```
-nyc-affordability.com        →  / (hub landing page, pass through)
-nyc-co-op-affordability.com  →  /coop/[path]
-nyc-condo-affordability.com  →  /condo/[path]
-nyc-rent-affordability.com   →  /rent/[path]
-default Pages URL / unknown  →  pass through (serves /index.html at root)
+nyc-affordability.com              →  / (hub landing page, pass through)
+nyc-affordability.com/coop/        →  /coop/ (co-op calculator)
+nyc-co-op-affordability.com        →  localStorage migration page, then https://www.nyc-affordability.com/coop/
+nyc-condo-affordability.com        →  /condo/[path]
+nyc-rent-affordability.com         →  /rent/[path]
+default Pages URL / unknown        →  pass through (serves /index.html at root)
 ```
 
-Full **path preservation** is enabled: a request to `nyc-condo-affordability.com/some/path` is rewritten to `/condo/some/path`. If the asset is not found (HTTP 404), the function falls back to the section's `index.html` so deep links always work.
+Full **path preservation** is enabled for active section domains: a request to `nyc-condo-affordability.com/some/path` is rewritten to `/condo/some/path`. If the asset is not found (HTTP 404), the function falls back to the section's `index.html` so deep links always work. The legacy co-op domain preserves paths while migrating saved browser inputs, so `www.nyc-co-op-affordability.com/details` lands on `https://www.nyc-affordability.com/coop/details`.
+
+The co-op migration has to run in the browser because `localStorage` is scoped by domain. The legacy domain serves a short noindex migration page that copies `nyc_coop_inputs` and `nyc_shared_profile` into a URL fragment, opens the canonical `/coop/` page, and the canonical page immediately imports those values and removes the fragment from browser history. Non-HTML requests still receive a normal 301 redirect.
 
 The default Pages domain also serves all paths directly by file-system structure:
 - `[pages-url]/` → landing page
@@ -38,6 +41,7 @@ The default Pages domain also serves all paths directly by file-system structure
    'example.com':     '/example',
    'www.example.com': '/example',
    ```
+   To retire a standalone calculator domain in favor of the hub, add it to `DOMAIN_REDIRECTS` instead.
 2. Create the static page at `/example/index.html`.
 3. In Cloudflare Pages → your project → **Custom domains**, add the domain.
 4. Update DNS (CNAME or ALIAS to the Pages project URL).
