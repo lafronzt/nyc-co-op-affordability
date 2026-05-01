@@ -50,12 +50,20 @@ export async function onRequest(context) {
   // / on the custom domain → /prefix/index.html
   // /some/path            → /prefix/some/path  (fallback → /prefix/index.html)
   // Clone the URL so method, headers, and query params are all preserved.
+  //
+  // Strip any duplicate prefix (e.g. /coop/foo on nyc-co-op-affordability.com
+  // must not become /coop/coop/foo).
+  const strippedPath = reqPath.startsWith(prefix + '/') ? reqPath.slice(prefix.length) : reqPath;
+
   const rewrittenUrl = new URL(url);
-  rewrittenUrl.pathname = reqPath === '/' ? prefix + '/index.html' : prefix + reqPath;
+  rewrittenUrl.pathname = strippedPath === '/' ? prefix + '/index.html' : prefix + strippedPath;
 
   const res = await context.env.ASSETS.fetch(new Request(rewrittenUrl, context.request));
 
-  if (res.status === 404) {
+  // Only fall back to index.html for navigation requests — assets (CSS/JS/images)
+  // that are genuinely missing should return 404, not the app shell.
+  const isNavRequest = !rewrittenUrl.pathname.match(/\.[^/]+$/);
+  if (res.status === 404 && isNavRequest) {
     const fallbackUrl = new URL(url);
     fallbackUrl.pathname = prefix + '/index.html';
     return context.env.ASSETS.fetch(new Request(fallbackUrl, context.request));

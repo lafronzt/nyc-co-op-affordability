@@ -1394,6 +1394,7 @@ function computeOptimizer(inp) {
     pMaxTrue, pStandard, gain,
     baseBind, optPrices, basePrices,
     HARD_DP_MAX,
+    clampedAt: dpOptimal >= HARD_DP_MAX - 1e-6 ? 'max' : null,
   };
 }
 
@@ -1841,7 +1842,7 @@ function renderOptimizerView(inp) {
   // Slider
   const sl = $('opt-slider');
   const slMinPct = c.minDp * 100;
-  const slMaxPct = Math.max(slMinPct, Math.min(60, opt.HARD_DP_MAX * 100));
+  const slMaxPct = Math.max(slMinPct, opt.HARD_DP_MAX * 100);
   sl.min = slMinPct.toFixed(2); sl.max = slMaxPct.toFixed(2); sl.step = '0.1';
   sl.disabled = (slMaxPct <= slMinPct);
   const slMin = slMinPct/100, slMax = slMaxPct/100;
