@@ -154,6 +154,11 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 }
 .acct-tbl th.r { text-align: right; }
 .acct-tbl td { padding: 3px 3px; vertical-align: middle; }
+.acct-tbl th:last-child { width: 26px; text-align: center; }
+.acct-tbl td:nth-child(2),
+.acct-tbl td:nth-child(3),
+.acct-tbl td:nth-child(4),
+.acct-tbl td:nth-child(5) { text-align: right; }
 .acct-tbl td input[type="text"] {
   border: 1px solid var(--g200); border-radius: 4px; padding: 5px 7px;
   font-size: 12px; color: var(--g800); background: #fff; outline: none;
@@ -547,7 +552,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
               <th>Account</th>
               <th class="r">Balance ($)</th>
               <th class="r">Liquidity %</th>
-              <th class="r">For DP <span class="th-note">(100%)</span></th>
+              <th class="r">For DP <span class="th-note">(weighted)</span></th>
               <th class="r">For Reserves</th>
               <th></th>
             </tr>
@@ -558,8 +563,8 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
       <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
       <p style="margin:8px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
         Defaults reflect a $300K fully-liquid profile — enough to plausibly close a $1M condo at 20% down
-        with closing costs. Brokerage is 100% liquid (sell and wire proceeds to closing). Retirement accounts
-        (401k, IRA) do not count toward the down-payment pool — add them at 0% for net-worth reference only.
+        with closing costs. Liquidity % is the portion of each account available for the down-payment pool.
+        Retirement accounts (401k, IRA) do not count toward the down-payment pool — add them at 0% for net-worth reference only.
         When reserves are enabled, all accounts weighted by liquidity % count toward post-close liquidity.
       </p>
       <div class="acct-totals">
@@ -802,7 +807,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
             <span class="sr-val" id="s-atclose">—</span>
           </div>
           <div class="snap-row avail-row">
-            <span class="sr-lbl">Avail for DP + CC <span class="sr-note">(100% liquid)</span></span>
+            <span class="sr-lbl">Avail for DP + CC <span class="sr-note">(weighted)</span></span>
             <span class="sr-val" id="s-dp-avail">—</span>
           </div>
           <div class="snap-row surplus-row">
@@ -1069,7 +1074,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
       <h3>Two (or three) constraints, one limit</h3>
       <p>This calculator finds the lower of two maximum prices:</p>
       <ul>
-        <li><strong>Cash / Down Payment &amp; Closing Costs:</strong> Only <em>fully liquid</em> (100%) assets can cover the down payment and closing costs (attorney, lender fees, title insurance, mortgage recording tax, mansion tax, etc.). If post-close reserves are enabled, all weighted assets must also satisfy the reserve buffer.</li>
+        <li><strong>Cash / Down Payment &amp; Closing Costs:</strong> Assets count toward the down payment and closing costs according to their Liquidity %. If post-close reserves are enabled, the same weighted assets must also satisfy the reserve buffer.</li>
         <li><strong>DTI / Income:</strong> Your total monthly housing payment (mortgage P+I + common charges + property taxes + HO-6 insurance + other debts) must stay within the lender's back-end DTI limit on your gross monthly income. Standard conforming limit is 43%; conservative target is 36%.</li>
       </ul>
       <p>Whichever constraint produces the <em>lower</em> max price is your binding limit.</p>
@@ -1080,7 +1085,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
       <h3>Closing costs for a financed resale condo</h3>
       <p>Typical financed resale condo buyer closing costs run <strong>2.5%–5%+</strong> of purchase price, largely because of the mortgage recording tax and title insurance. New development (sponsor) condos can run <strong>3%–7%+</strong> because sellers often shift transfer taxes to the buyer. Transfer taxes are seller-paid on resale and excluded here by default.</p>
       <h3>What "Liquidity %" means</h3>
-      <p>Only accounts at 100% liquidity count toward the down payment and closing costs (DP pool). All accounts — weighted by liquidity % — count toward post-close reserves when that option is enabled. Retirement accounts (401k, IRA) can be listed at 0% for net-worth reference.</p>
+      <p>Accounts count toward the down payment and closing costs according to their Liquidity %. The same weighted values count toward post-close reserves when that option is enabled. Retirement accounts (401k, IRA) can be listed at 0% for net-worth reference.</p>
       <h3>This is an estimate — verify everything</h3>
       <p>Tax rates, title fees, lender overlays, and building policies vary. Always confirm numbers with a <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">licensed mortgage broker</a> and a <a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">real estate attorney</a> before making purchase decisions.</p>
     </div>
@@ -1221,8 +1226,7 @@ function bsearchMaxPrice(testFn, hi) {
 // DERIVE CONSTANTS FROM INPUT SET
 // ═══════════════════════════════════════
 function deriveConstants(inp) {
-  const avail     = inp.accounts.reduce((s, a) => s + (a.balance||0) * (a.liquidity||0) / 100, 0);
-  const totLiquid = inp.accounts.reduce((s, a) => (a.liquidity||0) === 100 ? s + (a.balance||0) : s, 0);
+  const weightedAssets = inp.accounts.reduce((s, a) => s + (a.balance||0) * (a.liquidity||0) / 100, 0);
   const moInc     = (inp.annualIncome||0) / 12;
   const rm        = (inp.mortgageRate||0) / 100 / 12;
   const nMo       = (inp.loanTerm||30) * 12;
@@ -1235,24 +1239,24 @@ function deriveConstants(inp) {
   const minDp     = (inp.dpPct||0) / 100;
   // Budget for mortgage P+I after covering carrying + oDebts under DTI
   const A         = dtiMax * moInc - carrying - oDebts;
-  return { avail, totLiquid, moInc, K, dtiMax, resMo, carrying, oDebts, minDp, A, inp };
+  return { weightedAssets, moInc, K, dtiMax, resMo, carrying, oDebts, minDp, A, inp };
 }
 
 // ═══════════════════════════════════════
 // PRICE CEILINGS AT A GIVEN DP
 // ═══════════════════════════════════════
 function priceAtDp(c, dp) {
-  const { avail, totLiquid, K, resMo, carrying, A, inp } = c;
+  const { weightedAssets, K, resMo, carrying, A, inp } = c;
   const PMAX = 20000000;
 
   // DTI ceiling — analytical (linear)
   const denom = (1 - dp) * K;
   const pDti = (denom > 0 && A > 0) ? A / denom : (A > 0 ? Infinity : 0);
 
-  // DP+CC ceiling — binary search: totLiquid >= dp*P + CC(P,dp).total
+  // DP+CC ceiling — binary search: liquidity-weighted assets >= dp*P + CC(P,dp).total
   const pDpCC = bsearchMaxPrice(p => {
     const cc = computeCC(p, dp, inp);
-    return totLiquid >= dp * p + cc.total;
+    return weightedAssets >= dp * p + cc.total;
   }, PMAX);
 
   // Reserve ceiling — binary search (only when resMo > 0)
@@ -1263,7 +1267,7 @@ function priceAtDp(c, dp) {
       const moMtg   = loanAmt * K;
       const cc      = computeCC(p, dp, inp);
       const resReq  = resMo * (moMtg + carrying);
-      return avail >= dp * p + cc.total + resReq;
+      return weightedAssets >= dp * p + cc.total + resReq;
     }, PMAX);
   }
 
@@ -1278,7 +1282,7 @@ function priceAtDp(c, dp) {
 // ═══════════════════════════════════════
 function calculate(inp) {
   const c = deriveConstants(inp);
-  const { avail, totLiquid, K, resMo, carrying, oDebts, moInc, dtiMax } = c;
+  const { weightedAssets, K, resMo, carrying, oDebts, moInc, dtiMax } = c;
 
   // Max price at the user's chosen dp
   const dp = c.minDp;
@@ -1303,9 +1307,9 @@ function calculate(inp) {
   const totalAtClose = downPmt + cc.total;
   const resReq   = resMo * (moMtg + carrying);
   const totalCash = totalAtClose + resReq;
-  const dpSurplus = totLiquid - totalAtClose;
-  const surplus   = avail - totalCash;
-  const pcLiquid  = avail - totalAtClose;
+  const dpSurplus = weightedAssets - totalAtClose;
+  const surplus   = weightedAssets - totalCash;
+  const pcLiquid  = weightedAssets - totalAtClose;
   const moTotal   = moMtg + carrying;
   const pcMonths  = moTotal > 0 ? pcLiquid / moTotal : 0;
   const dtiActual = moInc > 0 ? (moTotal + oDebts) / moInc : 0;
@@ -1315,7 +1319,7 @@ function calculate(inp) {
   const resOk  = resMo === 0 || pcMonths >= resMo;
 
   return {
-    avail, totLiquid, moInc, K, cc, carrying,
+    weightedAssets, moInc, K, cc, carrying,
     cashMax, dtiMaxPrice: dtiMaxP,
     maxPrice, binding,
     tgt, downPmt, loanAmt, moMtg,
@@ -1330,18 +1334,18 @@ function calculate(inp) {
 // DEAL SNAPSHOT AT PRICE + DP (for optimizer/afford-target)
 // ═══════════════════════════════════════
 function dealAtPriceDp(c, price, dp) {
-  const { avail, totLiquid, K, resMo, carrying, oDebts, moInc, inp } = c;
+  const { weightedAssets, K, resMo, carrying, oDebts, moInc, inp } = c;
   const loanAmt      = price * (1 - dp);
   const moMtg        = loanAmt * K;
   const cc           = computeCC(price, dp, inp);
   const totalAtClose = price * dp + cc.total;
   const resReq       = resMo * (moMtg + carrying);
   const totalCash    = totalAtClose + resReq;
-  const dpSurplus    = totLiquid - totalAtClose;
-  const surplus      = avail - totalCash;
+  const dpSurplus    = weightedAssets - totalAtClose;
+  const surplus      = weightedAssets - totalCash;
   const moTotal      = moMtg + carrying;
   const dti          = moInc > 0 ? (moTotal + oDebts) / moInc : 0;
-  const pcLiquid     = avail - totalAtClose;
+  const pcLiquid     = weightedAssets - totalAtClose;
   const pcMonths     = moTotal > 0 ? pcLiquid / moTotal : 0;
   return { loanAmt, moMtg, cc, totalAtClose, resReq, totalCash, dpSurplus, surplus, moTotal, dti, pcLiquid, pcMonths, downPmt: price*dp };
 }
@@ -1361,10 +1365,10 @@ function computeOptimizer(inp) {
 
   // Check feasibility at minDp (fast path: is there a deal at all?)
   const minPrices = priceAtDp(c, c.minDp);
-  if (minPrices.pAch <= 0 && c.totLiquid <= 0) {
+  if (minPrices.pAch <= 0 && c.weightedAssets <= 0) {
     return { ok: false, c,
       title: 'Insufficient assets',
-      detail: 'Your fully-liquid (100%) assets do not cover the minimum closing costs. Add more liquid assets or reduce closing costs.' };
+      detail: 'Your liquidity-weighted assets do not cover the minimum closing costs. Add assets, increase Liquidity %, or reduce closing costs.' };
   }
 
   // Grid search: 201 points from minDp to HARD_DP_MAX
@@ -1470,10 +1474,10 @@ function renderAccounts() {
 
     const tdDp = document.createElement('td');
     const divDp = document.createElement('div');
-    const full = (acct.liquidity||0) === 100;
-    divDp.className = 'avail-cell' + (full ? '' : ' dim');
+    const hasDpValue = avail > 0;
+    divDp.className = 'avail-cell' + (hasDpValue ? '' : ' dim');
     divDp.id = 'dp-' + i;
-    divDp.textContent = full ? fmt$(acct.balance||0) : '—';
+    divDp.textContent = hasDpValue ? fmt$(avail) : '—';
     tdDp.appendChild(divDp);
 
     const tdAvail = document.createElement('td');
@@ -1498,13 +1502,18 @@ function refreshAvailCell(i) {
   const el = $('avail-' + i);
   if (el) el.textContent = fmt$((a.balance||0)*(a.liquidity||0)/100);
   const elDp = $('dp-' + i);
-  if (elDp) { const full = (a.liquidity||0) === 100; elDp.className = 'avail-cell'+(full?'':' dim'); elDp.textContent = full ? fmt$(a.balance||0) : '—'; }
+  if (elDp) {
+    const dpValue = (a.balance||0)*(a.liquidity||0)/100;
+    const hasDpValue = dpValue > 0;
+    elDp.className = 'avail-cell'+(hasDpValue?'':' dim');
+    elDp.textContent = hasDpValue ? fmt$(dpValue) : '—';
+  }
   refreshTotals();
 }
 
 function refreshTotals() {
   const totA = state.accounts.reduce((s,a) => s+(a.balance||0)*(a.liquidity||0)/100, 0);
-  const totL = state.accounts.reduce((s,a) => (a.liquidity||0)===100 ? s+(a.balance||0) : s, 0);
+  const totL = totA;
   tx('tot-avail', fmt$(totA));
   tx('tot-liquid', fmt$(totL));
 }
@@ -1602,7 +1611,7 @@ function updateResults(r) {
   tx('s-mrt',     fmt$(r.cc.mrt));
   tx('s-mansion', fmt$(r.cc.mansion));
   tx('s-atclose', fmt$(r.totalAtClose));
-  tx('s-dp-avail', fmt$(r.totLiquid));
+  tx('s-dp-avail', fmt$(r.weightedAssets));
 
   const dpSurplusEl = $('s-dp-surplus');
   dpSurplusEl.textContent = fmt$(r.dpSurplus);
@@ -1611,7 +1620,7 @@ function updateResults(r) {
   if (state.reservesEnabled) {
     tx('s-res-req',    fmt$(r.resReq));
     tx('s-total-cash', fmt$(r.totalCash));
-    tx('s-avail',      fmt$(r.avail));
+    tx('s-avail',      fmt$(r.weightedAssets));
     const surplusEl = $('s-surplus');
     surplusEl.textContent = fmt$(r.surplus);
     surplusEl.className = 'sr-val ' + (r.surplus >= 0 ? 'pos' : 'neg');
@@ -1945,8 +1954,8 @@ function computeAffordTarget(inp) {
   const totalAtCloseT = target * c.minDp + ccAtT.total;
   const resReqAtT   = c.resMo * (moMtgAtT + c.carrying);
 
-  const dpCCGap  = Math.max(0, totalAtCloseT - c.totLiquid);
-  const resGap   = c.resMo > 0 ? Math.max(0, totalAtCloseT + resReqAtT - c.avail) : 0;
+  const dpCCGap  = Math.max(0, totalAtCloseT - c.weightedAssets);
+  const resGap   = c.resMo > 0 ? Math.max(0, totalAtCloseT + resReqAtT - c.weightedAssets) : 0;
   const cashGap  = Math.max(dpCCGap, resGap);
 
   const incomeNeededMo  = c.dtiMax > 0 ? (moMtgAtT + c.carrying + c.oDebts) / c.dtiMax : Infinity;
@@ -1968,13 +1977,13 @@ function computeAffordTarget(inp) {
   else if (target <= 0 || c.K <= 0) { dpForDti = 0; }
   else { dpForDti = 1 - c.A / (target * c.K); }
 
-  // Cash ceiling dp: binary search max dp such that totLiquid >= dp*target + cc(target,dp)
+  // Cash ceiling dp: binary search max dp such that weighted assets cover dp*target + cc(target,dp)
   let dpForCash;
   {
     let lo = 0, hi = HARD_DP_MAX;
     const feasAtDp = dp => {
       const cc = computeCC(target, dp, inp);
-      return c.totLiquid >= dp * target + cc.total;
+      return c.weightedAssets >= dp * target + cc.total;
     };
     if (!feasAtDp(0)) { dpForCash = -Infinity; }
     else if (feasAtDp(hi)) { dpForCash = hi; }
@@ -2078,7 +2087,7 @@ function renderCashLever(r, c) {
   } else {
     badge.textContent = r.incomeOk ? 'NEEDED' : 'PARTIAL'; badge.className = 'badge ' + (r.incomeOk ? 'info' : 'warn');
     big.textContent = fmt$(r.cashGap); big.className = 'aft-lever-big neg';
-    sub.innerHTML = r.incomeOk ? 'Add this much in liquid assets and you qualify — DTI is already fine.' : 'Cash alone won\'t solve it — income is also short.';
+    sub.innerHTML = r.incomeOk ? 'Add this much in liquidity-weighted assets and you qualify — DTI is already fine.' : 'Cash alone won\'t solve it — income is also short.';
     extra.style.display = '';
     const rate = parseFloat($('aft-savings-rate').value)||0;
     if (rate > 0) { const mo = Math.ceil(r.cashGap / rate); tx('lev-cash-months', mo + ' months' + (mo >= 12 ? ' (~' + (mo/12).toFixed(1) + ' yrs)' : '')); }
@@ -2122,7 +2131,7 @@ function renderDpLever(r, c) {
     badge.textContent = '✗ NO DP WORKS'; badge.className = 'badge warn';
     const dtiFinite = isFinite(r.dpForDti), cashFinite = isFinite(r.dpForCash);
     if (!dtiFinite) sub.innerHTML = 'Income can\'t cover the carrying costs at <strong>' + fmt$(r.target) + '</strong> at any down payment. Boost income or lower carrying costs.';
-    else if (!cashFinite || r.dpForCash < 0) sub.innerHTML = 'Your liquid assets don\'t cover closing costs at <strong>' + fmt$(r.target) + '</strong>. Add liquid assets or reduce closing costs.';
+    else if (!cashFinite || r.dpForCash < 0) sub.innerHTML = 'Your liquidity-weighted assets don\'t cover closing costs at <strong>' + fmt$(r.target) + '</strong>. Add assets, increase Liquidity %, or reduce closing costs.';
     else sub.innerHTML = 'No down payment resolves this — DTI floor: <strong>' + (r.dpForDti*100).toFixed(1) + '%</strong> · Cash ceiling: <strong>' + (Math.max(0, r.dpForCash)*100).toFixed(1) + '%</strong>. DTI floor sits above the cash ceiling.';
     if (dtiFinite && cashFinite && r.dpForDti > Math.max(0, r.dpForCash)) {
       const lo = Math.min(HARD, Math.max(0, r.dpForCash)), hi = Math.min(HARD, r.dpForDti);
