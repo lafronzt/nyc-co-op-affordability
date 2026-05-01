@@ -1,13 +1,14 @@
 # NYC Affordability
 
-A suite of free, single-page NYC housing affordability calculators, each deployed as its own custom domain via a Cloudflare Worker with Static Assets.
+A suite of free, single-page NYC apartment, home, and housing affordability calculators deployed on one primary domain via a Cloudflare Worker with Static Assets.
 
-| Calculator | Domain | Path |
+| Calculator | URL | Path |
 |---|---|---|
 | Landing page | [nyc-affordability.com](https://www.nyc-affordability.com/) | `/` |
 | Co-op Affordability | [nyc-affordability.com/coop](https://www.nyc-affordability.com/coop/) | `/coop/` |
-| Condo Affordability | [nyc-condo-affordability.com](https://www.nyc-condo-affordability.com/) | `/condo/` |
-| Rent Affordability | [nyc-rent-affordability.com](https://www.nyc-rent-affordability.com/) | `/rent/` |
+| Condo Affordability | [nyc-affordability.com/condo](https://www.nyc-affordability.com/condo/) | `/condo/` |
+| Rent Affordability | [nyc-affordability.com/rent](https://www.nyc-affordability.com/rent/) | `/rent/` |
+| Co-op legacy domain | [nyc-co-op-affordability.com](https://www.nyc-co-op-affordability.com/) | redirects to `/coop/` |
 
 ---
 
@@ -18,13 +19,13 @@ A single Cloudflare Worker entrypoint at [`/functions/[[path]].js`](functions/%5
 ```
 nyc-affordability.com              →  / (hub landing page, pass through)
 nyc-affordability.com/coop/        →  /coop/ (co-op calculator)
+nyc-affordability.com/condo/       →  /condo/ (condo calculator)
+nyc-affordability.com/rent/        →  /rent/ (rent calculator)
 nyc-co-op-affordability.com        →  localStorage migration page, then https://www.nyc-affordability.com/coop/
-nyc-condo-affordability.com        →  /condo/[path]
-nyc-rent-affordability.com         →  /rent/[path]
 default Worker URL / unknown       →  pass through (serves /index.html at root)
 ```
 
-Full **path preservation** is enabled for active section domains: a request to `nyc-condo-affordability.com/some/path` is rewritten to `/condo/some/path`. If the asset is not found (HTTP 404), the function falls back to the section's `index.html` so deep links always work. The legacy co-op domain preserves paths while migrating saved browser inputs, so `www.nyc-co-op-affordability.com/details` lands on `https://www.nyc-affordability.com/coop/details`.
+The primary domain is the canonical SEO target for all calculators. The legacy co-op domain preserves paths while migrating saved browser inputs, so `www.nyc-co-op-affordability.com/details` lands on `https://www.nyc-affordability.com/coop/details`.
 
 The co-op migration has to run in the browser because `localStorage` is scoped by domain. The legacy domain serves a short noindex migration page that copies `nyc_coop_inputs` and `nyc_shared_profile` into a URL fragment, opens the canonical `/coop/` page, and the canonical page immediately imports those values and removes the fragment from browser history. Non-HTML requests still receive a normal 301 redirect.
 
@@ -90,7 +91,7 @@ npx wrangler dev --local
 This runs the Worker locally so host-based routing works. You can test it by passing a custom `Host` header:
 
 ```bash
-curl -H "Host: nyc-condo-affordability.com" http://localhost:8788/
+curl -H "Host: nyc-co-op-affordability.com" http://localhost:8788/
 ```
 
 Or just open the files directly in a browser — each calculator works standalone with no server (`file://` protocol).

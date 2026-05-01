@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Co-op Affordability Finder | Calculate Your Max Purchase Price</title>
-<meta name="description" content="Free NYC co-op affordability calculator. Enter your income, assets, and mortgage assumptions to instantly find your maximum purchase price — factoring in down payment, closing costs, DTI limits, and post-close reserves.">
+<title>NYC Co-op Affordability Calculator | Calculate Your Max Purchase Price</title>
+<meta name="description" content="Free NYC housing affordability calculator for co-op apartments. Estimate how much home you can afford from income, assets, DTI, costs, and reserves.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.nyc-affordability.com/coop/">
 
@@ -12,22 +12,28 @@
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="https://www.nyc-affordability.com/coop/">
 <meta property="og:title"       content="NYC Co-op Affordability Finder | Calculate Your Max Purchase Price">
-<meta property="og:description" content="Free NYC co-op affordability calculator. Find your max purchase price from your financial profile — covering down payment, closing costs, DTI limits, and post-close reserve requirements.">
+<meta property="og:description" content="Free NYC housing affordability calculator for co-op apartments. Find your max purchase price from your financial profile — covering down payment, closing costs, DTI, and reserves.">
+<meta property="og:image"       content="https://www.nyc-affordability.com/images/coop-og.png">
+<meta property="og:image:width" content="1731">
+<meta property="og:image:height" content="909">
+<meta property="og:image:alt"   content="Can you afford a NYC co-op? NYC Co-op Affordability Calculator from NYC Affordability.">
 <meta property="og:locale"      content="en_US">
 
 <!-- Twitter Card -->
-<meta name="twitter:card"        content="summary">
+<meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="NYC Co-op Affordability Finder">
-<meta name="twitter:description" content="Free NYC co-op affordability calculator. Reverse-engineer your max purchase price from your income, assets, and mortgage assumptions.">
+<meta name="twitter:description" content="Free NYC housing affordability calculator for co-op apartments. Reverse-engineer your max purchase price from income, assets, and mortgage assumptions.">
+<meta name="twitter:image"       content="https://www.nyc-affordability.com/images/coop-og.png">
+<meta name="twitter:image:alt"   content="Can you afford a NYC co-op? NYC Co-op Affordability Calculator from NYC Affordability.">
 
 <!-- JSON-LD structured data -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "NYC Co-op Affordability Finder",
+  "name": "NYC Co-op Apartment Affordability Calculator",
   "url": "https://www.nyc-affordability.com/coop/",
-  "description": "A free calculator that reverse-engineers your maximum NYC co-op purchase price from your financial profile, covering down payment, closing costs, debt-to-income limits, and post-close reserve requirements.",
+  "description": "A free NYC co-op housing, apartment, and home affordability calculator that reverse-engineers your maximum purchase price from your financial profile, covering down payment, closing costs, debt-to-income limits, and post-close reserve requirements.",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
   "offers": {
@@ -145,8 +151,8 @@ body {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--r);
-  padding: 17px 19px;
   margin-bottom: 13px;
+  overflow: hidden;
 }
 .card-title {
   font-size: 10px;
@@ -154,13 +160,22 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--g500);
-  margin-bottom: 14px;
-  padding-bottom: 9px;
+  padding: 12px 19px 11px;
   border-bottom: 1px solid var(--g100);
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .12s;
 }
+.card-title:hover { background: var(--g50); }
+.card-title.no-toggle { cursor: default; }
+.card-title.no-toggle:hover { background: transparent; }
+.card-chev { font-size: 10px; color: var(--g400); margin-left: auto; transition: transform .2s; }
+.card-chev.open { transform: rotate(180deg); }
+.card-body { padding: 17px 19px; }
+.card-body.collapsed { display: none; }
 .snum {
   background: var(--navy);
   color: #fff;
@@ -1286,157 +1301,166 @@ hr.snap-div {
 
     <!-- 1 · Account Balances -->
     <div class="card">
-      <div class="card-title"><span class="snum">1</span> Account Balances</div>
-      <div class="acct-wrap">
-        <table class="acct-tbl">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th class="r">Balance ($)</th>
-              <th class="c">Closing?</th>
-              <th class="r">Reserve %</th>
-              <th class="r">Closing Cash</th>
-              <th class="r">Reserve Value</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="acct-tbody"></tbody>
-        </table>
-      </div>
-      <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
+      <div class="card-title" id="card-title-1" aria-expanded="true" aria-controls="card-body-1"><span class="snum">1</span> Account Balances<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-1">
+        <div class="acct-wrap">
+          <table class="acct-tbl">
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th class="r">Balance ($)</th>
+                <th class="c">Closing?</th>
+                <th class="r">Reserve %</th>
+                <th class="r">Closing Cash</th>
+                <th class="r">Reserve Value</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="acct-tbody"></tbody>
+          </table>
+        </div>
+        <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
 
-      <!-- Two-pool explanation -->
-      <div class="pool-callout">
-        <div class="pool-row">
-          <span class="pool-dot green"></span>
-          <span><strong>Closing Cash</strong> (Closing? = ✓) — wired at closing to cover the down payment + closing costs. Check any account you can fully liquidate on closing day.</span>
+        <!-- Two-pool explanation -->
+        <div class="pool-callout">
+          <div class="pool-row">
+            <span class="pool-dot green"></span>
+            <span><strong>Closing Cash</strong> (Closing? = ✓) — wired at closing to cover the down payment + closing costs. Check any account you can fully liquidate on closing day.</span>
+          </div>
+          <div class="pool-row">
+            <span class="pool-dot blue"></span>
+            <span><strong>Reserve Value</strong> (balance × Reserve %) — counts toward the board's post-close cushion. Boards typically apply a 70–80% haircut on brokerage and exclude retirement accounts — set Reserve % to 0% for accounts your board ignores.</span>
+          </div>
         </div>
-        <div class="pool-row">
-          <span class="pool-dot blue"></span>
-          <span><strong>Reserve Value</strong> (balance × Reserve %) — counts toward the board's post-close cushion. Boards typically apply a 70–80% haircut on brokerage and exclude retirement accounts — set Reserve % to 0% for accounts your board ignores.</span>
-        </div>
-      </div>
 
-      <p style="margin:4px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
-        Defaults reflect a typical NYC co-op buyer (~$150K income, age 35–42) based on
-        2024–25 Federal Reserve SCF, Fidelity, and Vanguard data.
-      </p>
-      <div class="acct-totals">
-        <div>
-          <div class="tot-lbl">Total Closing Cash</div>
-          <div class="tot-val" id="tot-liquid">—</div>
-        </div>
-        <div>
-          <div class="tot-lbl">Total Reserve Value</div>
-          <div class="tot-val primary" id="tot-avail">—</div>
+        <p style="margin:4px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
+          Defaults reflect a typical NYC co-op buyer (~$150K income, age 35–42) based on
+          2024–25 Federal Reserve SCF, Fidelity, and Vanguard data.
+        </p>
+        <div class="acct-totals">
+          <div>
+            <div class="tot-lbl">Total Closing Cash</div>
+            <div class="tot-val" id="tot-liquid">—</div>
+          </div>
+          <div>
+            <div class="tot-lbl">Total Reserve Value</div>
+            <div class="tot-val primary" id="tot-avail">—</div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 2 · Income & Debts -->
     <div class="card">
-      <div class="card-title"><span class="snum">2</span> Income &amp; Existing Debts</div>
-      <div class="form-row">
-        <label class="lbl" for="annual-income">Annual Gross Income
-          <small>$150K is the minimum needed at 28% DTI to qualify for the city-wide median co-op (~$506K, Q1 2025 — StreetEasy/Baruch CUNY). Typical buyers targeting Manhattan pay considerably more.</small>
-        </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="150000" min="0" step="1000"></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl">Monthly Gross Income <small>Auto-calculated</small></label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-income" class="ro" readonly tabindex="-1"></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="other-debts">Other Monthly Debts
-          <small>Car loans, student loans, credit cards, etc.</small>
-        </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="other-debts" value="0" min="0" step="100"></div>
+      <div class="card-title" id="card-title-2" aria-expanded="true" aria-controls="card-body-2"><span class="snum">2</span> Income &amp; Existing Debts<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-2">
+        <div class="form-row">
+          <label class="lbl" for="annual-income">Annual Gross Income
+            <small>$150K is the minimum needed at 28% DTI to qualify for the city-wide median co-op (~$506K, Q1 2025 — StreetEasy/Baruch CUNY). Typical buyers targeting Manhattan pay considerably more.</small>
+          </label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="150000" min="0" step="1000"></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl">Monthly Gross Income <small>Auto-calculated</small></label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-income" class="ro" readonly tabindex="-1"></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="other-debts">Other Monthly Debts
+            <small>Car loans, student loans, credit cards, etc.</small>
+          </label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="other-debts" value="0" min="0" step="100"></div>
+        </div>
       </div>
     </div>
 
     <!-- 3 · Mortgage Assumptions -->
     <div class="card">
-      <div class="card-title"><span class="snum">3</span> Mortgage Assumptions</div>
-      <div class="form-row">
-        <label class="lbl" for="mtg-rate">Annual Mortgage Rate
-          <small>30-yr fixed consensus as of Apr 2026 — Freddie Mac (6.23%), Bankrate (6.40%). Co-ops require conventional financing; FHA loans are not permitted.</small>
-        </label>
-        <div class="iw w120"><input type="number" id="mtg-rate" value="6.25" min="0" max="30" step="0.05" style="text-align:right"><span class="sx">%</span></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="loan-term">Loan Term</label>
-        <div class="iw w120"><input type="number" id="loan-term" value="30" min="1" max="40" step="1" style="text-align:right"><span class="sx">yrs</span></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="dp-pct">Down Payment
-          <small>20% is the minimum for most buildings; mid-range Manhattan boards often require 25%; luxury/conservative buildings may require 30–50% — Skybriz, Prevu (2025).</small>
-        </label>
-        <div class="iw w120"><input type="number" id="dp-pct" value="20" min="0" max="100" step="1" style="text-align:right"><span class="sx">%</span></div>
+      <div class="card-title" id="card-title-3" aria-expanded="true" aria-controls="card-body-3"><span class="snum">3</span> Mortgage Assumptions<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-3">
+        <div class="form-row">
+          <label class="lbl" for="mtg-rate">Annual Mortgage Rate
+            <small>30-yr fixed consensus as of Apr 2026 — Freddie Mac (6.23%), Bankrate (6.40%). Co-ops require conventional financing; FHA loans are not permitted.</small>
+          </label>
+          <div class="iw w120"><input type="number" id="mtg-rate" value="6.25" min="0" max="30" step="0.05" style="text-align:right"><span class="sx">%</span></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="loan-term">Loan Term</label>
+          <div class="iw w120"><input type="number" id="loan-term" value="30" min="1" max="40" step="1" style="text-align:right"><span class="sx">yrs</span></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="dp-pct">Down Payment
+            <small>20% is the minimum for most buildings; mid-range Manhattan boards often require 25%; luxury/conservative buildings may require 30–50% — Skybriz, Prevu (2025).</small>
+          </label>
+          <div class="iw w120"><input type="number" id="dp-pct" value="20" min="0" max="100" step="1" style="text-align:right"><span class="sx">%</span></div>
+        </div>
       </div>
     </div>
 
     <!-- 4 · Co-op Requirements -->
     <div class="card">
-      <div class="card-title"><span class="snum">4</span> Co-op Requirements</div>
-      <div class="form-row">
-        <label class="lbl" for="reserve-mo">Post-Close Reserve
-          <small>12 months is the most common standard for typical buildings; conservative/luxury boards require 24+. Only liquid assets count (cash, HYSA, brokerage) — retirement accounts are generally excluded — Prevu, Aaron &amp; Geoff Compass (2026).</small>
-        </label>
-        <div class="iw w120"><input type="number" id="reserve-mo" value="12" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="max-dti">Max DTI Allowed by Board
-          <small>28% is the long-standing NYC standard. Outer-borough buildings may allow up to 30–35%; Park/Fifth Ave luxury buildings may cap at 20–25% — Prevu, YRE (2025).</small>
-        </label>
-        <div class="iw w120"><input type="number" id="max-dti" value="28" min="0" max="100" step="0.5" style="text-align:right"><span class="sx">%</span></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="monthly-maint">Projected Monthly Maintenance
-          <small>Includes building's underlying mortgage + property tax share (typically 30–50% is tax-deductible). City-wide medians: Queens ~$750, Brooklyn ~$900, Manhattan ~$1,500–$1,800. $1,200 is a mid-range city-wide estimate — Elliman/Miller Samuel Q4 2024.</small>
-        </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-maint" value="1200" min="0" step="50"></div>
+      <div class="card-title" id="card-title-4" aria-expanded="true" aria-controls="card-body-4"><span class="snum">4</span> Co-op Requirements<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-4">
+        <div class="form-row">
+          <label class="lbl" for="reserve-mo">Post-Close Reserve
+            <small>12 months is the most common standard for typical buildings; conservative/luxury boards require 24+. Only liquid assets count (cash, HYSA, brokerage) — retirement accounts are generally excluded — Prevu, Aaron &amp; Geoff Compass (2026).</small>
+          </label>
+          <div class="iw w120"><input type="number" id="reserve-mo" value="12" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="max-dti">Max DTI Allowed by Board
+            <small>28% is the long-standing NYC standard. Outer-borough buildings may allow up to 30–35%; Park/Fifth Ave luxury buildings may cap at 20–25% — Prevu, YRE (2025).</small>
+          </label>
+          <div class="iw w120"><input type="number" id="max-dti" value="28" min="0" max="100" step="0.5" style="text-align:right"><span class="sx">%</span></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="monthly-maint">Projected Monthly Maintenance
+            <small>Includes building's underlying mortgage + property tax share (typically 30–50% is tax-deductible). City-wide medians: Queens ~$750, Brooklyn ~$900, Manhattan ~$1,500–$1,800. $1,200 is a mid-range city-wide estimate — Elliman/Miller Samuel Q4 2024.</small>
+          </label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-maint" value="1200" min="0" step="50"></div>
+        </div>
       </div>
     </div>
 
     <!-- 5 · Closing Costs -->
     <div class="card">
-      <div class="card-title"><span class="snum">5</span> Closing Costs</div>
+      <div class="card-title" id="card-title-5" aria-expanded="true" aria-controls="card-body-5"><span class="snum">5</span> Closing Costs<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-5">
+        <div class="sub-title">Fixed Costs</div>
+        <div class="fc-list">
+          <div class="fc-row">
+            <label for="fc-atty">Attorney Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(NYC range: $2,500–$5,000 in 2025 — Prevu, Brick Underground)</em></label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="4000" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-bank-atty">Bank Attorney Fees</label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-bank-atty" value="1500" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-coop">Co-op Application / Board Fee</label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-coop" value="750" min="0" step="50"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-movein">Move-In Deposit <em style="font-style:normal;color:var(--g400);font-size:12px;">(refundable)</em></label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-movein" value="1000" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-other">Other Fixed Costs <em style="font-style:normal;color:var(--g400);font-size:12px;">(UCC, filing, etc.)</em></label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-other" value="800" min="0" step="100"></div>
+          </div>
+          <div class="fc-row fc-total">
+            <label>Total Fixed</label>
+            <div class="fc-total-val" id="fc-total-display">—</div>
+          </div>
+        </div>
 
-      <div class="sub-title">Fixed Costs</div>
-      <div class="fc-list">
-        <div class="fc-row">
-          <label for="fc-atty">Attorney Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(NYC range: $2,500–$5,000 in 2025 — Prevu, Brick Underground)</em></label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="4000" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-bank-atty">Bank Attorney Fees</label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-bank-atty" value="1500" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-coop">Co-op Application / Board Fee</label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-coop" value="750" min="0" step="50"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-movein">Move-In Deposit <em style="font-style:normal;color:var(--g400);font-size:12px;">(refundable)</em></label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-movein" value="1000" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-other">Other Fixed Costs <em style="font-style:normal;color:var(--g400);font-size:12px;">(UCC, filing, etc.)</em></label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-other" value="800" min="0" step="100"></div>
-        </div>
-        <div class="fc-row fc-total">
-          <label>Total Fixed</label>
-          <div class="fc-total-val" id="fc-total-display">—</div>
-        </div>
-      </div>
-
-      <div class="var-section">
-        <div class="sub-title">Variable Costs</div>
-        <div class="form-row" style="margin-bottom:0">
-          <label class="lbl" for="var-pct">Combined Variable Rate
-            <small>0.5% default covers loan origination fees for a sub-$1M purchase (no mansion tax, flip tax typically paid by seller). Add 1% if your price crosses $1M (mansion tax kicks in). Add 1–3% if your building charges a buyer-side flip tax — check the proprietary lease.</small>
-          </label>
-          <div class="iw w120"><input type="number" id="var-pct" value="0.5" min="0" max="20" step="0.1" style="text-align:right"><span class="sx">%</span></div>
+        <div class="var-section">
+          <div class="sub-title">Variable Costs</div>
+          <div class="form-row" style="margin-bottom:0">
+            <label class="lbl" for="var-pct">Combined Variable Rate
+              <small>0.5% default covers loan origination fees for a sub-$1M purchase (no mansion tax, flip tax typically paid by seller). Add 1% if your price crosses $1M (mansion tax kicks in). Add 1–3% if your building charges a buyer-side flip tax — check the proprietary lease.</small>
+            </label>
+            <div class="iw w120"><input type="number" id="var-pct" value="0.5" min="0" max="20" step="0.1" style="text-align:right"><span class="sx">%</span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -3749,6 +3773,25 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Collapsible settings cards
+  for (let i = 1; i <= 5; i++) {
+    const titleEl = $(`card-title-${i}`);
+    const bodyEl  = $(`card-body-${i}`);
+    if (!titleEl || !bodyEl) continue;
+    titleEl.addEventListener('click', () => {
+      const isOpen = !bodyEl.classList.contains('collapsed');
+      if (isOpen) {
+        bodyEl.classList.add('collapsed');
+        titleEl.setAttribute('aria-expanded', 'false');
+        titleEl.querySelector('.card-chev').classList.add('open');
+      } else {
+        bodyEl.classList.remove('collapsed');
+        titleEl.setAttribute('aria-expanded', 'true');
+        titleEl.querySelector('.card-chev').classList.remove('open');
+      }
+    });
+  }
 
   // Collapsible
   const howBtn  = $('how-btn');

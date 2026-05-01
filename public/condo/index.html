@@ -4,24 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NYC Condo Affordability Calculator | Calculate Your Max Purchase Price</title>
-<meta name="description" content="Free NYC condo affordability calculator. Enter your income, assets, and mortgage assumptions to instantly find your maximum purchase price — factoring in mansion tax, mortgage recording tax, lender DTI limits, and condo closing costs.">
+<meta name="description" content="Free NYC housing affordability calculator for condos. Estimate how much home or apartment you can afford from income, assets, mansion tax, DTI, and costs.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.nyc-affordability.com/condo/">
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="https://www.nyc-affordability.com/condo/">
 <meta property="og:title"       content="NYC Condo Affordability Calculator | Calculate Your Max Purchase Price">
-<meta property="og:description" content="Free NYC condo affordability calculator. Find your max purchase price from your financial profile — covering down payment, closing costs, mansion tax, mortgage recording tax, and lender DTI limits.">
+<meta property="og:description" content="Free NYC housing affordability calculator for condos. Find your max purchase price from your financial profile — covering down payment, closing costs, mansion tax, and DTI.">
+<meta property="og:image"       content="https://www.nyc-affordability.com/images/condo-og.png">
+<meta property="og:image:width" content="1731">
+<meta property="og:image:height" content="909">
+<meta property="og:image:alt"   content="Can you afford a NYC condo? NYC Condo Affordability Calculator from NYC Affordability.">
 <meta property="og:locale"      content="en_US">
-<meta name="twitter:card"        content="summary">
+<meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="NYC Condo Affordability Calculator">
-<meta name="twitter:description" content="Free NYC condo affordability calculator. Reverse-engineer your max purchase price from your income, assets, and mortgage assumptions.">
+<meta name="twitter:description" content="Free NYC housing affordability calculator for condos. Reverse-engineer your max purchase price from income, assets, and mortgage assumptions.">
+<meta name="twitter:image"       content="https://www.nyc-affordability.com/images/condo-og.png">
+<meta name="twitter:image:alt"   content="Can you afford a NYC condo? NYC Condo Affordability Calculator from NYC Affordability.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "NYC Condo Affordability Calculator",
+  "name": "NYC Condo Home Affordability Calculator",
   "url": "https://www.nyc-affordability.com/condo/",
-  "description": "A free calculator that reverse-engineers your maximum NYC condo purchase price from your financial profile, covering down payment, closing costs, mansion tax, mortgage recording tax, and lender DTI limits.",
+  "description": "A free NYC condo housing, home, and apartment affordability calculator that reverse-engineers your maximum purchase price from your financial profile, covering down payment, closing costs, mansion tax, mortgage recording tax, and lender DTI limits.",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -101,12 +107,20 @@ body {
   scrollbar-color: var(--g300) transparent;
 }
 /* ===== CARDS ===== */
-.card { background: #fff; border: 1px solid var(--border); border-radius: var(--r); padding: 17px 19px; margin-bottom: 13px; }
+.card { background: #fff; border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 13px; overflow: hidden; }
 .card-title {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--g500); margin-bottom: 14px; padding-bottom: 9px;
+  color: var(--g500); padding: 12px 19px 11px;
   border-bottom: 1px solid var(--g100); display: flex; align-items: center; gap: 8px;
+  cursor: pointer; user-select: none; transition: background .12s;
 }
+.card-title:hover { background: var(--g50); }
+.card-title.no-toggle { cursor: default; }
+.card-title.no-toggle:hover { background: transparent; }
+.card-chev { font-size: 10px; color: var(--g400); margin-left: auto; transition: transform .2s; }
+.card-chev.open { transform: rotate(180deg); }
+.card-body { padding: 17px 19px; }
+.card-body.collapsed { display: none; }
 .snum {
   background: var(--navy); color: #fff; border-radius: 50%;
   width: 17px; height: 17px; display: inline-flex; align-items: center; justify-content: center;
@@ -544,203 +558,211 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
 
     <!-- 1 · Account Balances -->
     <div class="card">
-      <div class="card-title"><span class="snum">1</span> Account Balances</div>
-      <div class="acct-wrap">
-        <table class="acct-tbl">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th class="r">Balance ($)</th>
-              <th class="r">Liquidity %</th>
-              <th class="r">For DP <span class="th-note">(weighted)</span></th>
-              <th class="r">For Reserves</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="acct-tbody"></tbody>
-        </table>
-      </div>
-      <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
-      <p style="margin:8px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
-        Defaults reflect a $300K fully-liquid profile — enough to plausibly close a $1M condo at 20% down
-        with closing costs. Liquidity % is the portion of each account available for the down-payment pool.
-        Retirement accounts (401k, IRA) do not count toward the down-payment pool — add them at 0% for net-worth reference only.
-        When reserves are enabled, all accounts weighted by liquidity % count toward post-close liquidity.
-      </p>
-      <div class="acct-totals">
-        <div>
-          <div class="tot-lbl">Total for Down Pmt + CC</div>
-          <div class="tot-val" id="tot-liquid">—</div>
+      <div class="card-title" id="card-title-1" aria-expanded="true" aria-controls="card-body-1"><span class="snum">1</span> Account Balances<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-1">
+        <div class="acct-wrap">
+          <table class="acct-tbl">
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th class="r">Balance ($)</th>
+                <th class="r">Liquidity %</th>
+                <th class="r">For DP <span class="th-note">(weighted)</span></th>
+                <th class="r">For Reserves</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="acct-tbody"></tbody>
+          </table>
         </div>
-        <div>
-          <div class="tot-lbl">Total for Reserves</div>
-          <div class="tot-val primary" id="tot-avail">—</div>
+        <button class="btn-add-row" id="btn-add-acct">+ Add Account</button>
+        <p style="margin:8px 0 0;font-size:11px;color:var(--g400);line-height:1.5">
+          Defaults reflect a $300K fully-liquid profile — enough to plausibly close a $1M condo at 20% down
+          with closing costs. Liquidity % is the portion of each account available for the down-payment pool.
+          Retirement accounts (401k, IRA) do not count toward the down-payment pool — add them at 0% for net-worth reference only.
+          When reserves are enabled, all accounts weighted by liquidity % count toward post-close liquidity.
+        </p>
+        <div class="acct-totals">
+          <div>
+            <div class="tot-lbl">Total for Down Pmt + CC</div>
+            <div class="tot-val" id="tot-liquid">—</div>
+          </div>
+          <div>
+            <div class="tot-lbl">Total for Reserves</div>
+            <div class="tot-val primary" id="tot-avail">—</div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 2 · Income & Debts -->
     <div class="card">
-      <div class="card-title"><span class="snum">2</span> Income &amp; Existing Debts</div>
-      <div class="form-row">
-        <label class="lbl" for="annual-income">Annual Gross Income
-          <small>Illustrative profile for a $1M financed NYC condo at 20% down and 43% DTI — roughly the income needed once mortgage, common charges, taxes, and insurance are included. Adjust to your situation.</small>
-        </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="225000" min="0" step="1000"></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl">Monthly Gross Income <small>Auto-calculated</small></label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-income" class="ro" readonly tabindex="-1"></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="other-debts">Other Monthly Debts
-          <small>Car loans, student loans, credit cards, minimum payments, etc. Included in back-end DTI calculation per lender guidelines.</small>
-        </label>
-        <div class="iw w140"><span class="px">$</span><input type="number" id="other-debts" value="0" min="0" step="100"></div>
+      <div class="card-title" id="card-title-2" aria-expanded="true" aria-controls="card-body-2"><span class="snum">2</span> Income &amp; Existing Debts<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-2">
+        <div class="form-row">
+          <label class="lbl" for="annual-income">Annual Gross Income
+            <small>Illustrative profile for a $1M financed NYC condo at 20% down and 43% DTI — roughly the income needed once mortgage, common charges, taxes, and insurance are included. Adjust to your situation.</small>
+          </label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="annual-income" value="225000" min="0" step="1000"></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl">Monthly Gross Income <small>Auto-calculated</small></label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="monthly-income" class="ro" readonly tabindex="-1"></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="other-debts">Other Monthly Debts
+            <small>Car loans, student loans, credit cards, minimum payments, etc. Included in back-end DTI calculation per lender guidelines.</small>
+          </label>
+          <div class="iw w140"><span class="px">$</span><input type="number" id="other-debts" value="0" min="0" step="100"></div>
+        </div>
       </div>
     </div>
 
     <!-- 3 · Mortgage Assumptions -->
     <div class="card">
-      <div class="card-title"><span class="snum">3</span> Mortgage Assumptions</div>
-      <div class="form-row">
-        <label class="lbl" for="mtg-rate">Annual Mortgage Rate
-          <small>Freddie Mac PMMS Apr 30, 2026: 30-yr FRM avg 6.30% for conventional, conforming, fully amortizing loans with 20% down and excellent credit. Jumbo loans, credit score, points, and lender overlays can differ materially.</small>
-        </label>
-        <div class="iw w120"><input type="number" id="mtg-rate" value="6.30" min="0" max="30" step="0.05" style="text-align:right"><span class="sx">%</span></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="loan-term">Loan Term</label>
-        <div class="iw w120"><input type="number" id="loan-term" value="30" min="1" max="40" step="1" style="text-align:right"><span class="sx">yrs</span></div>
-      </div>
-      <div class="form-row">
-        <label class="lbl" for="dp-pct">Down Payment
-          <small>20% is the conventional baseline for conforming loans. Jumbo lenders often require 25–30%; investor or foreign-buyer lenders may require more. Higher down payments reduce monthly P+I and DTI, potentially unlocking a higher price — see the Optimizer tab.</small>
-        </label>
-        <div class="iw w120"><input type="number" id="dp-pct" value="20" min="0" max="100" step="1" style="text-align:right"><span class="sx">%</span></div>
+      <div class="card-title" id="card-title-3" aria-expanded="true" aria-controls="card-body-3"><span class="snum">3</span> Mortgage Assumptions<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-3">
+        <div class="form-row">
+          <label class="lbl" for="mtg-rate">Annual Mortgage Rate
+            <small>Freddie Mac PMMS Apr 30, 2026: 30-yr FRM avg 6.30% for conventional, conforming, fully amortizing loans with 20% down and excellent credit. Jumbo loans, credit score, points, and lender overlays can differ materially.</small>
+          </label>
+          <div class="iw w120"><input type="number" id="mtg-rate" value="6.30" min="0" max="30" step="0.05" style="text-align:right"><span class="sx">%</span></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="loan-term">Loan Term</label>
+          <div class="iw w120"><input type="number" id="loan-term" value="30" min="1" max="40" step="1" style="text-align:right"><span class="sx">yrs</span></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl" for="dp-pct">Down Payment
+            <small>20% is the conventional baseline for conforming loans. Jumbo lenders often require 25–30%; investor or foreign-buyer lenders may require more. Higher down payments reduce monthly P+I and DTI, potentially unlocking a higher price — see the Optimizer tab.</small>
+          </label>
+          <div class="iw w120"><input type="number" id="dp-pct" value="20" min="0" max="100" step="1" style="text-align:right"><span class="sx">%</span></div>
+        </div>
       </div>
     </div>
 
     <!-- 4 · Lender Requirements & Monthly Costs -->
     <div class="card">
-      <div class="card-title"><span class="snum">4</span> Lender Requirements &amp; Monthly Costs</div>
-
-      <div class="form-row">
-        <label class="lbl" for="max-dti">Max Back-End DTI
-          <small>Lender back-end DTI includes mortgage P+I, common charges, property taxes, HO-6 insurance, and all other monthly debts. 43% is the standard conforming/QM limit; some lenders target 36% as a conservative benchmark; compensating factors may allow higher — CFPB / Fannie Mae guidelines.</small>
-        </label>
-        <div class="iw w120"><input type="number" id="max-dti" value="43" min="0" max="100" step="0.5" style="text-align:right"><span class="sx">%</span></div>
-      </div>
-
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--g100)">
-        <div class="sub-title">Monthly Carrying Costs</div>
-
+      <div class="card-title" id="card-title-4" aria-expanded="true" aria-controls="card-body-4"><span class="snum">4</span> Lender Requirements &amp; Monthly Costs<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-4">
         <div class="form-row">
-          <label class="lbl" for="common-charges">Monthly Common Charges
-            <small>Citywide middle range default. Manhattan full-service buildings often $1,500–$3,000+; Brooklyn/Queens boutique buildings often $500–$900. Common charges exclude property taxes — verify with building financials or listing. Source: illustrative citywide estimate.</small>
+          <label class="lbl" for="max-dti">Max Back-End DTI
+            <small>Lender back-end DTI includes mortgage P+I, common charges, property taxes, HO-6 insurance, and all other monthly debts. 43% is the standard conforming/QM limit; some lenders target 36% as a conservative benchmark; compensating factors may allow higher — CFPB / Fannie Mae guidelines.</small>
           </label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="common-charges" value="1000" min="0" step="50"></div>
+          <div class="iw w120"><input type="number" id="max-dti" value="43" min="0" max="100" step="0.5" style="text-align:right"><span class="sx">%</span></div>
         </div>
 
-        <div class="form-row">
-          <label class="lbl" for="prop-taxes">Monthly Property Taxes
-            <small>Citywide avg ~$15,134/yr ($1,261/mo) per Habitat Magazine / NYC DOF 2025–26 tentative assessment roll. Abatements (421-a, STAR, etc.) and assessments can change this dramatically — enter the actual tax from the listing or NYC DOF record.</small>
-          </label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="prop-taxes" value="1250" min="0" step="50"></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--g100)">
+          <div class="sub-title">Monthly Carrying Costs</div>
+
+          <div class="form-row">
+            <label class="lbl" for="common-charges">Monthly Common Charges
+              <small>Citywide middle range default. Manhattan full-service buildings often $1,500–$3,000+; Brooklyn/Queens boutique buildings often $500–$900. Common charges exclude property taxes — verify with building financials or listing. Source: illustrative citywide estimate.</small>
+            </label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="common-charges" value="1000" min="0" step="50"></div>
+          </div>
+
+          <div class="form-row">
+            <label class="lbl" for="prop-taxes">Monthly Property Taxes
+              <small>Citywide avg ~$15,134/yr ($1,261/mo) per Habitat Magazine / NYC DOF 2025–26 tentative assessment roll. Abatements (421-a, STAR, etc.) and assessments can change this dramatically — enter the actual tax from the listing or NYC DOF record.</small>
+            </label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="prop-taxes" value="1250" min="0" step="50"></div>
+          </div>
+
+          <div class="form-row">
+            <label class="lbl" for="ho-insurance">Monthly HO-6 / Homeowners Insurance
+              <small>Editable placeholder (~$900/yr). Lenders require coverage; actual premiums depend on coverage limits, location, and insurer. Does not include building master policy. Verify with your insurer.</small>
+            </label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="ho-insurance" value="75" min="0" step="10"></div>
+          </div>
         </div>
 
-        <div class="form-row">
-          <label class="lbl" for="ho-insurance">Monthly HO-6 / Homeowners Insurance
-            <small>Editable placeholder (~$900/yr). Lenders require coverage; actual premiums depend on coverage limits, location, and insurer. Does not include building master policy. Verify with your insurer.</small>
-          </label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="ho-insurance" value="75" min="0" step="10"></div>
-        </div>
-      </div>
-
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--g100)">
-        <div class="sub-title">Optional Post-Close Reserves</div>
-        <div class="toggle-row">
-          <input type="checkbox" id="reserves-enabled">
-          <label for="reserves-enabled" class="toggle-lbl">Enable post-close reserve requirement
-            <small>Condos do not impose co-op-style board reserves, but lenders or buyers may want a buffer. When enabled, reserves = X months × (mortgage P+I + common charges + taxes + insurance). Turned off by default.</small>
-          </label>
-        </div>
-        <div class="form-row" id="reserve-mo-row" style="display:none">
-          <label class="lbl" for="reserve-mo">Reserve Months
-            <small>Lender-required reserves or buyer safety buffer. Default 6 months. Reserves are checked from all weighted accounts (not just 100%-liquid).</small>
-          </label>
-          <div class="iw w120"><input type="number" id="reserve-mo" value="6" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--g100)">
+          <div class="sub-title">Optional Post-Close Reserves</div>
+          <div class="toggle-row">
+            <input type="checkbox" id="reserves-enabled">
+            <label for="reserves-enabled" class="toggle-lbl">Enable post-close reserve requirement
+              <small>Condos do not impose co-op-style board reserves, but lenders or buyers may want a buffer. When enabled, reserves = X months × (mortgage P+I + common charges + taxes + insurance). Turned off by default.</small>
+            </label>
+          </div>
+          <div class="form-row" id="reserve-mo-row" style="display:none">
+            <label class="lbl" for="reserve-mo">Reserve Months
+              <small>Lender-required reserves or buyer safety buffer. Default 6 months. Reserves are checked from all weighted accounts (not just 100%-liquid).</small>
+            </label>
+            <div class="iw w120"><input type="number" id="reserve-mo" value="6" min="0" max="120" step="1" style="text-align:right"><span class="sx">mo</span></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 5 · Closing Costs -->
     <div class="card">
-      <div class="card-title"><span class="snum">5</span> Closing Costs</div>
-
-      <div class="sub-title">Fixed Costs</div>
-      <div class="fc-list">
-        <div class="fc-row">
-          <label for="fc-atty">Buyer Attorney <em style="font-style:normal;color:var(--g400);font-size:12px;">(NYC range $3,000–$6,000, 2025–26)</em></label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="5000" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-lender">Lender / Bank Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(origination, points, misc.)</em></label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-lender" value="3500" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-appraisal">Appraisal, Credit Report &amp; Underwriting</label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-appraisal" value="1000" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-recording">Recording / Filing Fees</label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-recording" value="750" min="0" step="50"></div>
-        </div>
-        <div class="fc-row">
-          <label for="fc-building">Building Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(application, move-in, waiver, misc.)</em></label>
-          <div class="iw w140"><span class="px">$</span><input type="number" id="fc-building" value="1500" min="0" step="100"></div>
-        </div>
-        <div class="fc-row">
-          <div style="flex:1">
-            <div class="toggle-row" style="padding:0">
-              <input type="checkbox" id="wc-enabled">
-              <label for="wc-enabled" class="toggle-lbl" style="font-size:13px">Working-Capital Contribution
-                <small>Common in new development; possible in some resale buildings. Defaults to 2 × monthly common charges when enabled.</small>
-              </label>
-            </div>
-            <div id="wc-months-row" style="display:none;margin-top:6px;padding-left:26px">
-              <span style="font-size:12px;color:var(--g600)">Months of common charges:&nbsp;</span>
-              <div class="iw w80" style="display:inline-flex"><input type="number" id="wc-months" value="2" min="0" step="1" style="text-align:right"></div>
+      <div class="card-title" id="card-title-5" aria-expanded="true" aria-controls="card-body-5"><span class="snum">5</span> Closing Costs<span class="card-chev" aria-hidden="true">▲</span></div>
+      <div class="card-body" id="card-body-5">
+        <div class="sub-title">Fixed Costs</div>
+        <div class="fc-list">
+          <div class="fc-row">
+            <label for="fc-atty">Buyer Attorney <em style="font-style:normal;color:var(--g400);font-size:12px;">(NYC range $3,000–$6,000, 2025–26)</em></label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-atty" value="5000" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-lender">Lender / Bank Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(origination, points, misc.)</em></label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-lender" value="3500" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-appraisal">Appraisal, Credit Report &amp; Underwriting</label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-appraisal" value="1000" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-recording">Recording / Filing Fees</label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-recording" value="750" min="0" step="50"></div>
+          </div>
+          <div class="fc-row">
+            <label for="fc-building">Building Fees <em style="font-style:normal;color:var(--g400);font-size:12px;">(application, move-in, waiver, misc.)</em></label>
+            <div class="iw w140"><span class="px">$</span><input type="number" id="fc-building" value="1500" min="0" step="100"></div>
+          </div>
+          <div class="fc-row">
+            <div style="flex:1">
+              <div class="toggle-row" style="padding:0">
+                <input type="checkbox" id="wc-enabled">
+                <label for="wc-enabled" class="toggle-lbl" style="font-size:13px">Working-Capital Contribution
+                  <small>Common in new development; possible in some resale buildings. Defaults to 2 × monthly common charges when enabled.</small>
+                </label>
+              </div>
+              <div id="wc-months-row" style="display:none;margin-top:6px;padding-left:26px">
+                <span style="font-size:12px;color:var(--g600)">Months of common charges:&nbsp;</span>
+                <div class="iw w80" style="display:inline-flex"><input type="number" id="wc-months" value="2" min="0" step="1" style="text-align:right"></div>
+              </div>
             </div>
           </div>
+          <div class="fc-row fc-total">
+            <label>Total Fixed (excl. title, MRT, mansion tax)</label>
+            <div class="fc-total-val" id="fc-fixed-total-display">—</div>
+          </div>
         </div>
-        <div class="fc-row fc-total">
-          <label>Total Fixed (excl. title, MRT, mansion tax)</label>
-          <div class="fc-total-val" id="fc-fixed-total-display">—</div>
-        </div>
-      </div>
 
-      <div class="var-section">
-        <div class="sub-title">Title Insurance (Rate-Based)</div>
-        <div class="form-row">
-          <label class="lbl" for="title-price-pct">Owner's Title: % of Purchase Price
-            <small>Title insurance premium varies by insurer, endorsements, and loan amount. 0.45% is a mid-range NYC resale condo estimate. Verify with your title company. Source: illustrative market estimate.</small>
-          </label>
-          <div class="iw w120"><input type="number" id="title-price-pct" value="0.45" min="0" max="5" step="0.01" style="text-align:right"><span class="sx">%</span></div>
+        <div class="var-section">
+          <div class="sub-title">Title Insurance (Rate-Based)</div>
+          <div class="form-row">
+            <label class="lbl" for="title-price-pct">Owner's Title: % of Purchase Price
+              <small>Title insurance premium varies by insurer, endorsements, and loan amount. 0.45% is a mid-range NYC resale condo estimate. Verify with your title company. Source: illustrative market estimate.</small>
+            </label>
+            <div class="iw w120"><input type="number" id="title-price-pct" value="0.45" min="0" max="5" step="0.01" style="text-align:right"><span class="sx">%</span></div>
+          </div>
+          <div class="form-row">
+            <label class="lbl" for="title-loan-pct">Lender's Title: % of Loan Amount
+              <small>Lender's title policy and endorsements; separate from owner's policy above. 0.10% is an estimate. Verify with title company.</small>
+            </label>
+            <div class="iw w120"><input type="number" id="title-loan-pct" value="0.10" min="0" max="5" step="0.01" style="text-align:right"><span class="sx">%</span></div>
+          </div>
         </div>
-        <div class="form-row">
-          <label class="lbl" for="title-loan-pct">Lender's Title: % of Loan Amount
-            <small>Lender's title policy and endorsements; separate from owner's policy above. 0.10% is an estimate. Verify with title company.</small>
-          </label>
-          <div class="iw w120"><input type="number" id="title-loan-pct" value="0.10" min="0" max="5" step="0.01" style="text-align:right"><span class="sx">%</span></div>
-        </div>
-      </div>
 
-      <div class="cc-info-note">
-        <strong>Auto-calculated taxes (shown in Results):</strong>
-        <br>• <strong>Mortgage Recording Tax</strong> — 1.80% of loan &lt; $500K; 1.925% of loan ≥ $500K (borrower-paid estimate). Source: NYC DOF / ACRIS. Verify with closing attorney.
-        <br>• <strong>Mansion Tax</strong> — 1.00% at $1M+, stepping up to 3.90% above $25M; buyer-paid on full price. Source: NYS Tax Dept pub1099. Watch the $1M cliff.
-        <br>Resale financed condo closing costs typically run <strong>2.5%–5%+</strong> of price, mainly due to MRT and title insurance.
+        <div class="cc-info-note">
+          <strong>Auto-calculated taxes (shown in Results):</strong>
+          <br>• <strong>Mortgage Recording Tax</strong> — 1.80% of loan &lt; $500K; 1.925% of loan ≥ $500K (borrower-paid estimate). Source: NYC DOF / ACRIS. Verify with closing attorney.
+          <br>• <strong>Mansion Tax</strong> — 1.00% at $1M+, stepping up to 3.90% above $25M; buyer-paid on full price. Source: NYS Tax Dept pub1099. Watch the $1M cliff.
+          <br>Resale financed condo closing costs typically run <strong>2.5%–5%+</strong> of price, mainly due to MRT and title insurance.
+        </div>
       </div>
     </div>
 
@@ -2447,6 +2469,25 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelAnimationFrame(resizeRaf);
     resizeRaf = requestAnimationFrame(() => { if (optState.lastOpt && !$('view-optimizer').hidden) drawOptimizerChart(chart, optState.lastOpt, optState.hoverDp); });
   });
+
+  // Collapsible settings cards
+  for (let i = 1; i <= 5; i++) {
+    const titleEl = $(`card-title-${i}`);
+    const bodyEl  = $(`card-body-${i}`);
+    if (!titleEl || !bodyEl) continue;
+    titleEl.addEventListener('click', () => {
+      const isOpen = !bodyEl.classList.contains('collapsed');
+      if (isOpen) {
+        bodyEl.classList.add('collapsed');
+        titleEl.setAttribute('aria-expanded', 'false');
+        titleEl.querySelector('.card-chev').classList.add('open');
+      } else {
+        bodyEl.classList.remove('collapsed');
+        titleEl.setAttribute('aria-expanded', 'true');
+        titleEl.querySelector('.card-chev').classList.remove('open');
+      }
+    });
+  }
 
   // Collapsible
   $('how-btn').addEventListener('click', () => { $('how-btn').classList.toggle('open'); $('how-body').classList.toggle('open'); });
