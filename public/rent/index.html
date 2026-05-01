@@ -350,53 +350,53 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 /* Hero */
 .hero {
   background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
-  padding: 20px 18px 16px; text-align: center;
+  padding: 22px 20px 17px; text-align: center;
 }
 .hero-eyebrow {
   font-size: 9.5px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.5px; color: #ffffff; margin-bottom: 5px;
+  letter-spacing: 1.5px; color: #ffffff; margin-bottom: 6px;
   display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .hero-eyebrow::before, .hero-eyebrow::after {
-  content: ""; height: 1px; width: 20px; background: var(--navy-border);
+  content: ""; height: 1px; width: 24px; background: var(--navy-border);
 }
 .hero-price {
-  font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
+  font-size: 46px; font-weight: 800; font-variant-numeric: tabular-nums;
   letter-spacing: -2px; color: var(--sky-lt); line-height: 1.05;
-  margin-bottom: 4px;
+  margin-bottom: 11px;
 }
 .hero-price.zero { color: var(--navy-muted); }
 .hero-mo { display: block; font-size: 13px; font-weight: 400; color: var(--navy-subtext); margin-top: 1px; }
 .hero-binding {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.09);
-  border-radius: 20px; padding: 5px 13px;
-  font-size: 11.5px; color: #ffffff; margin-bottom: 0;
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; color: #ffffff; margin-bottom: 0;
 }
 .binding-val { color: var(--gold); font-weight: 700; }
 .hero-warn {
-  margin-top: 8px; padding: 6px 11px;
+  margin-top: 10px; padding: 7px 12px;
   background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.3);
-  border-radius: 5px; font-size: 12px; color: #fca5a5; display: none;
+  border-radius: 6px; font-size: 12px; color: #fca5a5; display: none;
 }
 
 /* Results body + tabs */
-.results-body { padding: 14px 16px; }
+.results-body { padding: 15px 17px; }
 .results-tabs {
-  display: flex; margin-bottom: 12px;
+  display: flex; gap: 0; margin-bottom: 13px;
   border-bottom: 1px solid var(--border);
 }
 .tab-btn {
   flex: 1; background: none;
   border: none; border-bottom: 2px solid transparent;
-  padding: 9px 10px; font-size: 11.5px; font-weight: 600;
+  padding: 10px 12px; font-size: 12px; font-weight: 600;
   color: var(--g500); cursor: pointer; font-family: inherit;
   transition: color .12s, border-color .12s, background .12s;
   margin-bottom: -1px; text-align: center;
 }
 .tab-btn:hover { color: var(--g800); background: var(--g50); }
-.tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
-.tab-btn[aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); }
+.tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); }
+.tab-btn[aria-selected="true"] { color: var(--navy); border-bottom-color: var(--gold); }
 
 /* Target rent row */
 .target-row {
@@ -902,7 +902,13 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 
   <!-- ===== RESULTS PANEL ===== -->
   <div class="results-panel">
-    <div class="results-card">
+    <div class="results-tabs" role="tablist" aria-label="Results views">
+      <button class="tab-btn active" id="tab-standard" role="tab" aria-selected="true" aria-controls="view-standard" tabindex="0" data-tab="standard">Standard</button>
+      <button class="tab-btn" id="tab-analysis" role="tab" aria-selected="false" aria-controls="view-analysis" tabindex="-1" data-tab="analysis">Analysis</button>
+      <button class="tab-btn" id="tab-afford" role="tab" aria-selected="false" aria-controls="view-afford" tabindex="-1" data-tab="afford">🎯 Afford Target</button>
+    </div>
+
+    <div class="results-card" id="view-standard" role="tabpanel" aria-labelledby="tab-standard">
 
       <!-- Hero -->
       <div class="hero">
@@ -917,16 +923,8 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
         <div class="hero-warn" id="hero-warn" role="alert" aria-live="polite"></div>
       </div>
 
-      <!-- Tabs -->
       <div class="results-body">
-        <div class="results-tabs" role="tablist" aria-label="Results views">
-          <button class="tab-btn active" id="tab-standard" role="tab" aria-selected="true" aria-controls="view-standard" tabindex="0" data-tab="standard">📋 Standard</button>
-          <button class="tab-btn" id="tab-analysis" role="tab" aria-selected="false" aria-controls="view-analysis" tabindex="-1" data-tab="analysis">🔍 Analysis</button>
-          <button class="tab-btn" id="tab-afford" role="tab" aria-selected="false" aria-controls="view-afford" tabindex="-1" data-tab="afford">🎯 Afford Target</button>
-        </div>
-
         <!-- ── Standard Tab ── -->
-        <div id="view-standard" role="tabpanel" aria-labelledby="tab-standard">
 
           <!-- Target rent row -->
           <div class="target-row">
@@ -1008,10 +1006,12 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
             </div>
           </div>
 
-        </div><!-- /view-standard -->
+      </div><!-- /results-body -->
+    </div><!-- /results-card view-standard -->
 
-        <!-- ── Analysis Tab ── -->
-        <div id="view-analysis" role="tabpanel" aria-labelledby="tab-analysis" hidden>
+    <!-- ── Analysis Tab ── -->
+    <div class="results-card" id="view-analysis" role="tabpanel" aria-labelledby="tab-analysis" hidden>
+      <div class="results-body">
 
           <!-- Mini hero -->
           <div class="anl-hero">
@@ -1073,10 +1073,12 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
             </table>
           </div>
 
-        </div><!-- /view-analysis -->
+      </div><!-- /results-body -->
+    </div><!-- /results-card view-analysis -->
 
-        <!-- ── Afford Target Tab ── -->
-        <div id="view-afford" role="tabpanel" aria-labelledby="tab-afford" hidden>
+    <!-- ── Afford Target Tab ── -->
+    <div class="results-card" id="view-afford" role="tabpanel" aria-labelledby="tab-afford" hidden>
+      <div class="results-body">
 
           <!-- Target bar -->
           <div class="aft-tgt-bar">
@@ -1182,10 +1184,8 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 
           </div><!-- /aft-analysis -->
 
-        </div><!-- /view-afford -->
-
       </div><!-- /results-body -->
-    </div><!-- /results-card -->
+    </div><!-- /results-card view-afford -->
   </div><!-- /results-panel -->
 
 </main>
