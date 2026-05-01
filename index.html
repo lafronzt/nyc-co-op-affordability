@@ -283,10 +283,19 @@ table.acct-tbl {
 }
 /* Right-aligned headers: match the 10px right offset of cell content (3px td padding + 7px input padding) */
 .acct-tbl th.r { text-align: right; padding-right: 10px; }
+.acct-tbl th.c { text-align: center; }
 .acct-tbl td { padding: 3px 3px; vertical-align: middle; }
 /* Right-align number-input cells so inputs sit flush with their column headers */
 .acct-tbl td:nth-child(2),
-.acct-tbl td:nth-child(3) { text-align: right; }
+.acct-tbl td:nth-child(4) { text-align: right; }
+/* Center the Closing? checkbox column */
+.acct-tbl td:nth-child(3) { text-align: center; }
+.acct-tbl input[type="checkbox"] {
+  width: 16px; height: 16px;
+  cursor: pointer;
+  accent-color: var(--green);
+  vertical-align: middle;
+}
 .acct-tbl td input[type="text"] {
   border: 1px solid var(--g200);
   border-radius: 4px;
@@ -1284,6 +1293,7 @@ hr.snap-div {
             <tr>
               <th>Account</th>
               <th class="r">Balance ($)</th>
+              <th class="c">Closing?</th>
               <th class="r">Reserve %</th>
               <th class="r">Closing Cash</th>
               <th class="r">Reserve Value</th>
@@ -1299,11 +1309,11 @@ hr.snap-div {
       <div class="pool-callout">
         <div class="pool-row">
           <span class="pool-dot green"></span>
-          <span><strong>Closing Cash</strong> (Reserve % = 100%) — wired at closing to cover the down payment + closing costs. Cash, HYSA, and brokerage accounts you plan to liquidate should be 100%.</span>
+          <span><strong>Closing Cash</strong> (Closing? = ✓) — wired at closing to cover the down payment + closing costs. Check any account you can fully liquidate on closing day.</span>
         </div>
         <div class="pool-row">
           <span class="pool-dot blue"></span>
-          <span><strong>Reserve Value</strong> (all accounts × Reserve %) — counts toward the board's post-close cushion. Boards typically apply a 70–80% haircut on brokerage and exclude retirement accounts (401k, IRA) — set those to 0% or your board's actual credit.</span>
+          <span><strong>Reserve Value</strong> (balance × Reserve %) — counts toward the board's post-close cushion. Boards typically apply a 70–80% haircut on brokerage and exclude retirement accounts — set Reserve % to 0% for accounts your board ignores.</span>
         </div>
       </div>
 
@@ -1489,7 +1499,7 @@ hr.snap-div {
             <span class="sr-val" id="s-atclose">—</span>
           </div>
           <div class="snap-row avail-row">
-            <span class="sr-lbl">Avail for DP + CC <span class="sr-note">(100% liquid)</span></span>
+            <span class="sr-lbl">Avail for DP + CC <span class="sr-note">(Closing ✓)</span></span>
             <span class="sr-val" id="s-dp-avail">—</span>
           </div>
           <div class="snap-row surplus-row">
@@ -1814,12 +1824,12 @@ hr.snap-div {
       <h3>Two constraints, one limit</h3>
       <p>This calculator finds the lower of two maximum prices:</p>
       <ul>
-        <li><strong>Cash / Reserves:</strong> Your assets are split into two pools. Only <em>fully liquid</em> (100%) assets can cover the down payment and closing costs. All assets (weighted by liquidity %) count toward the post-close reserve cushion — most boards require 12 months of carrying costs (maintenance + mortgage), though conservative buildings ask for 24+. Both pools must have sufficient funds for a deal to work.</li>
+        <li><strong>Cash / Reserves:</strong> Your assets are split into two pools. Only accounts with <em>Closing?</em> checked can cover the down payment and closing costs — these are wired at closing. All accounts (weighted by Reserve %) count toward the post-close reserve cushion — most boards require 12 months of carrying costs (maintenance + mortgage), though conservative buildings ask for 24+. Both pools must be sufficient for a deal to work.</li>
         <li><strong>DTI / Income:</strong> Your total monthly housing payment (mortgage P+I + maintenance + other debts) must stay within the board's debt-to-income ratio limit on your gross monthly income. Most NYC boards use 25–30% DTI.</li>
       </ul>
       <p>Whichever constraint produces the <em>lower</em> max price is your binding limit — you can't spend more than both allow simultaneously.</p>
-      <h3>What "Liquidity %" means</h3>
-      <p>The liquidity % reflects how much of each account is available to fund the purchase and satisfy post-closing reserve requirements. <strong>Only accounts at 100% liquidity count toward the down payment and closing costs.</strong> Cash, savings, and brokerage accounts are fully liquid — you can sell securities and wire the proceeds to closing. Retirement accounts (401k, IRA, Roth IRA) are disclosed on the REBNY financial statement for net worth purposes but are <em>generally excluded</em> from post-closing liquidity by most NYC co-op boards — they appear on Schedule D, not as liquid reserves. Some boards may give partial credit; adjust the % if yours does. Note: even though brokerage funds are set to 100% here (you can use them for the DP), boards typically apply a 70–80% haircut when evaluating post-closing reserves for market-volatility risk — the actual reserve cushion your board sees will be somewhat lower than this calculator shows.</p>
+      <h3>Closing? checkbox vs. Reserve %</h3>
+      <p>Each account has two independent settings. <strong>Closing?</strong> — check this for any account you can fully liquidate and wire on closing day (cash, HYSA, brokerage you plan to sell). The full balance then counts toward the down payment and closing costs. <strong>Reserve %</strong> — the fraction of the balance your board credits toward post-closing reserves. Boards typically credit 100% for cash and HYSA, 70–80% for brokerage (market-volatility haircut), and 0% for retirement accounts (401k, IRA, Roth IRA), which appear on Schedule D of the REBNY financial statement rather than as liquid reserves. You can check Closing? on a brokerage account while setting its Reserve % to 80% — meaning you'd wire the full amount at closing but only 80% counts toward your post-close cushion in the board's eyes.</p>
       <h3>Mansion tax is tiered</h3>
       <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The default variable rate (0.5%) covers loan origination fees only, assuming a sub-$1M purchase. If your target price crosses $1M, add 1% to the variable rate. Flip tax (typically 1–3% of sale price) is usually paid by the seller, but some buildings charge the buyer — check the proprietary lease.</p>
       <h3>This is an estimate — verify everything</h3>
@@ -1876,9 +1886,9 @@ hr.snap-div {
 // ═══════════════════════════════════════
 const state = {
   accounts: [
-    { name: 'Checking',                balance: 15000,   liquidity: 100 },
-    { name: 'High-Yield Savings',      balance: 35000,   liquidity: 100 },
-    { name: 'Brokerage / Investments', balance: 70000,   liquidity: 100 },
+    { name: 'Checking',                balance: 15000,  liquidity: 100, closing: true },
+    { name: 'High-Yield Savings',      balance: 35000,  liquidity: 100, closing: true },
+    { name: 'Brokerage / Investments', balance: 70000,  liquidity: 80,  closing: true },
   ],
   targetOverride: null,   // null = use maxPrice
 };
@@ -1932,7 +1942,11 @@ function clearStorage() {
 function restoreInputs(data) {
   if (!data) return;
   if (Array.isArray(data.accounts) && data.accounts.length > 0) {
-    state.accounts = data.accounts;
+    // Migrate saved accounts that predate the closing checkbox field
+    state.accounts = data.accounts.map(a => ({
+      ...a,
+      closing: a.closing !== undefined ? a.closing : (a.liquidity || 0) === 100,
+    }));
   }
   const inp = data.inputs;
   if (!inp) return;
@@ -1966,7 +1980,7 @@ function calculate(inp) {
 
   // --- derived scalars ---
   const avail      = accounts.reduce((s, a) => s + (a.balance || 0) * (a.liquidity || 0) / 100, 0);
-  const totLiquid  = accounts.reduce((s, a) => (a.liquidity || 0) === 100 ? s + (a.balance || 0) : s, 0);
+  const totLiquid  = accounts.reduce((s, a) => a.closing ? s + (a.balance || 0) : s, 0);
   const annInc     = annualIncome  || 0;
   const moInc      = annInc / 12;
   const oDebts     = otherDebts    || 0;
@@ -2113,13 +2127,26 @@ function renderAccounts() {
     });
     tdLiq.appendChild(inLiq);
 
-    // "Closing Cash" column — full balance only if 100% liquid
+    // "Closing?" checkbox
+    const tdClose = document.createElement('td');
+    const chk = document.createElement('input');
+    chk.type = 'checkbox';
+    chk.checked = !!acct.closing;
+    chk.title = 'Check to count this account toward closing cash (down payment + closing costs)';
+    chk.addEventListener('change', e => {
+      state.accounts[i].closing = e.target.checked;
+      refreshAvailCell(i);
+      onChange();
+    });
+    tdClose.appendChild(chk);
+
+    // "Closing Cash" column — full balance only if closing checkbox is checked
     const tdDp = document.createElement('td');
     const divDp = document.createElement('div');
-    const isFullLiquid = (acct.liquidity || 0) === 100;
-    divDp.className = 'avail-cell' + (isFullLiquid ? ' dp-ok' : ' dim');
+    const isClosing = !!acct.closing;
+    divDp.className = 'avail-cell' + (isClosing ? ' dp-ok' : ' dim');
     divDp.id = 'dp-' + i;
-    if (isFullLiquid) {
+    if (isClosing) {
       const badge = document.createElement('span');
       badge.className = 'dp-badge';
       badge.textContent = '✓';
@@ -2154,7 +2181,7 @@ function renderAccounts() {
       tdDel.appendChild(btn);
     }
 
-    tr.append(tdName, tdBal, tdLiq, tdDp, tdAvail, tdDel);
+    tr.append(tdName, tdBal, tdClose, tdLiq, tdDp, tdAvail, tdDel);
     tbody.appendChild(tr);
   });
 
@@ -2169,10 +2196,10 @@ function refreshAvailCell(i) {
   }
   const elDp = $('dp-' + i);
   if (elDp) {
-    const isFullLiquid = (a.liquidity || 0) === 100;
-    elDp.className = 'avail-cell' + (isFullLiquid ? ' dp-ok' : ' dim');
+    const isClosing = !!a.closing;
+    elDp.className = 'avail-cell' + (isClosing ? ' dp-ok' : ' dim');
     elDp.innerHTML = '';
-    if (isFullLiquid) {
+    if (isClosing) {
       const badge = document.createElement('span');
       badge.className = 'dp-badge';
       badge.textContent = '✓';
@@ -2187,7 +2214,7 @@ function refreshAvailCell(i) {
 
 function refreshTotals() {
   const totAvail  = state.accounts.reduce((s, a) => s + (a.balance||0) * (a.liquidity||0) / 100, 0);
-  const totLiquid = state.accounts.reduce((s, a) => (a.liquidity||0) === 100 ? s + (a.balance||0) : s, 0);
+  const totLiquid = state.accounts.reduce((s, a) => a.closing ? s + (a.balance||0) : s, 0);
   tx('tot-avail', fmt$(totAvail));
   tx('tot-liquid', fmt$(totLiquid));
 }
@@ -2330,7 +2357,7 @@ function setPill(pillId, detailId, ok, detail) {
 // Derived constants from input set, reused by optimizer + chart
 function deriveConstants(inp) {
   const avail = inp.accounts.reduce((s, a) => s + (a.balance || 0) * (a.liquidity || 0) / 100, 0);
-  const totLiquid = inp.accounts.reduce((s, a) => (a.liquidity || 0) === 100 ? s + (a.balance || 0) : s, 0);
+  const totLiquid = inp.accounts.reduce((s, a) => a.closing ? s + (a.balance || 0) : s, 0);
   const moInc = (inp.annualIncome || 0) / 12;
   const rateMonthly = (inp.mortgageRate || 0) / 100 / 12;
   const nMonths = (inp.loanTerm || 30) * 12;
@@ -2418,7 +2445,7 @@ function computeOptimizer(inp) {
     return { ok: false, reason: 'B_NEG', c,
       title: 'Insufficient assets',
       detail: c.dpCCNum <= 0
-        ? 'Your fully-liquid (100%) assets do not cover the fixed closing costs. Add more fully-liquid assets or reduce closing costs.'
+        ? 'Your closing-eligible assets do not cover the fixed closing costs. Check more accounts as Closing? or reduce closing costs.'
         : 'After fixed closing costs and the maintenance reserve, no cash remains for a down payment. Increase liquid assets, lower the reserve months, or reduce closing costs.' };
   }
 
@@ -3446,7 +3473,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Accounts table
   renderAccounts();
   $('btn-add-acct').addEventListener('click', () => {
-    state.accounts.push({ name: 'New Account', balance: 0, liquidity: 100 });
+    state.accounts.push({ name: 'New Account', balance: 0, liquidity: 100, closing: false });
     renderAccounts();
     onChange();
   });
