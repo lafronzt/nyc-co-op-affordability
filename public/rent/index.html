@@ -721,7 +721,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
     <div class="card">
       <div class="card-title" id="card-title-1" aria-expanded="true" aria-controls="card-body-1">
         <span class="snum">1</span> Account Balances
-        <span class="card-chev open" aria-hidden="true">▲</span>
+        <span class="card-chev" aria-hidden="true">▲</span>
       </div>
       <div class="card-body" id="card-body-1">
         <div class="acct-wrap">
@@ -1936,11 +1936,11 @@ function initCollapsibleCards() {
       if (isOpen) {
         bodyEl.classList.add('collapsed');
         titleEl.setAttribute('aria-expanded', 'false');
-        titleEl.querySelector('.card-chev').classList.remove('open');
+        titleEl.querySelector('.card-chev').classList.add('open');
       } else {
         bodyEl.classList.remove('collapsed');
         titleEl.setAttribute('aria-expanded', 'true');
-        titleEl.querySelector('.card-chev').classList.add('open');
+        titleEl.querySelector('.card-chev').classList.remove('open');
       }
     });
   }

@@ -558,7 +558,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
 
     <!-- 1 · Account Balances -->
     <div class="card">
-      <div class="card-title" id="card-title-1" aria-expanded="true" aria-controls="card-body-1"><span class="snum">1</span> Account Balances<span class="card-chev open" aria-hidden="true">▲</span></div>
+      <div class="card-title" id="card-title-1" aria-expanded="true" aria-controls="card-body-1"><span class="snum">1</span> Account Balances<span class="card-chev" aria-hidden="true">▲</span></div>
       <div class="card-body" id="card-body-1">
         <div class="acct-wrap">
           <table class="acct-tbl">
@@ -597,7 +597,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
 
     <!-- 2 · Income & Debts -->
     <div class="card">
-      <div class="card-title" id="card-title-2" aria-expanded="true" aria-controls="card-body-2"><span class="snum">2</span> Income &amp; Existing Debts<span class="card-chev open" aria-hidden="true">▲</span></div>
+      <div class="card-title" id="card-title-2" aria-expanded="true" aria-controls="card-body-2"><span class="snum">2</span> Income &amp; Existing Debts<span class="card-chev" aria-hidden="true">▲</span></div>
       <div class="card-body" id="card-body-2">
         <div class="form-row">
           <label class="lbl" for="annual-income">Annual Gross Income
@@ -620,7 +620,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
 
     <!-- 3 · Mortgage Assumptions -->
     <div class="card">
-      <div class="card-title" id="card-title-3" aria-expanded="true" aria-controls="card-body-3"><span class="snum">3</span> Mortgage Assumptions<span class="card-chev open" aria-hidden="true">▲</span></div>
+      <div class="card-title" id="card-title-3" aria-expanded="true" aria-controls="card-body-3"><span class="snum">3</span> Mortgage Assumptions<span class="card-chev" aria-hidden="true">▲</span></div>
       <div class="card-body" id="card-body-3">
         <div class="form-row">
           <label class="lbl" for="mtg-rate">Annual Mortgage Rate
@@ -643,7 +643,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
 
     <!-- 4 · Lender Requirements & Monthly Costs -->
     <div class="card">
-      <div class="card-title" id="card-title-4" aria-expanded="true" aria-controls="card-body-4"><span class="snum">4</span> Lender Requirements &amp; Monthly Costs<span class="card-chev open" aria-hidden="true">▲</span></div>
+      <div class="card-title" id="card-title-4" aria-expanded="true" aria-controls="card-body-4"><span class="snum">4</span> Lender Requirements &amp; Monthly Costs<span class="card-chev" aria-hidden="true">▲</span></div>
       <div class="card-body" id="card-body-4">
         <div class="form-row">
           <label class="lbl" for="max-dti">Max Back-End DTI
@@ -697,7 +697,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 5px 0; }
 
     <!-- 5 · Closing Costs -->
     <div class="card">
-      <div class="card-title" id="card-title-5" aria-expanded="true" aria-controls="card-body-5"><span class="snum">5</span> Closing Costs<span class="card-chev open" aria-hidden="true">▲</span></div>
+      <div class="card-title" id="card-title-5" aria-expanded="true" aria-controls="card-body-5"><span class="snum">5</span> Closing Costs<span class="card-chev" aria-hidden="true">▲</span></div>
       <div class="card-body" id="card-body-5">
         <div class="sub-title">Fixed Costs</div>
         <div class="fc-list">
@@ -2480,11 +2480,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isOpen) {
         bodyEl.classList.add('collapsed');
         titleEl.setAttribute('aria-expanded', 'false');
-        titleEl.querySelector('.card-chev').classList.remove('open');
+        titleEl.querySelector('.card-chev').classList.add('open');
       } else {
         bodyEl.classList.remove('collapsed');
         titleEl.setAttribute('aria-expanded', 'true');
-        titleEl.querySelector('.card-chev').classList.add('open');
+        titleEl.querySelector('.card-chev').classList.remove('open');
       }
     });
   }
