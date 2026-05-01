@@ -1264,7 +1264,14 @@ function loadSharedProfile() {
 function applySharedProfile(shared) {
   if (!shared) return;
   if (Array.isArray(shared.accounts) && shared.accounts.length) {
-    state.accounts = shared.accounts.map(a => ({ ...a }));
+    // Normalise to rent's schema: co-op accounts use closing+reserve instead
+    // of liquidity, so derive liquidity when it isn't present.
+    state.accounts = shared.accounts.map(a => ({
+      ...a,
+      liquidity: a.liquidity !== undefined
+        ? a.liquidity
+        : (a.closing ? 100 : (a.reserve || 0)),
+    }));
     renderAccounts();
   }
   const sv = (id, v) => { if (v !== undefined) { const el = $(id); if (el) el.value = v; } };
