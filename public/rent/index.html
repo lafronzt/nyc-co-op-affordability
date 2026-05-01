@@ -276,6 +276,12 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 }
 .acct-tbl th.r { text-align: right; }
 .acct-tbl td { padding: 3px 3px; vertical-align: middle; }
+.acct-tbl th:last-child,
+.acct-tbl td.del-cell { width: 26px; text-align: center; }
+.acct-tbl td:nth-child(2),
+.acct-tbl td:nth-child(3),
+.acct-tbl td:nth-child(4),
+.acct-tbl td:nth-child(5) { text-align: right; }
 .acct-tbl td input[type="text"] {
   border: 1px solid var(--g200); border-radius: 4px;
   padding: 5px 7px; font-size: 12px; color: var(--g800);
@@ -710,7 +716,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
                 <th>Account</th>
                 <th class="r">Balance ($)</th>
                 <th class="r">Liquidity %</th>
-                <th class="r">Move-In <span class="th-note">(100%)</span></th>
+                <th class="r">Move-In <span class="th-note">(weighted)</span></th>
                 <th class="r">Reserve</th>
                 <th></th>
               </tr>
@@ -938,7 +944,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
             <div class="snap-row indent"><span class="sr-lbl">Utility setup</span><span class="sr-val" id="s-utility-setup">—</span></div>
             <div class="snap-row indent"><span class="sr-lbl">Pet deposit</span><span class="sr-val" id="s-pet-fee">—</span></div>
             <div class="snap-row subtot"><span class="sr-lbl">Total at signing</span><span class="sr-val" id="s-total-signing">—</span></div>
-            <div class="snap-row avail"><span class="sr-lbl">Move-in available (100% liquid)</span><span class="sr-val" id="s-movein-avail">—</span></div>
+            <div class="snap-row avail"><span class="sr-lbl">Move-in available (weighted)</span><span class="sr-val" id="s-movein-avail">—</span></div>
             <div class="snap-row"><span class="sr-lbl">Surplus / (Shortfall)</span><span class="sr-val" id="s-movein-surplus">—</span></div>
           </div>
 
@@ -1180,7 +1186,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
     <p>Your maximum affordable rent is the lower of two limits:</p>
     <ul>
       <li><strong>Income constraint:</strong> Most NYC landlords require annual income ≥ 40× monthly rent (the "40× rule"). Some also screen by DTI — your total rent-to-income ratio.</li>
-      <li><strong>Cash constraint:</strong> You must cover first month + security deposit + broker fee + other move-in costs from 100%-liquid assets, and still maintain a reserve buffer.</li>
+      <li><strong>Cash constraint:</strong> You must cover first month + security deposit + broker fee + other move-in costs from liquidity-weighted assets, and still maintain a reserve buffer.</li>
     </ul>
     <h3>Security Deposit Law</h3>
     <p>The Housing Stability and Tenant Protection Act (HSTPA, 2019) caps security deposits at one month's rent for most NYC rentals. The calculator defaults to 1 month.</p>
@@ -1337,12 +1343,14 @@ function renderAccounts() {
   tbody.innerHTML = '';
   state.accounts.forEach((acct, i) => {
     const tr = document.createElement('tr');
+    const moveInValue = acct.balance * acct.liquidity / 100;
+    const reserveValue = moveInValue;
     tr.innerHTML = `
       <td><input type="text" value="${escHtml(acct.name)}" data-i="${i}" data-f="name" aria-label="Account name"></td>
       <td><input type="number" value="${acct.balance}" data-i="${i}" data-f="balance" min="0" step="1000" style="width:90px" aria-label="Balance"></td>
       <td><input type="number" value="${acct.liquidity}" data-i="${i}" data-f="liquidity" min="0" max="100" step="5" style="width:60px" aria-label="Liquidity percent"></td>
-      <td><div class="avail-cell${acct.liquidity === 100 ? '' : ' dim'}" id="mi-${i}">${acct.liquidity === 100 ? fmt(acct.balance) : '—'}</div></td>
-      <td><div class="avail-cell" id="res-${i}">${fmt(acct.balance * acct.liquidity / 100)}</div></td>
+      <td><div class="avail-cell${moveInValue > 0 ? '' : ' dim'}" id="mi-${i}">${moveInValue > 0 ? fmt(moveInValue) : '—'}</div></td>
+      <td><div class="avail-cell" id="res-${i}">${fmt(reserveValue)}</div></td>
       <td class="del-cell">${i >= 2 ? `<button class="btn-del" data-i="${i}" type="button" aria-label="Delete row ${i + 1}">&times;</button>` : ''}</td>
     `;
     tbody.appendChild(tr);
@@ -1359,8 +1367,9 @@ function refreshAvailCell(i) {
   const miEl = $(`mi-${i}`);
   const resEl = $(`res-${i}`);
   if (miEl) {
-    if (acct.liquidity === 100) {
-      miEl.textContent = fmt(acct.balance);
+    const moveInValue = acct.balance * acct.liquidity / 100;
+    if (moveInValue > 0) {
+      miEl.textContent = fmt(moveInValue);
       miEl.classList.remove('dim');
     } else {
       miEl.textContent = '—';
@@ -1373,8 +1382,9 @@ function refreshAvailCell(i) {
 function refreshTotals() {
   let liq = 0, res = 0;
   state.accounts.forEach(a => {
-    if (a.liquidity === 100) liq += a.balance;
-    res += a.balance * a.liquidity / 100;
+    const weighted = a.balance * a.liquidity / 100;
+    liq += weighted;
+    res += weighted;
   });
   $('tot-liquid').textContent = fmt(liq);
   $('tot-reserve').textContent = fmt(res);
@@ -1433,8 +1443,9 @@ function brokerFixed(inp) {
 function calculate(inp) {
   let totLiquid = 0, totWeighted = 0;
   inp.accounts.forEach(a => {
-    if (a.liquidity === 100) totLiquid += a.balance;
-    totWeighted += a.balance * a.liquidity / 100;
+    const weighted = a.balance * a.liquidity / 100;
+    totLiquid += weighted;
+    totWeighted += weighted;
   });
 
   const moInc = inp.annualIncome / 12;
@@ -1444,8 +1455,7 @@ function calculate(inp) {
   const fixedMovein  = inp.appFee + inp.buildingFee + inp.utilitySetup + inp.petFee + bFixed;
   const fixedReserve = inp.reserveMonths * (inp.rentersInsurance + inp.otherDebts);
 
-  // Move-in (first month + deposit + broker) must come from 100%-liquid accounts.
-  // Reserve buffer can come from any liquidity-weighted assets.
+  // Move-in and reserve buffer use liquidity-weighted account values.
   const moveinCoeff  = 1 + inp.secDepositMonths + bMult;
   const maxRent_movein  = moveinCoeff > 0
     ? Math.max(0, (totLiquid - fixedMovein) / moveinCoeff)
@@ -1773,7 +1783,7 @@ function renderAffordTargetView(inp, calc) {
     const needCash = calc.totLiquid + cashGap;
     $('lev-cash-big').textContent  = fmt(needCash);
     $('lev-cash-big').className    = 'lever-big neg';
-    $('lev-cash-sub').textContent  = `Need ${fmt(cashGap)} more in 100%-liquid savings.`;
+    $('lev-cash-sub').textContent  = `Need ${fmt(cashGap)} more in liquidity-weighted savings.`;
     $('lev-cash-badge').textContent = '+' + fmt(cashGap);
     $('lev-cash-badge').className   = 'lbadge warn';
     const savingsPerMo = 500;
