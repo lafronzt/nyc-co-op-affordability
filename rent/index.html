@@ -2,1529 +2,677 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NYC Rent Affordability Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYC Rent Affordability Finder | Calculate Your Max Affordable Rent</title>
+<meta name="description" content="Free NYC rent affordability calculator. Enter your income and assets to instantly find your maximum affordable monthly rent — factoring in the 40× income rule, FARE Act broker fees, security deposit law, and move-in cash requirements.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.nyc-rent-affordability.com/">
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://www.nyc-rent-affordability.com/">
+<meta property="og:title"       content="NYC Rent Affordability Finder | Calculate Your Max Affordable Rent">
+<meta property="og:description" content="Free NYC rent affordability calculator. Find your max affordable monthly rent from your financial profile — covering income screening, FARE Act broker fees, security deposit law, and move-in cash requirements.">
+<meta property="og:locale"      content="en_US">
+<meta name="twitter:card"       content="summary">
+<meta name="twitter:title"      content="NYC Rent Affordability Finder">
+<meta name="twitter:description" content="Free NYC rent affordability calculator. Reverse-engineer your max affordable monthly rent from your income, assets, and move-in assumptions.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"NYC Rent Affordability Finder","url":"https://www.nyc-rent-affordability.com/","description":"Find your maximum affordable monthly rent from your financial profile, covering NYC income screening, FARE Act broker fee rules, and move-in cash requirements.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"areaServed":{"@type":"City","name":"New York City","sameAs":"https://www.wikidata.org/wiki/Q60"}}
+</script>
 <style>
-/* ── Reset & base ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;scroll-behavior:smooth}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}
+/* ===== RESET & VARIABLES ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Design tokens ── */
-:root{
-  --navy:#1e3a5f;
-  --rent-dark:#134e38;
-  --rent-mid:#0e3d2c;
-  --blue:#2563eb;
-  --blue-dark:#1d4ed8;
-  --green:#16a34a;
-  --amber:#d97706;
-  --red:#dc2626;
-  --slate-50:#f8fafc;
-  --slate-100:#f1f5f9;
-  --slate-200:#e2e8f0;
-  --slate-300:#cbd5e1;
-  --slate-400:#94a3b8;
-  --slate-500:#64748b;
-  --slate-600:#475569;
-  --slate-700:#334155;
-  --slate-800:#1e293b;
-  --card-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
-  --card-radius:12px;
+:root {
+  --rent:         #134e38;
+  --rent-mid:     #0e3d2c;
+  --rent-lite:    #d1fae5;
+  --rent-bd:      #6ee7b7;
+  --navy:         #0a1628;
+  --navy-mid:     #142240;
+  --blue:         #2563eb;
+  --blue-lt:      #dbeafe;
+  --blue-xlt:     #eff6ff;
+  --green:        #16a34a;
+  --green-bg:     #f0fdf4;
+  --green-bd:     #bbf7d0;
+  --red:          #dc2626;
+  --red-bg:       #fef2f2;
+  --red-bd:       #fecaca;
+  --gold:         #f59e0b;
+  --g50:          #f9fafb;
+  --g100:         #f3f4f6;
+  --g200:         #e5e7eb;
+  --g300:         #d1d5db;
+  --g400:         #9ca3af;
+  --g500:         #6b7280;
+  --g600:         #4b5563;
+  --g700:         #374151;
+  --g800:         #1f2937;
+  --g900:         #111827;
+  --border:       #e2e4e9;
+  --r:            8px;
 }
 
-/* ── Layout ── */
-.app-header{background:var(--rent-dark);color:#fff;padding:20px 24px;border-bottom:2px solid rgba(255,255,255,.08)}
-.app-header h1{font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
-.app-header p{font-size:.85rem;opacity:.8;margin-top:4px}
-.app-body{max-width:1280px;margin:0 auto;padding:24px 16px;display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:start}
-@media(max-width:900px){.app-body{grid-template-columns:1fr}}
-.inputs-col{display:flex;flex-direction:column;gap:16px}
-.results-col{position:sticky;top:24px;display:flex;flex-direction:column;gap:16px}
-@media(max-width:900px){.results-col{position:static}}
-.app-footer{background:var(--rent-dark);color:rgba(255,255,255,.85);padding:32px 24px;margin-top:40px}
-.footer-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
-.footer-section h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:10px}
-.footer-section a{display:block;color:rgba(255,255,255,.75);text-decoration:none;font-size:.85rem;margin-bottom:6px;transition:color .15s}
-.footer-section a:hover{color:#fff}
-.footer-bottom{max-width:1280px;margin:24px auto 0;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:.78rem;color:rgba(255,255,255,.45);text-align:center}
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background: #eef0f4;
+  color: var(--g900);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
 
-/* ── Card ── */
-.card{background:#fff;border-radius:var(--card-radius);box-shadow:var(--card-shadow);overflow:hidden}
-.card-hd{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--slate-100);cursor:pointer;user-select:none}
-.card-hd.static{cursor:default}
-.card-hd:hover:not(.static){background:var(--slate-50)}
-.snum{width:26px;height:26px;border-radius:50%;background:var(--rent-dark);color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-title{font-size:.92rem;font-weight:600;color:var(--slate-800);flex:1}
-.chevron{font-size:.8rem;color:var(--slate-400);transition:transform .2s;margin-left:auto}
-.chevron.open{transform:rotate(180deg)}
-.card-bd{padding:16px 18px;display:flex;flex-direction:column;gap:10px}
-.card-bd.collapsed{display:none}
+/* ===== HEADER ===== */
+.app-header {
+  background: var(--rent);
+  padding: 13px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 2px solid var(--rent-mid);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-header h1 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: #d1fae5;
+  white-space: nowrap;
+}
+.app-header h1 em { font-style: normal; color: var(--rent-bd); }
+.app-header .tagline {
+  font-size: 12px;
+  color: #a7f3d0;
+  line-height: 1.3;
+  max-width: 380px;
+  display: none;
+}
+@media (min-width: 700px) { .app-header .tagline { display: block; } }
+.save-toggle {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: auto; cursor: pointer; user-select: none; flex-shrink: 0;
+}
+.save-toggle input[type="checkbox"] {
+  position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+}
+.toggle-track {
+  width: 30px; height: 16px;
+  background: var(--rent-mid);
+  border-radius: 8px; position: relative; transition: background .2s; flex-shrink: 0;
+}
+.toggle-thumb {
+  position: absolute; left: 2px; top: 2px;
+  width: 12px; height: 12px;
+  background: #4a8a6e;
+  border-radius: 50%; transition: left .2s, background .2s;
+}
+.save-toggle input:checked + .toggle-track { background: var(--blue); }
+.save-toggle input:checked + .toggle-track .toggle-thumb { left: 16px; background: #fff; }
+.toggle-label { font-size: 11px; color: #a7f3d0; }
 
-/* ── Form rows ── */
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-@media(max-width:480px){.row2,.row3{grid-template-columns:1fr}}
-.fg{display:flex;flex-direction:column;gap:4px}
-label{font-size:.78rem;font-weight:600;color:var(--slate-600);display:flex;align-items:center;gap:4px}
-.iw{position:relative;display:flex;align-items:center}
-.iw input,.iw select{width:100%;padding:8px 10px;border:1.5px solid var(--slate-200);border-radius:8px;font-size:.9rem;color:var(--slate-800);background:#fff;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
-.iw input:focus,.iw select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-.iw input[readonly]{background:var(--slate-50);color:var(--slate-500)}
-.iw .pfx{position:absolute;left:10px;font-size:.85rem;color:var(--slate-400);pointer-events:none}
-.iw .sfx{position:absolute;right:10px;font-size:.85rem;color:var(--slate-400);pointer-events:none}
-.iw .pfx~input,.iw .pfx~select{padding-left:24px}
-.iw .sfx~input{padding-right:28px}
-.hint{font-size:.73rem;color:var(--slate-400)}
-.check-lbl{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--slate-700);cursor:pointer}
-.check-lbl input[type=checkbox]{width:16px;height:16px;accent-color:var(--rent-dark);flex-shrink:0}
-.sep{border:none;border-top:1px solid var(--slate-100);margin:4px 0}
+/* ===== MAIN LAYOUT ===== */
+main.app-layout {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 20px;
+  padding: 20px 16px 60px;
+  align-items: start;
+}
+@media (max-width: 1060px) {
+  main.app-layout { grid-template-columns: 1fr; }
+}
 
-/* ── Accounts table ── */
-.acct-table{width:100%;border-collapse:collapse;font-size:.83rem}
-.acct-table th{padding:6px 8px;text-align:left;font-size:.73rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--slate-500);border-bottom:1.5px solid var(--slate-100)}
-.acct-table td{padding:6px 8px;border-bottom:1px solid var(--slate-50)}
-.acct-table td input{width:100%;border:1px solid var(--slate-200);border-radius:6px;padding:5px 7px;font-size:.83rem;outline:none;transition:border-color .15s}
-.acct-table td input:focus{border-color:var(--blue)}
-.acct-table td:last-child{width:36px;text-align:center}
-.btn-del{background:none;border:none;cursor:pointer;color:var(--slate-400);font-size:1rem;padding:2px 6px;border-radius:4px;transition:color .15s}
-.btn-del:hover{color:var(--red)}
-.btn-add-acct{margin-top:8px;padding:6px 14px;background:var(--slate-100);border:1.5px solid var(--slate-200);border-radius:8px;font-size:.8rem;font-weight:600;color:var(--slate-600);cursor:pointer;transition:background .15s}
-.btn-add-acct:hover{background:var(--slate-200)}
-.totals-row{display:flex;gap:16px;margin-top:10px;padding:10px 12px;background:var(--slate-50);border-radius:8px;font-size:.82rem}
-.totals-row span{color:var(--slate-500)}
-.totals-row strong{color:var(--slate-800)}
+.inputs-panel { display: flex; flex-direction: column; gap: 14px; }
+.results-panel {
+  position: sticky; top: 56px;
+  max-height: calc(100vh - 72px);
+  overflow-y: auto;
+}
+@media (max-width: 1060px) { .results-panel { position: static; max-height: none; } }
 
-/* ── Save toggle ── */
-.save-row{display:flex;align-items:center;gap:8px;padding:8px 0 2px}
-.save-row label{font-size:.78rem;color:var(--slate-500);cursor:pointer}
-.save-row input[type=checkbox]{accent-color:var(--rent-dark)}
+/* ===== COLLAPSIBLE SECTIONS (How/Assumptions) ===== */
+.info-wrap { max-width: 1320px; margin: 0 auto; padding: 0 16px 10px; }
+.info-btn {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; text-align: left;
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; color: var(--blue);
+  font-family: inherit; font-weight: 500; padding: 8px 0;
+}
+.info-btn:hover { color: #1d4ed8; }
+.info-caret { transition: transform .2s; font-style: normal; }
+.info-btn.open .info-caret { transform: rotate(180deg); }
+.info-body {
+  display: none; background: #fff;
+  border: 1px solid var(--border); border-radius: var(--r);
+  padding: 16px 20px; font-size: 13px; color: var(--g600); line-height: 1.65;
+}
+.info-body.open { display: block; }
+.info-body h3 { font-size: 13px; font-weight: 700; color: var(--g800); margin: 12px 0 4px; }
+.info-body h3:first-child { margin-top: 0; }
+.info-body p { margin-bottom: 7px; }
+.info-body ul { padding-left: 18px; margin-bottom: 7px; }
+.info-body li { margin-bottom: 3px; }
+.info-body a { color: var(--blue); }
+.sources-dl dt { font-weight: 700; color: var(--g700); font-size: 12px; margin-top: 8px; }
+.sources-dl dd { padding-left: 12px; font-size: 12px; color: var(--g500); margin-top: 2px; }
+.sources-dl dd a { color: var(--blue); }
 
-/* ── Results panel ── */
-.results-header{padding:0}
-.tab-bar{display:flex;border-bottom:2px solid var(--slate-100);background:#fff;border-radius:var(--card-radius) var(--card-radius) 0 0;overflow:hidden}
-.tab-btn{flex:1;padding:12px 8px;border:none;background:none;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--slate-500);transition:color .15s,background .15s;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
-.tab-btn:hover{background:var(--slate-50);color:var(--slate-700)}
-.tab-btn.active{color:var(--rent-dark);border-bottom-color:var(--rent-dark)}
-.tab-content{display:none}
-.tab-content.active{display:block}
+/* ===== INPUT CARD ===== */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  overflow: hidden;
+}
+.card-title {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--g500);
+  padding: 12px 16px 11px;
+  border-bottom: 1px solid var(--g100);
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; user-select: none;
+  transition: background .12s;
+}
+.card-title:hover { background: var(--g50); }
+.card-title.no-toggle { cursor: default; }
+.card-title.no-toggle:hover { background: transparent; }
+.snum {
+  background: var(--rent); color: #fff;
+  border-radius: 50%; width: 17px; height: 17px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; flex-shrink: 0;
+}
+.card-chev { font-size: 10px; color: var(--g400); margin-left: auto; transition: transform .2s; }
+.card-chev.open { transform: rotate(180deg); }
+.card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.card-body.collapsed { display: none; }
 
-/* ── Hero ── */
-.hero{background:var(--rent-dark);color:#fff;padding:20px 20px 16px;border-radius:0;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,.15);border-radius:50%}
-.hero::after{content:'';position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;background:rgba(255,255,255,.08);border-radius:50%}
-.hero-eyebrow{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:6px}
-.hero-price{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1}
-.hero-sub{font-size:.82rem;opacity:.75;margin-top:6px}
-.hero-binding{font-size:.78rem;margin-top:8px;opacity:.9}
-.hero-binding strong{font-weight:700}
-.hero-warn{margin-top:8px;padding:6px 10px;background:rgba(220,38,38,.25);border-left:3px solid #fca5a5;border-radius:4px;font-size:.78rem;display:none}
+/* ===== FORM ROWS ===== */
+.form-row {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.lbl {
+  flex: 1;
+  font-size: 12.5px; color: var(--g700); font-weight: 500;
+  padding-top: 8px;
+}
+.lbl small {
+  display: block; font-size: 11px;
+  color: var(--g400); font-weight: 400;
+  margin-top: 2px; line-height: 1.4;
+}
+.src {
+  background: none; border: none; cursor: pointer;
+  color: var(--g400); font-size: 11px; padding: 0 2px;
+  font-family: inherit; vertical-align: middle;
+  border-radius: 3px; transition: color .12s;
+}
+.src:hover, .src:focus { color: var(--blue); outline: 1px dashed var(--blue-lt); outline-offset: 1px; }
 
-/* ── Target override ── */
-.target-row{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--slate-100);background:var(--slate-50)}
-.target-row label{font-size:.78rem;font-weight:600;color:var(--slate-600);white-space:nowrap}
-.target-iw{flex:1;position:relative}
-.target-iw .pfx{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;color:var(--slate-400);pointer-events:none}
-.target-iw input{width:100%;padding:7px 10px 7px 24px;border:1.5px solid var(--slate-200);border-radius:8px;font-size:.9rem;outline:none;transition:border-color .15s}
-.target-iw input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-.btn-reset-tgt{padding:6px 12px;background:var(--slate-200);border:none;border-radius:7px;font-size:.78rem;font-weight:600;color:var(--slate-600);cursor:pointer;white-space:nowrap;transition:background .15s}
-.btn-reset-tgt:hover{background:var(--slate-300)}
+/* Input wrappers */
+.iw {
+  display: flex; align-items: stretch;
+  border: 1px solid var(--g300); border-radius: 5px;
+  background: #fff; overflow: hidden; flex-shrink: 0;
+  transition: border-color .15s, box-shadow .15s;
+}
+.iw:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+.iw .px, .iw .sx {
+  background: var(--g50); padding: 0 8px;
+  font-size: 13px; color: var(--g500); font-weight: 500;
+  display: flex; align-items: center; user-select: none; white-space: nowrap;
+}
+.iw .px { border-right: 1px solid var(--g200); }
+.iw .sx { border-left:  1px solid var(--g200); }
+.iw input, .iw select {
+  border: none; outline: none; background: transparent;
+  padding: 7px 9px; font-size: 13px; font-family: inherit;
+  color: var(--g900); min-width: 0; -moz-appearance: textfield;
+}
+.iw input::-webkit-inner-spin-button,
+.iw input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.iw input.ro { background: var(--g50); color: var(--g500); cursor: default; }
+.iw select { cursor: pointer; }
+.w60  { width: 60px;  }
+.w80  { width: 80px;  }
+.w100 { width: 100px; }
+.w120 { width: 120px; }
+.w160 { width: 160px; }
+.w200 { width: 200px; }
 
-/* ── Presets ── */
-.preset-row{padding:8px 16px 12px;border-bottom:1px solid var(--slate-100);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.preset-label{font-size:.72rem;color:var(--slate-400);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
-.preset-btn{padding:4px 10px;background:var(--slate-100);border:1.5px solid var(--slate-200);border-radius:20px;font-size:.75rem;font-weight:600;color:var(--slate-600);cursor:pointer;transition:all .15s}
-.preset-btn:hover{background:var(--slate-200);border-color:var(--rent-dark);color:var(--rent-dark)}
+/* Toggle row */
+.toggle-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--g700); font-weight: 500;
+  cursor: pointer;
+}
+.toggle-row input[type="checkbox"] {
+  width: 14px; height: 14px; accent-color: var(--rent); flex-shrink: 0; cursor: pointer;
+}
+.toggle-row small { font-size: 11px; color: var(--g400); font-weight: 400; }
 
-/* ── Waterfall table ── */
-.results-section{padding:12px 16px}
-.results-section h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate-400);margin-bottom:8px}
-.wf-table{width:100%;font-size:.83rem;border-collapse:collapse}
-.wf-table tr td:first-child{color:var(--slate-600);padding:4px 0}
-.wf-table tr td:last-child{text-align:right;font-weight:600;color:var(--slate-800);font-variant-numeric:tabular-nums}
-.wf-table tr.wf-total td{border-top:1.5px solid var(--slate-200);padding-top:6px;font-weight:700;color:var(--slate-900)}
-.wf-table tr.wf-highlight td:last-child{color:var(--green)}
-.wf-table tr.wf-warn td:last-child{color:var(--red)}
-.wf-table tr.wf-subtotal td{border-top:1px dashed var(--slate-200);padding-top:4px;color:var(--slate-700)}
+/* Broker note box */
+.broker-note {
+  background: var(--rent-lite); border: 1px solid var(--rent-bd);
+  border-radius: 5px; padding: 8px 10px;
+  font-size: 11.5px; color: #064e3b; line-height: 1.5;
+}
+.broker-note a { color: #065f46; }
 
-/* ── Monthly section ── */
-.mo-table{width:100%;font-size:.83rem;border-collapse:collapse}
-.mo-table tr td:first-child{color:var(--slate-600);padding:4px 0}
-.mo-table tr td:last-child{text-align:right;font-weight:600;color:var(--slate-800);font-variant-numeric:tabular-nums}
-.mo-table tr.mo-total td{border-top:1.5px solid var(--slate-200);padding-top:6px;font-weight:700}
+/* ===== ACCOUNTS TABLE ===== */
+.acct-wrap { overflow-x: auto; }
+table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.acct-tbl th {
+  text-align: left; font-size: 10px; font-weight: 600;
+  color: var(--g400); text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 3px 6px 7px; border-bottom: 1px solid var(--g200); white-space: nowrap;
+}
+.acct-tbl th.r { text-align: right; }
+.acct-tbl td { padding: 3px 3px; vertical-align: middle; }
+.acct-tbl td input[type="text"] {
+  border: 1px solid var(--g200); border-radius: 4px;
+  padding: 5px 7px; font-size: 12px; color: var(--g800);
+  outline: none; width: 120px; font-family: inherit; transition: border-color .12s;
+}
+.acct-tbl td input[type="text"]:focus { border-color: var(--blue); }
+.acct-tbl td input[type="number"] {
+  border: 1px solid var(--g200); border-radius: 4px;
+  padding: 5px 7px; font-size: 12px; color: var(--g800);
+  outline: none; text-align: right; width: 85px;
+  -moz-appearance: textfield; font-family: inherit; transition: border-color .12s;
+}
+.acct-tbl td input[type="number"]::-webkit-inner-spin-button,
+.acct-tbl td input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.acct-tbl td input[type="number"]:focus { border-color: var(--blue); }
+.avail-cell {
+  background: var(--g50); border: 1px solid var(--g100);
+  border-radius: 4px; text-align: right;
+  font-variant-numeric: tabular-nums; color: var(--g700); font-weight: 600;
+  padding: 5px 8px; min-width: 80px; font-size: 12px; white-space: nowrap;
+}
+.avail-cell.dim { color: var(--g400); font-weight: 400; }
+.btn-del {
+  background: none; border: none; color: var(--g300);
+  font-size: 17px; cursor: pointer; padding: 0 4px; line-height: 1;
+  font-family: inherit; border-radius: 3px; transition: color .12s, background .12s;
+}
+.btn-del:hover { color: var(--red); background: var(--red-bg); }
+.btn-add-row {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--blue); background: none;
+  border: 1px solid var(--blue-lt); border-radius: 4px;
+  padding: 5px 11px; cursor: pointer; margin-top: 10px;
+  font-family: inherit; font-weight: 500; transition: background .12s;
+}
+.btn-add-row:hover { background: var(--blue-xlt); }
+.acct-totals {
+  display: flex; gap: 28px; margin-top: 12px; padding-top: 11px;
+  border-top: 1px solid var(--g200);
+}
+.tot-lbl { font-size: 10px; color: var(--g500); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 2px; }
+.tot-val { font-size: 16px; font-weight: 700; color: var(--g900); font-variant-numeric: tabular-nums; }
+.tot-val.primary { color: var(--rent); }
 
-/* ── Pills ── */
-.pills{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px 14px}
-.pill{padding:6px 12px;border-radius:20px;font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:6px}
-.pill-green{background:#dcfce7;color:#15803d}
-.pill-red{background:#fee2e2;color:#b91c1c}
-.pill-amber{background:#fef3c7;color:#92400e}
-.pill-detail{font-weight:400;opacity:.85}
+/* ===== RESULTS CARD ===== */
+.results-card {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
 
-/* ── Optimizer / Analysis card ── */
-.opt-card{background:#fff;border-radius:var(--card-radius);box-shadow:var(--card-shadow);overflow:hidden}
-.opt-hero{background:linear-gradient(135deg,var(--rent-dark) 0%,var(--rent-mid) 100%);color:#fff;padding:18px 20px}
-.opt-hero h2{font-size:1rem;font-weight:700}
-.opt-hero p{font-size:.82rem;opacity:.8;margin-top:4px}
-.opt-notice{margin:12px;padding:12px 14px;border-radius:8px;background:var(--slate-50);border:1.5px solid var(--slate-200)}
-.opt-notice-title{font-size:.85rem;font-weight:700;color:var(--slate-700);margin-bottom:4px}
-.opt-notice-detail{font-size:.8rem;color:var(--slate-500)}
-.opt-section{padding:12px 16px}
-.opt-section h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--slate-400);margin-bottom:8px}
-.opt-anl-hero{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
-.anl-stat{padding:10px 12px;background:var(--slate-50);border-radius:8px;border:1px solid var(--slate-200)}
-.anl-stat-label{font-size:.7rem;color:var(--slate-400);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.anl-stat-val{font-size:1.05rem;font-weight:800;color:var(--slate-800)}
-.anl-stat-sub{font-size:.7rem;color:var(--slate-500);margin-top:2px}
-.anl-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:4px}
-.anl-table th{padding:5px 8px;background:var(--slate-50);font-size:.7rem;font-weight:700;color:var(--slate-500);text-align:right;border-bottom:1.5px solid var(--slate-200)}
-.anl-table th:first-child{text-align:left}
-.anl-table td{padding:5px 8px;border-bottom:1px solid var(--slate-50);text-align:right;color:var(--slate-700)}
-.anl-table td:first-child{text-align:left;font-weight:600;color:var(--slate-800)}
-.anl-table tr.anl-current td{background:rgba(19,78,56,.05);font-weight:700}
-.sens-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.sens-chip{padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:600;background:var(--slate-100);border:1px solid var(--slate-200);color:var(--slate-700)}
-.sens-chip.up{background:#dcfce7;border-color:#bbf7d0;color:#15803d}
-.sens-chip.dn{background:#fee2e2;border-color:#fecaca;color:#b91c1c}
+/* Hero */
+.hero {
+  background: var(--rent);
+  padding: 20px 18px 16px; text-align: center;
+}
+.hero-eyebrow {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: #a7f3d0; margin-bottom: 5px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: ""; height: 1px; width: 20px; background: var(--rent-mid);
+}
+.hero-price {
+  font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: -2px; color: #f0fdf4; line-height: 1.05;
+  margin-bottom: 4px;
+}
+.hero-price.zero { color: #4a6fa5; }
+.hero-mo { display: block; font-size: 13px; font-weight: 400; color: #a7f3d0; margin-top: 1px; }
+.hero-binding {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 20px; padding: 5px 13px;
+  font-size: 11.5px; color: var(--rent-lite); margin-bottom: 0;
+}
+.binding-val { color: var(--rent-bd); font-weight: 700; }
+.hero-warn {
+  margin-top: 8px; padding: 6px 11px;
+  background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.3);
+  border-radius: 5px; font-size: 12px; color: #fca5a5; display: none;
+}
 
-/* ── Afford Target card ── */
-.aft-card{background:#fff;border-radius:var(--card-radius);box-shadow:var(--card-shadow);overflow:hidden}
-.aft-target-row{padding:14px 16px;display:flex;align-items:center;gap:10px;background:var(--rent-dark)}
-.aft-target-row label{font-size:.82rem;font-weight:700;color:rgba(255,255,255,.85);white-space:nowrap}
-.aft-target-iw{flex:1;position:relative}
-.aft-target-iw .pfx{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;color:rgba(255,255,255,.6);pointer-events:none}
-.aft-target-iw input{width:100%;padding:7px 10px 7px 24px;border:1.5px solid rgba(255,255,255,.25);border-radius:8px;font-size:.95rem;font-weight:700;background:rgba(255,255,255,.1);color:#fff;outline:none;transition:border-color .15s}
-.aft-target-iw input::placeholder{color:rgba(255,255,255,.4)}
-.aft-target-iw input:focus{border-color:rgba(255,255,255,.7);box-shadow:0 0 0 3px rgba(255,255,255,.15)}
-.aft-prompt{padding:20px 16px;text-align:center;color:var(--slate-400);font-size:.88rem}
-.aft-success{padding:14px 16px;background:#f0fdf4;border-bottom:1px solid #bbf7d0;display:none}
-.aft-success-title{font-size:1rem;font-weight:700;color:var(--green)}
-.aft-success-sub{font-size:.82rem;color:var(--slate-500);margin-top:3px}
-.aft-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 16px}
-.aft-sum-cell{padding:10px 12px;border-radius:8px;background:var(--slate-50);border:1px solid var(--slate-200)}
-.aft-sum-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:4px}
-.aft-sum-val{font-size:1rem;font-weight:800;color:var(--slate-800)}
-.aft-sum-val.green{color:var(--green)}
-.aft-sum-val.red{color:var(--red)}
-.aft-analysis{display:none}
-.lev-card{margin:0 12px 12px;border:1.5px solid var(--slate-200);border-radius:10px;overflow:hidden}
-.lev-hd{padding:10px 14px;display:flex;align-items:center;gap:8px;background:var(--slate-50);cursor:pointer;user-select:none}
-.lev-hd:hover{background:var(--slate-100)}
-.lev-badge{padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.lev-badge-green{background:#dcfce7;color:#15803d}
-.lev-badge-red{background:#fee2e2;color:#b91c1c}
-.lev-badge-amber{background:#fef3c7;color:#92400e}
-.lev-title{font-size:.85rem;font-weight:700;color:var(--slate-700);flex:1}
-.lev-chev{font-size:.75rem;color:var(--slate-400);transition:transform .2s}
-.lev-chev.open{transform:rotate(180deg)}
-.lev-bd{padding:10px 14px;display:none}
-.lev-bd.open{display:block}
-.lev-big{font-size:1.3rem;font-weight:800;color:var(--slate-800);margin-bottom:2px}
-.lev-sub{font-size:.78rem;color:var(--slate-500);margin-bottom:8px}
-.lev-savings-row{display:flex;align-items:center;gap:8px;margin-top:6px}
-.lev-savings-row label{font-size:.78rem;color:var(--slate-600);white-space:nowrap}
-.lev-savings-row .iw{flex:1}
-.lev-savings-row .iw input{padding:6px 10px 6px 28px}
-.aft-gap-grid{overflow-x:auto;margin-top:6px}
-.aft-gap-tbl{border-collapse:collapse;font-size:.75rem;min-width:340px;width:100%}
-.aft-gap-tbl th{padding:5px 8px;background:var(--slate-700);color:#fff;font-weight:700;text-align:right;white-space:nowrap}
-.aft-gap-tbl th:first-child{text-align:left;background:var(--slate-800)}
-.aft-gap-tbl td{padding:5px 8px;border:1px solid var(--slate-200);text-align:right;font-variant-numeric:tabular-nums}
-.aft-gap-tbl td:first-child{text-align:left;font-weight:700;background:var(--slate-50);color:var(--slate-700)}
-.aft-gap-tbl td.cell-ok{background:#dcfce7;color:#15803d;font-weight:700}
-.aft-gap-tbl td.cell-close{background:#fef3c7;color:#92400e}
-.aft-gap-tbl td.cell-far{background:#fee2e2;color:#b91c1c}
+/* Results body + tabs */
+.results-body { padding: 14px 16px; }
+.results-tabs {
+  display: flex; margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  flex: 1; background: none;
+  border: none; border-bottom: 2px solid transparent;
+  padding: 9px 10px; font-size: 11.5px; font-weight: 600;
+  color: var(--g500); cursor: pointer; font-family: inherit;
+  transition: color .12s, border-color .12s, background .12s;
+  margin-bottom: -1px; text-align: center;
+}
+.tab-btn:hover { color: var(--g800); background: var(--g50); }
+.tab-btn.active { color: var(--rent); border-bottom-color: var(--rent-bd); }
+.tab-btn[aria-selected="true"] { color: var(--rent); border-bottom-color: var(--rent-bd); }
 
-/* ── Collapsible info ── */
-.info-bar{border-top:1px solid var(--slate-100);padding:0}
-.info-toggle{width:100%;padding:10px 16px;background:none;border:none;cursor:pointer;text-align:left;font-size:.8rem;color:var(--slate-500);display:flex;align-items:center;gap:6px;transition:background .15s}
-.info-toggle:hover{background:var(--slate-50)}
-.info-toggle .chev{margin-left:auto;font-size:.75rem;transition:transform .2s}
-.info-toggle .chev.open{transform:rotate(180deg)}
-.info-body{display:none;padding:12px 16px;font-size:.8rem;color:var(--slate-600);border-top:1px solid var(--slate-100);line-height:1.6}
-.info-body p{margin-bottom:8px}
-.info-body ul{padding-left:18px}
-.info-body li{margin-bottom:4px}
-.info-body strong{color:var(--slate-700)}
+/* Target rent row */
+.target-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: var(--g50); border: 1px solid var(--g200);
+  border-radius: 6px; padding: 9px 11px; margin-bottom: 7px;
+}
+.tgt-lbl { font-size: 11.5px; font-weight: 600; color: var(--g600); white-space: nowrap; }
+.tgt-wrap {
+  display: flex; align-items: stretch;
+  border: 1px solid var(--g300); border-radius: 5px;
+  background: #fff; overflow: hidden; flex: 1; min-width: 110px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.tgt-wrap:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+.tgt-wrap .px { background: var(--g50); border-right: 1px solid var(--g200); padding: 0 8px; font-size: 14px; color: var(--g500); font-weight: 600; display: flex; align-items: center; }
+.tgt-wrap input {
+  border: none; outline: none; background: transparent;
+  padding: 7px 9px; font-size: 15px; font-weight: 700;
+  color: var(--g900); width: 100%; font-family: inherit;
+  font-variant-numeric: tabular-nums; -moz-appearance: textfield;
+}
+.tgt-wrap input::-webkit-inner-spin-button,
+.tgt-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.btn-reset {
+  font-size: 11px; color: var(--blue);
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; padding: 0; font-weight: 500; white-space: nowrap;
+}
+.btn-reset:hover { text-decoration: underline; }
+
+/* Borough presets */
+.presets-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+.presets-lbl { font-size: 11px; color: var(--g500); font-weight: 600; white-space: nowrap; }
+.btn-preset {
+  font-size: 11px; padding: 3px 8px;
+  background: #fff; border: 1px solid var(--g300);
+  border-radius: 10px; cursor: pointer; color: var(--g600);
+  font-family: inherit; font-weight: 500; transition: background .1s, border-color .1s, color .1s;
+}
+.btn-preset:hover { background: var(--g50); border-color: var(--rent); color: var(--rent); }
+
+/* Snap blocks */
+.snap-block { margin-bottom: 14px; }
+.snap-title {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.9px; color: var(--g400); margin-bottom: 5px;
+}
+.snap-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 3px 0; font-size: 12.5px;
+  border-bottom: 1px solid var(--g100);
+}
+.snap-row:last-child { border-bottom: none; }
+.sr-lbl { color: var(--g500); }
+.sr-val { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--g800); }
+.snap-row.indent .sr-lbl { padding-left: 12px; color: var(--g400); font-size: 12px; }
+.snap-row.indent .sr-val { color: var(--g500); font-size: 12px; font-weight: 500; }
+.snap-row.subtot { border-top: 1px solid var(--g200); padding-top: 5px; border-bottom: none; margin-top: 1px; }
+.snap-row.subtot .sr-lbl, .snap-row.subtot .sr-val { font-weight: 700; color: var(--g900); font-size: 13px; }
+.snap-row.avail .sr-val { color: var(--rent); font-weight: 700; }
+hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
+.sr-val.pos { color: var(--green) !important; }
+.sr-val.neg { color: var(--red) !important; }
+
+/* Feasibility pills */
+.feas-wrap { display: flex; flex-direction: column; gap: 5px; }
+.pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 6px; font-size: 12.5px;
+}
+.pill.ok   { background: var(--green-bg); border: 1px solid var(--green-bd); }
+.pill.fail { background: var(--red-bg);   border: 1px solid var(--red-bd);   }
+.p-icon { font-size: 13px; flex-shrink: 0; }
+.pill.ok   .p-icon  { color: var(--green); }
+.pill.fail .p-icon  { color: var(--red);   }
+.p-name { font-weight: 700; min-width: 82px; font-size: 12px; flex-shrink: 0; }
+.pill.ok   .p-name  { color: #14532d; }
+.pill.fail .p-name  { color: #7f1d1d; }
+.p-detail { color: var(--g600); font-size: 12px; }
+.feas-title {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.9px; color: var(--g400); margin-bottom: 5px;
+}
+
+/* ===== ANALYSIS TAB ===== */
+.anl-hero {
+  background: linear-gradient(135deg, var(--rent) 0%, var(--rent-mid) 100%);
+  padding: 15px 18px; margin: -14px -16px 14px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  text-align: center;
+}
+.anl-hero-col .anl-eyebrow {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.2px; color: #6ee7b7; margin-bottom: 3px;
+}
+.anl-hero-col .anl-price {
+  font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: -1px; color: #f0fdf4; line-height: 1.05;
+}
+.anl-hero-col .anl-sub {
+  font-size: 11px; color: #a7f3d0; margin-top: 2px;
+}
+.anl-hero-col .anl-sub strong { color: #fff; }
+.anl-hero-col.border-l { border-left: 1px solid rgba(255,255,255,.12); }
+.anl-section-title {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.9px; color: var(--g400); margin-bottom: 7px; margin-top: 16px;
+}
+.anl-section-title:first-child { margin-top: 0; }
+
+/* Scenario tables */
+.scen-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 4px; }
+.scen-tbl th, .scen-tbl td {
+  padding: 5px 7px; text-align: right; font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--g100);
+}
+.scen-tbl th:first-child, .scen-tbl td:first-child { text-align: left; color: var(--g600); font-weight: 500; }
+.scen-tbl thead th {
+  font-size: 9.5px; font-weight: 700; color: var(--g500);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--g300); padding-bottom: 6px;
+}
+.scen-tbl tr.cur { background: rgba(19,78,56,.05); font-weight: 600; }
+.scen-tbl tr.cur td:first-child::after { content: " °5"; color: var(--rent); font-size: 10px; }
+.val-pos { color: var(--green); font-weight: 700; }
+.val-neg { color: var(--red); font-weight: 700; }
+
+/* Sensitivity table */
+.sens-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.sens-tbl th, .sens-tbl td { padding: 5px 7px; border-bottom: 1px solid var(--g100); }
+.sens-tbl th { font-size: 9.5px; font-weight: 700; color: var(--g500); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--g300); }
+.sens-tbl th.r, .sens-tbl td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.delta-pos { color: var(--green); font-weight: 600; }
+.delta-neg { color: var(--red);   font-weight: 600; }
+.delta-zero { color: var(--g400); }
+
+/* ===== AFFORD TARGET TAB ===== */
+.aft-card[hidden] { display: none; }
+.aft-tgt-bar {
+  background: var(--rent); padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: -14px -16px 14px;
+}
+.aft-tgt-bar .aft-lbl {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+  font-weight: 700; color: #6ee7b7; white-space: nowrap;
+}
+.aft-tgt-wrap {
+  display: flex; align-items: stretch;
+  border: 1px solid var(--rent-mid);
+  background: #0b3d28; border-radius: 5px; overflow: hidden;
+  flex: 1; min-width: 120px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.aft-tgt-wrap:focus-within { border-color: var(--rent-bd); box-shadow: 0 0 0 2px rgba(110,231,183,.3); }
+.aft-tgt-wrap .px { background: var(--rent-mid); border-right: 1px solid #0a3424; padding: 0 8px; font-size: 14px; color: #a7f3d0; font-weight: 600; display: flex; align-items: center; }
+.aft-tgt-wrap input {
+  border: none; outline: none; background: transparent;
+  padding: 7px 9px; font-size: 15px; font-weight: 700;
+  color: #fff; width: 100%; font-family: inherit;
+  font-variant-numeric: tabular-nums; -moz-appearance: textfield;
+}
+.aft-tgt-wrap input::-webkit-inner-spin-button,
+.aft-tgt-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.aft-tgt-bar .btn-reset { font-size: 11px; color: var(--rent-bd); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; font-weight: 500; white-space: nowrap; }
+.aft-tgt-bar .btn-reset:hover { text-decoration: underline; }
+
+.aft-prompt { padding: 28px 20px; text-align: center; font-size: 13px; color: var(--g500); line-height: 1.65; }
+.aft-prompt strong { display: block; color: var(--g800); font-size: 15px; margin-bottom: 6px; }
+
+.aft-success { padding: 20px 18px; text-align: center; background: var(--green-bg); border-bottom: 1px solid var(--green-bd); }
+.aft-ok-icon { font-size: 28px; line-height: 1; margin-bottom: 8px; }
+.aft-success-title { font-size: 15px; font-weight: 700; color: #14532d; margin-bottom: 4px; }
+.aft-success-sub   { font-size: 12.5px; color: #166534; }
+
+.aft-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0; padding: 12px 16px;
+  background: var(--g50); border-bottom: 1px solid var(--border);
+  margin: 0 -16px 14px;
+}
+@media (max-width: 480px) { .aft-summary { grid-template-columns: 1fr 1fr; } }
+.aft-summary > div { padding: 0 8px; border-right: 1px solid var(--g200); }
+.aft-summary > div:last-child { border-right: none; }
+.aft-sum-lbl { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--g500); margin-bottom: 2px; }
+.aft-sum-val { font-size: 16px; font-weight: 700; color: var(--g900); font-variant-numeric: tabular-nums; }
+.aft-sum-val.neg { color: var(--red); }
+
+.aft-section-title { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--g400); margin-bottom: 7px; margin-top: 16px; }
+.aft-section-title:first-child { margin-top: 0; }
+
+/* Lever grid */
+.lever-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+@media (max-width: 480px) { .lever-grid { grid-template-columns: 1fr; } }
+.lever {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 6px; padding: 11px 13px;
+}
+.lever-hd {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.9px; color: var(--g500);
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+.lbadge {
+  font-size: 9px; font-weight: 700; padding: 2px 5px;
+  border-radius: 8px; letter-spacing: 0.3px;
+  background: var(--g200); color: var(--g600);
+}
+.lbadge.ok   { background: var(--green-bg); color: #14532d; }
+.lbadge.warn { background: var(--red-bg);   color: #7f1d1d; }
+.lbadge.info { background: var(--blue-xlt); color: #1d4ed8; }
+.lever-big {
+  font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px; color: var(--g900); line-height: 1.1; margin-bottom: 3px;
+}
+.lever-big.ok  { color: var(--green); }
+.lever-big.neg { color: var(--red);   }
+.lever-sub { font-size: 11.5px; color: var(--g600); line-height: 1.45; }
+.lever-sub strong { color: var(--g800); }
+.lever-extra {
+  margin-top: 8px; padding-top: 7px;
+  border-top: 1px dashed var(--g200);
+  font-size: 11.5px; color: var(--g600);
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+}
+
+/* Full-width levers */
+.lever.full { grid-column: 1 / -1; }
+
+/* Reserve lever table */
+.res-lev-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 7px; }
+.res-lev-tbl th, .res-lev-tbl td { padding: 5px 7px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--g100); }
+.res-lev-tbl th:first-child, .res-lev-tbl td:first-child { text-align: left; }
+.res-lev-tbl thead th { font-size: 9.5px; font-weight: 700; color: var(--g500); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--g300); }
+.res-lev-tbl tr.cur-row { background: rgba(19,78,56,.05); font-weight: 600; }
+.res-lev-tbl tr.cur-row td:first-child::after { content: " °5"; color: var(--rent); font-size: 10px; }
+
+/* Combined gap grid */
+.aft-grid-wrap { overflow-x: auto; }
+.aft-gap-tbl { width: 100%; border-collapse: separate; border-spacing: 3px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.aft-gap-tbl th { font-size: 9.5px; font-weight: 700; color: var(--g500); text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 5px; text-align: center; white-space: nowrap; }
+.aft-gap-tbl th.row-h { text-align: right; }
+.aft-gap-tbl td { padding: 6px 5px; text-align: center; border-radius: 4px; font-weight: 600; white-space: nowrap; }
+.aft-gap-tbl td.cell-green  { background: var(--green-bg); border: 1px solid var(--green-bd); color: #14532d; }
+.aft-gap-tbl td.cell-yellow { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.aft-gap-tbl td.cell-red    { background: var(--red-bg);   border: 1px solid var(--red-bd);   color: #7f1d1d; }
+.aft-gap-tbl .corner { font-size: 9px; color: var(--g400); font-weight: 600; }
+
+/* Guarantor info row */
+.guarantor-row {
+  margin-top: 14px; padding: 9px 12px;
+  background: var(--blue-xlt); border: 1px solid var(--blue-lt);
+  border-radius: 6px; font-size: 12.5px; color: var(--g700); line-height: 1.5;
+}
+.guarantor-row strong { color: var(--blue); }
+
+/* ===== FOOTER ===== */
+.app-footer {
+  background: var(--rent);
+  color: rgba(255,255,255,.7);
+  font-size: 12px; padding: 22px 24px;
+  line-height: 1.7; border-top: 2px solid var(--rent-mid);
+}
+.app-footer .footer-inner {
+  max-width: 1320px; margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 24px 48px;
+}
+.app-footer .footer-col { flex: 1; min-width: 160px; }
+.app-footer .footer-heading {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #a7f3d0; margin-bottom: 8px;
+}
+.app-footer ul { list-style: none; padding: 0; margin: 0; }
+.app-footer li { margin-bottom: 4px; }
+.app-footer a { color: #6ee7b7; text-decoration: none; }
+.app-footer a:hover { color: #d1fae5; text-decoration: underline; }
+.footer-disclaimer {
+  width: 100%; border-top: 1px solid var(--rent-mid);
+  margin-top: 16px; padding-top: 14px;
+  font-size: 11px; color: rgba(255,255,255,.5);
+}
+
+/* Screen-reader only */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* Print */
+@media print {
+  .inputs-panel, .app-header, .app-footer, .info-wrap { display: none !important; }
+  body { background: #fff; }
+  main.app-layout { display: block; padding: 0; margin: 0; }
+  .results-panel { position: static; max-height: none; overflow: visible; }
+  .results-card { border: none; box-shadow: none; }
+  .hero { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 </style>
 </head>
 <body>
-
-<header class="app-header">
-  <h1>🏠 NYC Rent Affordability Calculator</h1>
-  <p>Estimate your maximum affordable rent based on income, liquid assets, and move-in costs.</p>
-</header>
-
-<div class="app-body">
-  <!-- ═══════════════ INPUTS COLUMN ═══════════════ -->
-  <div class="inputs-col">
-
-    <!-- Card 1: Income -->
-    <div class="card" id="card1">
-      <div class="card-hd" onclick="toggleCard('card1')">
-        <div class="snum">1</div>
-        <div class="card-title">Income &amp; Screening Criteria</div>
-        <span class="chevron open" id="chev-card1">▼</span>
-      </div>
-      <div class="card-bd" id="bd-card1">
-        <div class="row2">
-          <div class="fg">
-            <label for="annual-income">Annual Gross Income</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="annual-income" min="0" step="1000" value="120000" oninput="onIncome()"></div>
-          </div>
-          <div class="fg">
-            <label for="monthly-income">Monthly Gross Income</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="monthly-income" readonly tabindex="-1"></div>
-          </div>
-        </div>
-        <div class="row2">
-          <div class="fg">
-            <label for="recurring-debts">Monthly Recurring Debts</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="recurring-debts" min="0" step="50" value="0" oninput="calculate()"></div>
-            <span class="hint">Student loans, auto, credit cards, etc.</span>
-          </div>
-          <div class="fg">
-            <label for="income-mult">Income Multiple Requirement</label>
-            <div class="iw"><input type="number" id="income-mult" min="1" max="80" step="1" value="40" oninput="calculate()"><span class="sfx">×</span></div>
-            <span class="hint">Typically 40× monthly rent</span>
-          </div>
-        </div>
-        <hr class="sep">
-        <label class="check-lbl"><input type="checkbox" id="use-dti-cb" onchange="updateDTIVisibility();calculate()"> Also enforce DTI / Rent Burden limit</label>
-        <div id="max-dti-row" style="display:none">
-          <div class="fg">
-            <label for="max-dti-pct">Max Rent-to-Income (DTI)</label>
-            <div class="iw"><input type="number" id="max-dti-pct" min="1" max="100" step="1" value="30" oninput="calculate()"><span class="sfx">%</span></div>
-            <span class="hint">30% is standard; some buildings use 33%</span>
-          </div>
-        </div>
-        <hr class="sep">
-        <label class="check-lbl"><input type="checkbox" id="guarantor-cb" onchange="updateGuarantorVisibility();calculate()"> Add guarantor (co-signer)</label>
-        <div id="guarantor-mult-row" style="display:none">
-          <div class="fg">
-            <label for="guarantor-mult">Guarantor Income Multiple</label>
-            <div class="iw"><input type="number" id="guarantor-mult" min="1" max="120" step="1" value="80" oninput="calculate()"><span class="sfx">×</span></div>
-            <span class="hint">Combined; guarantors typically need 80×</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card 2: Liquid Assets -->
-    <div class="card" id="card2">
-      <div class="card-hd" onclick="toggleCard('card2')">
-        <div class="snum">2</div>
-        <div class="card-title">Liquid Assets</div>
-        <span class="chevron open" id="chev-card2">▼</span>
-      </div>
-      <div class="card-bd" id="bd-card2">
-        <table class="acct-table">
-          <thead><tr><th>Account</th><th>Balance</th><th>% Available</th><th></th></tr></thead>
-          <tbody id="acct-tbody"></tbody>
-        </table>
-        <button class="btn-add-acct" id="btn-add-acct" onclick="addAccount()">+ Add Account</button>
-        <div class="totals-row">
-          <div><span>Total Liquid: </span><strong id="tot-liquid">—</strong></div>
-          <div><span>Available: </span><strong id="tot-avail">—</strong></div>
-        </div>
-        <div class="save-row">
-          <input type="checkbox" id="save-toggle-cb" onchange="onSaveToggle()">
-          <label for="save-toggle-cb">Remember inputs (localStorage)</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card 3: Move-In Deposits -->
-    <div class="card" id="card3">
-      <div class="card-hd" onclick="toggleCard('card3')">
-        <div class="snum">3</div>
-        <div class="card-title">Move-In Deposits &amp; Fees</div>
-        <span class="chevron open" id="chev-card3">▼</span>
-      </div>
-      <div class="card-bd" id="bd-card3">
-        <div class="row2">
-          <div class="fg">
-            <label for="first-month-mult">First Month Deposit</label>
-            <div class="iw"><input type="number" id="first-month-mult" min="0" max="3" step="0.5" value="1" oninput="calculate()"><span class="sfx">× rent</span></div>
-          </div>
-          <div class="fg">
-            <label for="sec-dep-mult">Security Deposit</label>
-            <div class="iw"><input type="number" id="sec-dep-mult" min="0" max="3" step="0.5" value="1" oninput="calculate()"><span class="sfx">× rent</span></div>
-            <span class="hint">NYC max: 1× (rent-stabilized)</span>
-          </div>
-        </div>
-        <div class="row3">
-          <div class="fg">
-            <label for="app-fee">Application Fee</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="app-fee" min="0" step="5" value="20" oninput="calculate()"></div>
-            <span class="hint">NYC max: $20</span>
-          </div>
-          <div class="fg">
-            <label for="building-fee">Building/Move-In Fee</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="building-fee" min="0" step="50" value="500" oninput="calculate()"></div>
-          </div>
-          <div class="fg">
-            <label for="utility-setup">Utility Setup</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="utility-setup" min="0" step="50" value="250" oninput="calculate()"></div>
-          </div>
-        </div>
-        <div class="fg">
-          <label for="pet-deposit">Pet Deposit (one-time)</label>
-          <div class="iw"><span class="pfx">$</span><input type="number" id="pet-deposit" min="0" step="100" value="0" oninput="calculate()"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card 4: Broker Fee -->
-    <div class="card" id="card4">
-      <div class="card-hd" onclick="toggleCard('card4')">
-        <div class="snum">4</div>
-        <div class="card-title">Broker Fee</div>
-        <span class="chevron open" id="chev-card4">▼</span>
-      </div>
-      <div class="card-bd" id="bd-card4">
-        <div class="fg">
-          <label for="broker-fee-type">Broker Fee Type</label>
-          <div class="iw"><select id="broker-fee-type" onchange="updateBrokerFeeVisibility();calculate()">
-            <option value="none">No Broker Fee</option>
-            <option value="pct" selected>% of Annual Rent</option>
-            <option value="months">Months of Rent</option>
-            <option value="flat">Flat Amount</option>
-          </select></div>
-        </div>
-        <div id="broker-pct-row" class="fg">
-          <label for="broker-fee-pct">Broker Fee Percentage</label>
-          <div class="iw"><input type="number" id="broker-fee-pct" min="0" max="20" step="0.5" value="15" oninput="calculate()"><span class="sfx">% annual</span></div>
-          <span class="hint">Standard NYC fee is ~12–15% of annual rent</span>
-        </div>
-        <div id="broker-months-row" class="fg" style="display:none">
-          <label for="broker-fee-months">Broker Fee (Months)</label>
-          <div class="iw"><input type="number" id="broker-fee-months" min="0" max="24" step="0.5" value="1" oninput="calculate()"><span class="sfx">months</span></div>
-        </div>
-        <div id="broker-flat-row" class="fg" style="display:none">
-          <label for="broker-fee-flat">Broker Fee (Flat)</label>
-          <div class="iw"><span class="pfx">$</span><input type="number" id="broker-fee-flat" min="0" step="100" value="0" oninput="calculate()"></div>
-        </div>
-        <div class="opt-notice" style="font-size:.78rem;color:var(--slate-500);padding:8px 12px;border-radius:6px;background:var(--slate-50);border:1px solid var(--slate-200);margin-top:4px">
-          <strong style="color:var(--slate-700)">NYC FARE Act (2025):</strong> Since June 2025, landlords who hire the broker must pay the fee — not tenants. Ask your landlord which applies.
-        </div>
-      </div>
-    </div>
-
-    <!-- Card 5: Monthly Costs -->
-    <div class="card" id="card5">
-      <div class="card-hd" onclick="toggleCard('card5')">
-        <div class="snum">5</div>
-        <div class="card-title">Monthly Costs &amp; Reserve</div>
-        <span class="chevron open" id="chev-card5">▼</span>
-      </div>
-      <div class="card-bd" id="bd-card5">
-        <div class="row2">
-          <div class="fg">
-            <label for="renters-insurance">Renters Insurance</label>
-            <div class="iw"><span class="pfx">$</span><input type="number" id="renters-insurance" min="0" step="5" value="15" oninput="calculate()"><span class="sfx">/mo</span></div>
-            <span class="hint">NYC avg: $12–20/mo</span>
-          </div>
-          <div class="fg">
-            <label for="reserve-months">Cash Reserve Buffer</label>
-            <div class="iw"><input type="number" id="reserve-months" min="0" max="12" step="1" value="2" oninput="calculate()"><span class="sfx">months</span></div>
-            <span class="hint">Keep aside after move-in</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- How it works collapsible -->
-    <div class="card">
-      <button class="info-toggle" id="how-btn" onclick="toggleInfo('how')">
-        <span>ℹ️</span> How this calculator works
-        <span class="chev" id="how-chev">▶</span>
-      </button>
-      <div class="info-body" id="how-body">
-        <p>This calculator finds the <strong>maximum monthly rent</strong> you can afford, subject to two constraints:</p>
-        <ul>
-          <li><strong>Cash constraint:</strong> All move-in costs (deposits + broker fee + fixed fees + post-move reserve) must fit within your available liquid assets.</li>
-          <li><strong>Income constraint:</strong> Your annual income must meet the landlord's income multiple (e.g., 40× monthly rent). Optionally, rent must also stay within your DTI limit.</li>
-        </ul>
-        <p>Your maximum rent is the <strong>lower</strong> of the two constraints. The binding constraint tells you which one is limiting you.</p>
-        <p>The <strong>Afford Target</strong> tab lets you reverse the calculation: enter a target rent and see exactly what gaps remain and how to close them.</p>
-      </div>
-    </div>
-
-    <!-- Sources collapsible -->
-    <div class="card">
-      <button class="info-toggle" id="src-btn" onclick="toggleInfo('src')">
-        <span>📚</span> Sources &amp; assumptions
-        <span class="chev" id="src-chev">▶</span>
-      </button>
-      <div class="info-body" id="src-body">
-        <ul>
-          <li><strong>40× multiplier:</strong> Standard NYC landlord requirement (income ≥ 40× monthly rent).</li>
-          <li><strong>Security deposit:</strong> NYC rent-stabilized units cap security deposit at 1 month's rent (NY Real Property Law §227-e). Market-rate landlords can require more.</li>
-          <li><strong>Application fee:</strong> Capped at $20 in NYC (NYC Admin Code §20-825).</li>
-          <li><strong>Broker fee:</strong> Under the FARE Act (effective June 11, 2025), brokers hired by the landlord must be paid by the landlord. Always confirm with your landlord.</li>
-          <li><strong>Renters insurance:</strong> Estimate based on NYC average ($12–20/mo for $30k personal property coverage).</li>
-          <li><strong>Market medians:</strong> StreetEasy NYC Rental Market Reports (March 2026 data).</li>
-        </ul>
-      </div>
-    </div>
-
-  </div><!-- /inputs-col -->
-
-  <!-- ═══════════════ RESULTS COLUMN ═══════════════ -->
-  <div class="results-col">
-
-    <!-- Standard Results Tab -->
-    <div class="card" id="results-card">
-      <div class="tab-bar">
-        <button class="tab-btn active" id="tab-standard" onclick="switchTab('standard')">📋 Standard</button>
-        <button class="tab-btn" id="tab-analysis" onclick="switchTab('analysis')">📊 Analysis</button>
-        <button class="tab-btn" id="tab-afford" onclick="switchTab('afford')">�� Afford Target</button>
-      </div>
-
-      <!-- Standard Tab Content -->
-      <div class="tab-content active" id="tc-standard">
-        <div class="hero">
-          <div class="hero-eyebrow">Maximum Affordable Rent</div>
-          <div class="hero-price" id="hero-price">—</div>
-          <div class="hero-sub">per month</div>
-          <div class="hero-binding" id="hero-binding"></div>
-          <div class="hero-warn" id="hero-warn"></div>
-        </div>
-
-        <div class="target-row">
-          <label for="target-price">Analyze rent:</label>
-          <div class="target-iw"><span class="pfx">$</span><input type="number" id="target-price" placeholder="Enter rent…" oninput="onTargetInput()"></div>
-          <button class="btn-reset-tgt" id="btn-reset-tgt" onclick="resetTarget()">Reset</button>
-        </div>
-
-        <div class="preset-row">
-          <span class="preset-label">Quick:</span>
-          <button class="preset-btn" data-val="3995" data-key="citywide" onclick="applyPreset(this)">Citywide $3,995</button>
-          <button class="preset-btn" data-val="4750" data-key="manhattan" onclick="applyPreset(this)">Manhattan $4,750</button>
-          <button class="preset-btn" data-val="3750" data-key="brooklyn" onclick="applyPreset(this)">Brooklyn $3,750</button>
-          <button class="preset-btn" data-val="3100" data-key="queens" onclick="applyPreset(this)">Queens $3,100</button>
-        </div>
-
-        <div class="results-section">
-          <h3>Move-In Cash Waterfall</h3>
-          <table class="wf-table">
-            <tbody>
-              <tr><td>First Month Rent</td><td id="s-first-mo">—</td></tr>
-              <tr><td>Security Deposit</td><td id="s-sec-dep">—</td></tr>
-              <tr><td>Broker Fee</td><td id="s-broker-fee">—</td></tr>
-              <tr><td>Fixed Fees</td><td id="s-fixed-fees">—</td></tr>
-              <tr class="wf-total"><td>Total Move-In Cost</td><td id="s-total-movein">—</td></tr>
-              <tr><td>Available Liquid</td><td id="s-avail-liquid">—</td></tr>
-              <tr class="wf-highlight"><td>Move-In Surplus</td><td id="s-movein-surplus">—</td></tr>
-              <tr class="wf-subtotal"><td>Reserve Buffer (monthly)</td><td id="s-res-mo">—</td></tr>
-              <tr><td>Reserve Cash Needed</td><td id="s-reserve-buf">—</td></tr>
-              <tr class="wf-total"><td>Total Cash Required</td><td id="s-total-cash">—</td></tr>
-              <tr><td>Available Liquid</td><td id="s-avail-liquid2">—</td></tr>
-              <tr class="wf-highlight"><td>Net Cash Surplus</td><td id="s-cash-surplus">—</td></tr>
-              <tr><td>Cash as % of Liquid</td><td id="s-pc-liquid">—</td></tr>
-              <tr><td>Cash as Months of Rent</td><td id="s-pc-months">—</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="results-section">
-          <h3>Monthly Budget</h3>
-          <table class="mo-table">
-            <tbody>
-              <tr><td>Monthly Rent</td><td id="s-rent">—</td></tr>
-              <tr><td>Renters Insurance</td><td id="s-insurance">—</td></tr>
-              <tr><td>Recurring Debts</td><td id="s-debts">—</td></tr>
-              <tr class="mo-total"><td>Total Housing Cost</td><td id="s-monthly-total">—</td></tr>
-              <tr><td>Rent Burden (% income)</td><td id="s-rent-burden">—</td></tr>
-              <tr><td>Income Multiple</td><td id="s-income-mult">—</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="pills" id="pills-row">
-          <div class="pill pill-green" id="pill-cash">💰 Cash <span class="pill-detail" id="pd-cash"></span></div>
-          <div class="pill pill-green" id="pill-income">📄 Income <span class="pill-detail" id="pd-income"></span></div>
-          <div class="pill pill-green" id="pill-dti" style="display:none">📊 DTI <span class="pill-detail" id="pd-dti"></span></div>
-        </div>
-
-        <div class="info-bar">
-          <button class="info-toggle" id="how2-btn" onclick="toggleInfo('how2')">
-            <span>💡</span> Reading these results
-            <span class="chev" id="how2-chev">▶</span>
-          </button>
-          <div class="info-body" id="how2-body">
-            <p>The <strong>hero number</strong> is the lower of your cash ceiling and income ceiling at the analyzed rent level (or your max if no target is set).</p>
-            <p><strong>Green pills</strong> = constraint met; <strong>red pills</strong> = constraint exceeded. The <strong>binding constraint</strong> tells you what to focus on to qualify for a higher rent.</p>
-            <p>The waterfall shows exactly how your liquid assets are consumed: first by move-in costs, then by the reserve you want to keep after moving in.</p>
-          </div>
-        </div>
-      </div><!-- /tc-standard -->
-
-      <!-- Analysis Tab Content -->
-      <div class="tab-content" id="tc-analysis">
-        <div class="opt-card" id="view-analysis" style="box-shadow:none;border-radius:0">
-          <div class="opt-hero">
-            <h2>📊 Scenario Analysis</h2>
-            <p>Compare how broker fee, reserve, and screening rule changes affect your maximum rent.</p>
-          </div>
-
-          <div class="opt-notice" id="anl-notice" style="display:none;margin:12px">
-            <div class="opt-notice-title" id="anl-notice-title"></div>
-            <div class="opt-notice-detail" id="anl-notice-detail"></div>
-          </div>
-
-          <div id="anl-content" style="display:none">
-            <div class="opt-anl-hero opt-section">
-              <div class="anl-stat">
-                <div class="anl-stat-label">Max Rent</div>
-                <div class="anl-stat-val" id="anl-hero-main">—</div>
-                <div class="anl-stat-sub" id="anl-hero-compare"></div>
-              </div>
-              <div class="anl-stat">
-                <div class="anl-stat-label">Binding</div>
-                <div class="anl-stat-val" style="font-size:.85rem" id="anl-hero-binding">—</div>
-              </div>
-              <div class="anl-stat">
-                <div class="anl-stat-label">Move-In Cash</div>
-                <div class="anl-stat-val" id="anl-hero-movein">—</div>
-                <div class="anl-stat-sub" id="anl-hero-gain"></div>
-              </div>
-            </div>
-
-            <div class="opt-section">
-              <h3>Broker Fee Scenarios</h3>
-              <table class="anl-table" id="anl-broker-table">
-                <thead><tr><th>Scenario</th><th>Max Rent</th><th>Move-In</th><th>Broker Fee</th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
-            <div class="opt-section">
-              <h3>Reserve Buffer Scenarios</h3>
-              <table class="anl-table" id="anl-reserve-table">
-                <thead><tr><th>Reserve</th><th>Max Rent</th><th>Cash Needed</th><th>Surplus</th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
-            <div class="opt-section">
-              <h3>Income Screening Scenarios</h3>
-              <table class="anl-table" id="anl-screening-table">
-                <thead><tr><th>Rule</th><th>Income Ceiling</th><th>Binding?</th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
-
-            <div class="opt-section">
-              <h3>Sensitivity — What if…</h3>
-              <div class="sens-strip" id="anl-sens-tbody"></div>
-            </div>
-          </div>
-        </div>
-      </div><!-- /tc-analysis -->
-
-      <!-- Afford Target Tab Content -->
-      <div class="tab-content" id="tc-afford">
-        <div class="aft-card" id="view-afford" style="box-shadow:none;border-radius:0">
-          <div class="aft-target-row">
-            <label for="aft-target-rent">Target Rent:</label>
-            <div class="aft-target-iw">
-              <span class="pfx">$</span>
-              <input type="number" id="aft-target-rent" placeholder="e.g. 3500" oninput="onAftTargetInput()">
-            </div>
-          </div>
-
-          <div class="aft-prompt" id="aft-prompt">Enter a target monthly rent above to see what you need to qualify.</div>
-
-          <div class="aft-success" id="aft-success">
-            <div class="aft-success-title" id="aft-success-title">✅ You qualify!</div>
-            <div class="aft-success-sub" id="aft-success-sub"></div>
-          </div>
-
-          <div id="aft-analysis" style="display:none">
-            <div class="aft-sum-grid">
-              <div class="aft-sum-cell">
-                <div class="aft-sum-label">Target Rent</div>
-                <div class="aft-sum-val" id="aft-sum-target">—</div>
-              </div>
-              <div class="aft-sum-cell">
-                <div class="aft-sum-label">Your Max</div>
-                <div class="aft-sum-val" id="aft-sum-max">—</div>
-              </div>
-              <div class="aft-sum-cell">
-                <div class="aft-sum-label">Gap</div>
-                <div class="aft-sum-val red" id="aft-sum-gap">—</div>
-              </div>
-            </div>
-
-            <!-- Lever 1: Cash -->
-            <div class="lev-card" id="lev-cash">
-              <div class="lev-hd" onclick="toggleLev('lev-cash')">
-                <span class="lev-badge lev-badge-red" id="lev-cash-badge">Cash Gap</span>
-                <span class="lev-title">💰 Increase Liquid Assets</span>
-                <span class="lev-chev" id="lev-cash-chev">▶</span>
-              </div>
-              <div class="lev-bd" id="lev-cash-bd">
-                <div class="lev-big" id="lev-cash-big">—</div>
-                <div class="lev-sub" id="lev-cash-sub"></div>
-                <div class="lev-savings-row">
-                  <label>At savings rate:</label>
-                  <div class="iw" style="max-width:80px"><span class="pfx" style="left:8px">$</span><input type="number" id="aft-savings-rate" min="100" step="100" value="1000" oninput="renderAffordTargetView(lastInp)" style="padding:5px 6px 5px 22px;font-size:.82rem"></div>
-                  <span style="font-size:.78rem;color:var(--slate-500)">/mo</span>
-                  <span class="lev-sub" id="lev-cash-months" style="margin-bottom:0;margin-left:4px"></span>
-                </div>
-                <div style="margin-top:8px;font-size:.78rem;color:var(--slate-500)" id="lev-cash-extra"></div>
-              </div>
-            </div>
-
-            <!-- Lever 2: Income -->
-            <div class="lev-card" id="lev-inc">
-              <div class="lev-hd" onclick="toggleLev('lev-inc')">
-                <span class="lev-badge lev-badge-red" id="lev-inc-badge">Income Gap</span>
-                <span class="lev-title">💼 Increase Income</span>
-                <span class="lev-chev" id="lev-inc-chev">▶</span>
-              </div>
-              <div class="lev-bd" id="lev-inc-bd">
-                <div class="lev-big" id="lev-inc-big">—</div>
-                <div class="lev-sub" id="lev-inc-sub"></div>
-              </div>
-            </div>
-
-            <!-- Lever 3: Broker Fee -->
-            <div class="lev-card" id="lev-broker">
-              <div class="lev-hd" onclick="toggleLev('lev-broker')">
-                <span class="lev-badge lev-badge-amber" id="lev-broker-badge">Options</span>
-                <span class="lev-title">🏷️ Reduce Broker Fee</span>
-                <span class="lev-chev" id="lev-broker-chev">▶</span>
-              </div>
-              <div class="lev-bd" id="lev-broker-bd">
-                <div class="lev-sub" id="lev-broker-sub"></div>
-                <div id="lev-broker-table-wrap"></div>
-              </div>
-            </div>
-
-            <!-- Lever 4: Reserve -->
-            <div class="lev-card" id="lev-reserve">
-              <div class="lev-hd" onclick="toggleLev('lev-reserve')">
-                <span class="lev-badge lev-badge-amber" id="lev-reserve-badge">Options</span>
-                <span class="lev-title">🏦 Adjust Reserve Buffer</span>
-                <span class="lev-chev" id="lev-reserve-chev">▶</span>
-              </div>
-              <div class="lev-bd" id="lev-reserve-bd">
-                <div class="lev-sub" id="lev-reserve-sub"></div>
-                <div id="lev-reserve-table-wrap"></div>
-              </div>
-            </div>
-
-            <!-- Lever 5: Guarantor -->
-            <div class="lev-card" id="lev-guarantor" style="display:none">
-              <div class="lev-hd" onclick="toggleLev('lev-guarantor')">
-                <span class="lev-badge lev-badge-amber">Option</span>
-                <span class="lev-title">🤝 Use a Guarantor</span>
-                <span class="lev-chev" id="lev-guarantor-chev">▶</span>
-              </div>
-              <div class="lev-bd" id="lev-guarantor-bd">
-                <div id="lev-guarantor-text"></div>
-              </div>
-            </div>
-
-            <!-- Gap Grid -->
-            <div class="opt-section" style="padding:12px 16px">
-              <h3>Cash × Income Combination Grid</h3>
-              <div class="aft-gap-grid" id="aft-gap-grid"></div>
-            </div>
-
-          </div><!-- /aft-analysis -->
-        </div>
-      </div><!-- /tc-afford -->
-
-    </div><!-- /results-card -->
-
-  </div><!-- /results-col -->
-</div><!-- /app-body -->
-
-<footer class="app-footer">
-  <div class="footer-inner">
-    <div class="footer-section">
-      <h3>NYC Housing Resources</h3>
-      <a href="https://www.nyc.gov/site/hpd/index.page" target="_blank" rel="noopener">NYC HPD (Housing Preservation)</a>
-      <a href="https://www.hud.gov/states/new_york" target="_blank" rel="noopener">HUD New York</a>
-      <a href="https://ag.ny.gov/resources/individuals/tenants-rights" target="_blank" rel="noopener">NYS AG Tenants' Rights Guide</a>
-    </div>
-    <div class="footer-section">
-      <h3>Tenant Protections</h3>
-      <a href="https://www.nyc.gov/site/dcwp/consumers/the-fare-act.page" target="_blank" rel="noopener">NYC DCWP — FARE Act FAQ</a>
-      <a href="https://www.nyc.gov/site/dcwp/consumers/get-consumer-help.page" target="_blank" rel="noopener">NYC DCWP Consumer Resources</a>
-    </div>
-    <div class="footer-section">
-      <h3>Market Data</h3>
-      <a href="https://streeteasy.com/rentals" target="_blank" rel="noopener">StreetEasy NYC Rentals</a>
-      <a href="https://www.zillow.com/new-york-ny/rentals/" target="_blank" rel="noopener">Zillow NY Rentals</a>
-    </div>
-    <div class="footer-section">
-      <h3>More Calculators</h3>
-      <a href="../coop/">NYC Co-op Affordability</a>
-      <a href="../">Hub</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    This calculator is for informational purposes only and does not constitute financial, legal, or real estate advice. Verify all figures with your landlord, broker, and financial advisor. Market data: StreetEasy Mar 2026.
-  </div>
-</footer>
-
-<script>
-/* ═══════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════ */
-const state = {
-  accounts: [
-    { name: 'Checking', balance: 15000, pct: 100 },
-    { name: 'High-Yield Savings', balance: 35000, pct: 100 },
-    { name: 'Brokerage', balance: 70000, pct: 100 },
-  ],
-  targetOverride: null,
-  aftTarget: null,
-  activeTab: 'standard',
-  saveEnabled: false,
-};
-
-let lastInp = null;
-let anlTimer = null;
-let aftTimer = null;
-
-const STORAGE_KEY = 'nyc_rent_inputs';
-
-// Market median rents (StreetEasy Mar 2026) — update here to reflect in analysis and presets
-const MEDIANS = {
-  citywide:  3995,
-  manhattan: 4750,
-  brooklyn:  3750,
-  queens:    3100,
-};
-
-/* ═══════════════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════════════ */
-function fmt(n, decimals = 0) {
-  if (n == null || isNaN(n)) return '—';
-  return '$' + Math.round(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
-function fmtPct(n, dec = 1) {
-  if (n == null || isNaN(n)) return '—';
-  return n.toFixed(dec) + '%';
-}
-function fmtMo(n, dec = 1) {
-  if (n == null || isNaN(n)) return '—';
-  return n.toFixed(dec) + ' mo';
-}
-function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
-function el(id) { return document.getElementById(id); }
-function setText(id, val) { const e = el(id); if (e) e.textContent = val; }
-function pill(id, ok) {
-  const e = el(id);
-  if (!e) return;
-  e.className = 'pill ' + (ok ? 'pill-green' : 'pill-red');
-}
-
-/* ═══════════════════════════════════════════════════
-   ACCOUNTS TABLE
-═══════════════════════════════════════════════════ */
-function renderAccounts() {
-  const tbody = el('acct-tbody');
-  tbody.innerHTML = '';
-  let totLiq = 0, totAvail = 0;
-  state.accounts.forEach((a, i) => {
-    totLiq += a.balance;
-    totAvail += a.balance * a.pct / 100;
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="text" value="${a.name}" oninput="state.accounts[${i}].name=this.value;saveToStorage()"></td>
-      <td><input type="number" min="0" step="1000" value="${a.balance}" oninput="state.accounts[${i}].balance=parseFloat(this.value)||0;renderAccounts();calculate()"></td>
-      <td><input type="number" min="0" max="100" step="5" value="${a.pct}" oninput="state.accounts[${i}].pct=parseFloat(this.value)||0;renderAccounts();calculate()"></td>
-      <td><button class="btn-del" onclick="removeAccount(${i})" title="Remove">×</button></td>`;
-    tbody.appendChild(tr);
-  });
-  setText('tot-liquid', fmt(totLiq));
-  setText('tot-avail', fmt(totAvail));
-}
-function addAccount() {
-  state.accounts.push({ name: 'Account', balance: 0, pct: 100 });
-  renderAccounts();
-  calculate();
-}
-function removeAccount(i) {
-  state.accounts.splice(i, 1);
-  renderAccounts();
-  calculate();
-}
-function getTotLiquid() { return state.accounts.reduce((s, a) => s + a.balance * a.pct / 100, 0); }
-
-/* ═══════════════════════════════════════════════════
-   CARD COLLAPSE
-═══════════════════════════════════════════════════ */
-function toggleCard(id) {
-  const bd = el('bd-' + id);
-  const ch = el('chev-' + id);
-  const open = bd.style.display !== 'none' && !bd.classList.contains('collapsed');
-  bd.style.display = open ? 'none' : '';
-  if (ch) ch.classList.toggle('open', !open);
-}
-
-/* ═══════════════════════════════════════════════════
-   INFO TOGGLES
-═══════════════════════════════════════════════════ */
-function toggleInfo(key) {
-  const body = el(key + '-body');
-  const chev = el(key + '-chev');
-  const open = body.style.display === 'block';
-  body.style.display = open ? 'none' : 'block';
-  if (chev) chev.classList.toggle('open', !open);
-}
-
-/* ═══════════════════════════════════════════════════
-   LEVERS
-═══════════════════════════════════════════════════ */
-function toggleLev(id) {
-  const bd = el(id + '-bd');
-  const ch = el(id + '-chev');
-  const open = bd.classList.contains('open');
-  bd.classList.toggle('open', !open);
-  if (ch) ch.classList.toggle('open', !open);
-}
-
-/* ═══════════════════════════════════════════════════
-   SHOW/HIDE VISIBILITY
-═══════════════════════════════════════════════════ */
-function updateBrokerFeeVisibility() {
-  const t = el('broker-fee-type').value;
-  el('broker-pct-row').style.display = t === 'pct' ? '' : 'none';
-  el('broker-months-row').style.display = t === 'months' ? '' : 'none';
-  el('broker-flat-row').style.display = t === 'flat' ? '' : 'none';
-}
-function updateGuarantorVisibility() {
-  el('guarantor-mult-row').style.display = el('guarantor-cb').checked ? '' : 'none';
-}
-function updateDTIVisibility() {
-  el('max-dti-row').style.display = el('use-dti-cb').checked ? '' : 'none';
-}
-
-/* ═══════════════════════════════════════════════════
-   TAB SWITCHING
-═══════════════════════════════════════════════════ */
-function switchTab(tab) {
-  ['standard', 'analysis', 'afford'].forEach(t => {
-    el('tab-' + t).classList.toggle('active', t === tab);
-    el('tc-' + t).classList.toggle('active', t === tab);
-  });
-  state.activeTab = tab;
-  if (tab === 'analysis' && lastInp) scheduleAnalysisRender(lastInp);
-  if (tab === 'afford' && lastInp) scheduleAffordRender(lastInp);
-}
-
-/* ═══════════════════════════════════════════════════
-   INCOME SYNC
-═══════════════════════════════════════════════════ */
-function onIncome() {
-  const ann = parseFloat(el('annual-income').value) || 0;
-  el('monthly-income').value = Math.round(ann / 12);
-  calculate();
-}
-
-/* ═══════════════════════════════════════════════════
-   TARGET OVERRIDE
-═══════════════════════════════════════════════════ */
-function onTargetInput() {
-  const val = parseFloat(el('target-price').value);
-  state.targetOverride = isNaN(val) ? null : val;
-  calculate();
-}
-function resetTarget() {
-  state.targetOverride = null;
-  el('target-price').value = '';
-  calculate();
-}
-function applyPreset(btn) {
-  const val = parseFloat(btn.dataset.val);
-  el('target-price').value = val;
-  state.targetOverride = val;
-  calculate();
-}
-function onAftTargetInput() {
-  const val = parseFloat(el('aft-target-rent').value);
-  state.aftTarget = isNaN(val) ? null : val;
-  if (lastInp) renderAffordTargetView(lastInp);
-}
-
-/* ═══════════════════════════════════════════════════
-   GATHER INPUTS
-═══════════════════════════════════════════════════ */
-function gatherInputs() {
-  const annInc = v('annual-income');
-  const moInc = annInc / 12;
-  const rDebts = v('recurring-debts');
-  const mult = v('income-mult') || 40;
-  const useDTI = el('use-dti-cb').checked;
-  const dtiMax = v('max-dti-pct') / 100 || 0.30;
-  const hasGuarantor = el('guarantor-cb').checked;
-  const gMult = v('guarantor-mult') || 80;
-  const firstMonthMult = v('first-month-mult');
-  const secDepMult = v('sec-dep-mult');
-  const appFee = v('app-fee');
-  const buildingFee = v('building-fee');
-  const utilitySetup = v('utility-setup');
-  const petDeposit = v('pet-deposit');
-  const brokerType = el('broker-fee-type').value;
-  const brokerFeePct = v('broker-fee-pct');
-  const brokerFeeMonths = v('broker-fee-months');
-  const brokerFeeFlat = v('broker-fee-flat');
-  const renIns = v('renters-insurance');
-  const resMo = v('reserve-months');
-  const totLiquid = getTotLiquid();
-
-  // broker fee linear/fixed coefficients
-  let brokerLinear = 0, brokerFixed = 0;
-  if (brokerType === 'pct') brokerLinear = brokerFeePct / 100 * 12;
-  else if (brokerType === 'months') brokerLinear = brokerFeeMonths;
-  else if (brokerType === 'flat') brokerFixed = brokerFeeFlat;
-
-  return {
-    annInc, moInc, rDebts, mult, useDTI, dtiMax,
-    hasGuarantor, gMult,
-    firstMonthMult, secDepMult,
-    appFee, buildingFee, utilitySetup, petDeposit,
-    brokerType, brokerFeePct, brokerFeeMonths, brokerFeeFlat,
-    brokerLinear, brokerFixed,
-    renIns, resMo, totLiquid,
-  };
-}
-
-/* ═══════════════════════════════════════════════════
-   COMPUTE MAX RENT
-═══════════════════════════════════════════════════ */
-function computeMaxRent(inp) {
-  const { annInc, moInc, rDebts, mult, useDTI, dtiMax,
-          firstMonthMult, secDepMult,
-          appFee, buildingFee, utilitySetup, petDeposit,
-          brokerLinear, brokerFixed,
-          renIns, resMo, totLiquid } = inp;
-
-  // Cash constraint: solve for rent
-  // totalCash(r) = r*(firstMonthMult + secDepMult + brokerLinear) + brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + resMo*(r + renIns + rDebts)
-  // totalCash(r) = r*(firstMonthMult + secDepMult + brokerLinear + resMo) + (brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + resMo*(renIns + rDebts))
-  const cashLinear = firstMonthMult + secDepMult + brokerLinear + resMo;
-  const cashFixed = brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + resMo * (renIns + rDebts);
-  let cashMax = cashLinear > 0 ? (totLiquid - cashFixed) / cashLinear : Infinity;
-  cashMax = Math.max(0, cashMax);
-
-  // Income constraint
-  const incomeMultMax = mult > 0 ? annInc / mult : Infinity;
-  let incomeDTIMax = Infinity;
-  if (useDTI && dtiMax > 0) {
-    incomeDTIMax = Math.max(0, moInc * dtiMax - renIns - rDebts);
-  }
-  const incomeMax = Math.min(incomeMultMax, incomeDTIMax);
-
-  const maxRent = Math.min(cashMax, incomeMax);
-
-  // Determine binding constraint
-  const eps = 0.5;
-  let binding;
-  if (cashMax <= incomeMax - eps) {
-    binding = 'Cash / Move-in';
-  } else if (incomeMax <= cashMax - eps) {
-    if (useDTI && incomeDTIMax < incomeMultMax - eps) {
-      binding = 'DTI / Rent Burden';
-    } else {
-      binding = 'Income / ' + mult + '× Multiplier';
-    }
-  } else {
-    binding = 'Both';
-  }
-
-  return { maxRent, cashMax, incomeMax, incomeMultMax, incomeDTIMax, binding, cashLinear, cashFixed };
-}
-
-/* ═══════════════════════════════════════════════════
-   CALCULATE & RENDER STANDARD TAB
-═══════════════════════════════════════════════════ */
-function calculate() {
-  const inp = gatherInputs();
-  lastInp = inp;
-  saveToStorage();
-
-  const { maxRent, cashMax, incomeMax, incomeMultMax, incomeDTIMax, binding, cashLinear, cashFixed } = computeMaxRent(inp);
-  const { annInc, moInc, rDebts, mult, useDTI, dtiMax,
-          firstMonthMult, secDepMult,
-          appFee, buildingFee, utilitySetup, petDeposit,
-          brokerType, brokerLinear, brokerFixed,
-          renIns, resMo, totLiquid } = inp;
-
-  // Which rent to analyze?
-  const rent = state.targetOverride != null ? state.targetOverride : maxRent;
-
-  // Move-in items
-  const firstMo = rent * firstMonthMult;
-  const secDep = rent * secDepMult;
-  const brokerFeeAmt = rent * brokerLinear + brokerFixed;
-  const fixedFees = appFee + buildingFee + utilitySetup + petDeposit;
-  const totalMovein = firstMo + secDep + brokerFeeAmt + fixedFees;
-  const moveinSurplus = totLiquid - totalMovein;
-  const reserveBuf = resMo * (rent + renIns + rDebts);
-  const totalCash = totalMovein + reserveBuf;
-  const cashSurplus = totLiquid - totalCash;
-  const pcLiquid = totLiquid > 0 ? (totalCash / totLiquid * 100) : 0;
-  const pcMonths = (rent + renIns + rDebts) > 0 ? (totLiquid / (rent + renIns + rDebts)) : 0;
-
-  // Monthly
-  const moTotal = rent + renIns + rDebts;
-  const rentBurden = moInc > 0 ? (rent / moInc * 100) : 0;
-  const incomeMult = rent > 0 ? (annInc / rent) : 0;
-
-  // Hero
-  const displayRent = state.targetOverride != null ? rent : maxRent;
-  el('hero-price').textContent = fmt(displayRent);
-  el('hero-binding').innerHTML = `Binding: <strong>${binding}</strong>`;
-
-  const warnEl = el('hero-warn');
-  if (maxRent <= 0 || totLiquid <= 0) {
-    warnEl.textContent = 'Enter income and liquid assets to see results.';
-    warnEl.style.display = 'block';
-  } else if (state.targetOverride != null && state.targetOverride > maxRent + 0.5) {
-    warnEl.textContent = `⚠️ Target ${fmt(state.targetOverride)} exceeds your max ${fmt(maxRent)}`;
-    warnEl.style.display = 'block';
-  } else {
-    warnEl.style.display = 'none';
-  }
-
-  // Waterfall
-  setText('s-first-mo', fmt(firstMo));
-  setText('s-sec-dep', fmt(secDep));
-  setText('s-broker-fee', brokerType === 'none' ? '$0' : fmt(brokerFeeAmt));
-  setText('s-fixed-fees', fmt(fixedFees));
-  setText('s-total-movein', fmt(totalMovein));
-  setText('s-avail-liquid', fmt(totLiquid));
-  setText('s-movein-surplus', fmt(moveinSurplus));
-  setText('s-res-mo', resMo + ' mo');
-  setText('s-reserve-buf', fmt(reserveBuf));
-  setText('s-total-cash', fmt(totalCash));
-  setText('s-avail-liquid2', fmt(totLiquid));
-  setText('s-cash-surplus', fmt(cashSurplus));
-  setText('s-pc-liquid', fmtPct(pcLiquid));
-  setText('s-pc-months', fmtMo(pcMonths));
-
-  // Surplus row colors
-  const surplusEl = el('s-movein-surplus').parentElement;
-  if (surplusEl) surplusEl.className = moveinSurplus >= 0 ? 'wf-highlight' : 'wf-warn';
-  const cashSurplusEl = el('s-cash-surplus').parentElement;
-  if (cashSurplusEl) cashSurplusEl.className = cashSurplus >= 0 ? 'wf-highlight' : 'wf-warn';
-
-  // Monthly
-  setText('s-rent', fmt(rent));
-  setText('s-insurance', fmt(renIns));
-  setText('s-debts', fmt(rDebts));
-  setText('s-monthly-total', fmt(moTotal));
-  setText('s-rent-burden', fmtPct(rentBurden));
-  setText('s-income-mult', incomeMult.toFixed(1) + '×');
-
-  // Pills
-  const cashOk = cashSurplus >= 0;
-  pill('pill-cash', cashOk);
-  setText('pd-cash', cashOk ? ('surplus ' + fmt(cashSurplus)) : ('short ' + fmt(-cashSurplus)));
-
-  const incOk = incomeMultMax >= rent - 0.5;
-  pill('pill-income', incOk);
-  setText('pd-income', incOk ? (incomeMult.toFixed(1) + '× ✓') : (incomeMult.toFixed(1) + '× (need ' + mult + '×)'));
-
-  el('pill-dti').style.display = useDTI ? 'flex' : 'none';
-  if (useDTI) {
-    const dtiOk = rent <= incomeDTIMax + 0.5;
-    pill('pill-dti', dtiOk);
-    setText('pd-dti', fmtPct(rentBurden) + (dtiOk ? ' ✓' : ' (need ≤' + fmtPct(dtiMax * 100) + ')'));
-  }
-
-  // Schedule deferred renders
-  if (state.activeTab === 'analysis') scheduleAnalysisRender(inp);
-  if (state.activeTab === 'afford') scheduleAffordRender(inp);
-}
-
-/* ═══════════════════════════════════════════════════
-   ANALYSIS TAB
-═══════════════════════════════════════════════════ */
-function scheduleAnalysisRender(inp) {
-  if (anlTimer) cancelAnimationFrame(anlTimer);
-  anlTimer = requestAnimationFrame(() => renderAnalysisView(inp));
-}
-
-function renderAnalysisView(inp) {
-  if (!inp) return;
-  const { maxRent, cashMax, incomeMax, binding } = computeMaxRent(inp);
-  const { annInc, moInc, rDebts, mult, useDTI, dtiMax,
-          firstMonthMult, secDepMult,
-          appFee, buildingFee, utilitySetup, petDeposit,
-          brokerType, brokerLinear, brokerFixed,
-          renIns, resMo, totLiquid } = inp;
-
-  el('anl-notice').style.display = 'none';
-  el('anl-content').style.display = '';
-
-  // Hero
-  const totalCashAtMax = maxRent * (firstMonthMult + secDepMult + brokerLinear + resMo) + brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + resMo * (renIns + rDebts);
-  setText('anl-hero-main', fmt(maxRent));
-  setText('anl-hero-binding', binding);
-  setText('anl-hero-movein', fmt(totalCashAtMax));
-  setText('anl-hero-compare', 'Citywide median: ' + fmt(MEDIANS.citywide));
-  const diff = maxRent - MEDIANS.citywide;
-  setText('anl-hero-gain', diff >= 0 ? '+' + fmt(diff) + ' vs median' : fmt(diff) + ' vs median');
-
-  // Helper: compute max rent with overridden broker
-  function maxWithBroker(bLinear, bFixed) {
-    const cl = firstMonthMult + secDepMult + bLinear + resMo;
-    const cf = bFixed + appFee + buildingFee + utilitySetup + petDeposit + resMo * (renIns + rDebts);
-    const cMax = cl > 0 ? Math.max(0, (totLiquid - cf) / cl) : Infinity;
-    const mr = Math.min(cMax, incomeMax);
-    const movein = mr * (firstMonthMult + secDepMult + bLinear) + bFixed + appFee + buildingFee + utilitySetup + petDeposit;
-    const bFee = mr * bLinear + bFixed;
-    return { mr, movein, bFee };
-  }
-
-  // Broker table
-  const brokerScenarios = [
-    { label: 'No broker fee', bl: 0, bf: 0 },
-    { label: '1 month', bl: 1, bf: 0 },
-    { label: '15% annual', bl: 0.15 * 12, bf: 0 },
-  ];
-  const bTbody = el('anl-broker-table').querySelector('tbody');
-  bTbody.innerHTML = '';
-  const curBLabel = brokerType === 'none' ? 'No broker fee' : (brokerType === 'months' ? inp.brokerFeeMonths + ' months' : brokerType === 'pct' ? inp.brokerFeePct + '% annual' : 'Flat ' + fmt(inp.brokerFeeFlat));
-  brokerScenarios.forEach(s => {
-    const { mr, movein, bFee } = maxWithBroker(s.bl, s.bf);
-    const isCurrent = s.label === curBLabel;
-    const tr = document.createElement('tr');
-    if (isCurrent) tr.className = 'anl-current';
-    tr.innerHTML = `<td>${s.label}${isCurrent ? ' ★' : ''}</td><td>${fmt(mr)}</td><td>${fmt(movein)}</td><td>${fmt(bFee)}</td>`;
-    bTbody.appendChild(tr);
-  });
-
-  // Reserve table
-  const resMoScenarios = [0, 1, 2, 3, 6];
-  const rTbody = el('anl-reserve-table').querySelector('tbody');
-  rTbody.innerHTML = '';
-  resMoScenarios.forEach(rm => {
-    const cl = firstMonthMult + secDepMult + brokerLinear + rm;
-    const cf = brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + rm * (renIns + rDebts);
-    const cMax = cl > 0 ? Math.max(0, (totLiquid - cf) / cl) : Infinity;
-    const mr = Math.min(cMax, incomeMax);
-    const totalCash = mr * (firstMonthMult + secDepMult + brokerLinear + rm) + brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + rm * (renIns + rDebts);
-    const surplus = totLiquid - totalCash;
-    const isCurrent = rm === resMo;
-    const tr = document.createElement('tr');
-    if (isCurrent) tr.className = 'anl-current';
-    tr.innerHTML = `<td>${rm} mo${isCurrent ? ' ★' : ''}</td><td>${fmt(mr)}</td><td>${fmt(totalCash)}</td><td style="color:${surplus >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(surplus)}</td>`;
-    rTbody.appendChild(tr);
-  });
-
-  // Income screening table
-  const screenScenarios = [
-    { label: '30× multiplier', type: 'mult', val: 30 },
-    { label: '35× multiplier', type: 'mult', val: 35 },
-    { label: '40× multiplier', type: 'mult', val: 40 },
-    { label: '45× multiplier', type: 'mult', val: 45 },
-    { label: '30% DTI', type: 'dti', val: 0.30 },
-    { label: '33% DTI', type: 'dti', val: 0.33 },
-  ];
-  const sTbody = el('anl-screening-table').querySelector('tbody');
-  sTbody.innerHTML = '';
-  screenScenarios.forEach(s => {
-    let incCeil;
-    if (s.type === 'mult') incCeil = annInc / s.val;
-    else incCeil = Math.max(0, moInc * s.val - renIns - rDebts);
-    const mr = Math.min(cashMax, incCeil);
-    const binding = cashMax <= incCeil - 0.5 ? 'Cash' : incCeil <= cashMax - 0.5 ? 'Income' : 'Both';
-    const isCurrent = s.type === 'mult' ? (s.val === mult && !useDTI) : (s.val === dtiMax && useDTI);
-    const tr = document.createElement('tr');
-    if (isCurrent) tr.className = 'anl-current';
-    tr.innerHTML = `<td>${s.label}${isCurrent ? ' ★' : ''}</td><td>${fmt(incCeil)}</td><td>${binding}</td>`;
-    sTbody.appendChild(tr);
-  });
-
-  // Sensitivity strip
-  const sensContainer = el('anl-sens-tbody');
-  sensContainer.innerHTML = '';
-  const baseMax = maxRent;
-  const sensScenarios = [
-    { label: '+$5k cash', fn: () => { const i2 = {...inp, totLiquid: totLiquid + 5000}; return computeMaxRent(i2).maxRent; } },
-    { label: '+$10k cash', fn: () => { const i2 = {...inp, totLiquid: totLiquid + 10000}; return computeMaxRent(i2).maxRent; } },
-    { label: '+$25k cash', fn: () => { const i2 = {...inp, totLiquid: totLiquid + 25000}; return computeMaxRent(i2).maxRent; } },
-    { label: '+$10k income', fn: () => { const i2 = {...inp, annInc: annInc + 10000, moInc: (annInc + 10000) / 12}; return computeMaxRent(i2).maxRent; } },
-    { label: '+$25k income', fn: () => { const i2 = {...inp, annInc: annInc + 25000, moInc: (annInc + 25000) / 12}; return computeMaxRent(i2).maxRent; } },
-    { label: 'No broker fee', fn: () => { const i2 = {...inp, brokerLinear: 0, brokerFixed: 0}; return computeMaxRent(i2).maxRent; } },
-    { label: '0 mo reserve', fn: () => { const i2 = {...inp, resMo: 0}; return computeMaxRent(i2).maxRent; } },
-  ];
-  sensScenarios.forEach(s => {
-    const newMax = s.fn();
-    const delta = newMax - baseMax;
-    const chip = document.createElement('div');
-    chip.className = 'sens-chip ' + (delta > 0.5 ? 'up' : delta < -0.5 ? 'dn' : '');
-    chip.textContent = s.label + ': ' + fmt(newMax) + (delta > 0.5 ? ' (+' + fmt(delta) + ')' : delta < -0.5 ? ' (' + fmt(delta) + ')' : ' (no change)');
-    sensContainer.appendChild(chip);
-  });
-}
-
-/* ═══════════════════════════════════════════════════
-   AFFORD TARGET TAB
-═══════════════════════════════════════════════════ */
-function scheduleAffordRender(inp) {
-  if (aftTimer) cancelAnimationFrame(aftTimer);
-  aftTimer = requestAnimationFrame(() => renderAffordTargetView(inp));
-}
-
-function computeAffordTarget(inp, targetRent) {
-  const { annInc, moInc, rDebts, mult, useDTI, dtiMax,
-          firstMonthMult, secDepMult,
-          appFee, buildingFee, utilitySetup, petDeposit,
-          brokerLinear, brokerFixed,
-          renIns, resMo, totLiquid } = inp;
-
-  const cashLinear = firstMonthMult + secDepMult + brokerLinear + resMo;
-  const cashFixed = brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + resMo * (renIns + rDebts);
-  const cashNeeded = targetRent * cashLinear + cashFixed;
-  const cashGap = Math.max(0, cashNeeded - totLiquid);
-
-  const incomeNeededMult = targetRent * mult;
-  const incomeGapMult = Math.max(0, incomeNeededMult - annInc);
-  let incomeGapDTI = 0;
-  let incomeNeededDTI = 0;
-  if (useDTI && dtiMax > 0) {
-    incomeNeededDTI = (targetRent + renIns + rDebts) * 12 / dtiMax;
-    incomeGapDTI = Math.max(0, incomeNeededDTI - annInc);
-  }
-  const incomeGap = Math.max(incomeGapMult, incomeGapDTI);
-
-  return { cashGap, cashNeeded, incomeGapMult, incomeGapDTI, incomeGap, incomeNeededMult, incomeNeededDTI, cashLinear, cashFixed };
-}
-
-function renderAffordTargetView(inp) {
-  if (!inp) return;
-  const targetRent = state.aftTarget;
-  el('aft-prompt').style.display = targetRent == null ? '' : 'none';
-  el('aft-success').style.display = 'none';
-  el('aft-analysis').style.display = 'none';
-  if (targetRent == null) return;
-
-  const { maxRent } = computeMaxRent(inp);
-  const { cashGap, cashNeeded, incomeGapMult, incomeGapDTI, incomeGap, incomeNeededMult, incomeNeededDTI, cashLinear, cashFixed } = computeAffordTarget(inp, targetRent);
-  const { annInc, moInc, rDebts, mult, useDTI, dtiMax,
-          firstMonthMult, secDepMult,
-          appFee, buildingFee, utilitySetup, petDeposit,
-          brokerLinear, brokerFixed,
-          renIns, resMo, totLiquid,
-          hasGuarantor, gMult } = inp;
-
-  if (targetRent <= maxRent + 0.5) {
-    el('aft-success').style.display = '';
-    el('aft-success-title').textContent = '✅ You qualify for ' + fmt(targetRent) + '/mo!';
-    el('aft-success-sub').textContent = 'Your max is ' + fmt(maxRent) + '/mo, so you have ' + fmt(maxRent - targetRent) + '/mo headroom.';
-    return;
-  }
-
-  el('aft-analysis').style.display = '';
-  const gap = targetRent - maxRent;
-
-  setText('aft-sum-target', fmt(targetRent));
-  setText('aft-sum-max', fmt(maxRent));
-  setText('aft-sum-gap', '+' + fmt(gap) + '/mo needed');
-
-  // Lever 1: Cash
-  const hasCashGap = cashGap > 0;
-  el('lev-cash-badge').textContent = hasCashGap ? 'Cash Gap' : '✓ Cash OK';
-  el('lev-cash-badge').className = 'lev-badge ' + (hasCashGap ? 'lev-badge-red' : 'lev-badge-green');
-  setText('lev-cash-big', hasCashGap ? fmt(cashGap) + ' short' : 'No cash gap');
-  const savingsRate = parseFloat(el('aft-savings-rate').value) || 1000;
-  const monthsToSave = hasCashGap ? Math.ceil(cashGap / savingsRate) : 0;
-  setText('lev-cash-sub', hasCashGap ? ('Need ' + fmt(cashNeeded) + ' total; have ' + fmt(totLiquid)) : 'You have enough cash for move-in + reserve.');
-  setText('lev-cash-months', hasCashGap ? ('≈ ' + monthsToSave + ' mo at this rate') : '');
-  setText('lev-cash-extra', hasCashGap ? ('Or reduce the reserve by ' + resMo + ' → 0 to free up ' + fmt(resMo * (targetRent + renIns + rDebts)) + '.') : '');
-
-  // Lever 2: Income
-  const hasIncGap = incomeGap > 0;
-  el('lev-inc-badge').textContent = hasIncGap ? 'Income Gap' : '✓ Income OK';
-  el('lev-inc-badge').className = 'lev-badge ' + (hasIncGap ? 'lev-badge-red' : 'lev-badge-green');
-  setText('lev-inc-big', hasIncGap ? fmt(incomeGap) + '/yr short' : 'No income gap');
-  const lines = [];
-  lines.push(mult + '× rule: need ' + fmt(incomeNeededMult) + '/yr, have ' + fmt(annInc) + '/yr' + (incomeGapMult > 0 ? ' (gap: +' + fmt(incomeGapMult) + ')' : ' ✓'));
-  if (useDTI) lines.push(fmtPct(dtiMax * 100) + ' DTI: need ' + fmt(incomeNeededDTI) + '/yr' + (incomeGapDTI > 0 ? ' (gap: +' + fmt(incomeGapDTI) + ')' : ' ✓'));
-  setText('lev-inc-sub', lines.join(' | '));
-
-  // Lever 3: Broker Fee
-  const brokerScenarios = [
-    { label: 'No broker fee', bl: 0, bf: 0 },
-    { label: '1 month', bl: 1, bf: 0 },
-    { label: '15% annual', bl: 0.15 * 12, bf: 0 },
-  ];
-  let bHtml = '<table class="anl-table" style="margin-top:6px"><thead><tr><th>Scenario</th><th>Max Rent</th><th>Cash Needed</th></tr></thead><tbody>';
-  brokerScenarios.forEach(s => {
-    const cl2 = firstMonthMult + secDepMult + s.bl + resMo;
-    const cf2 = s.bf + appFee + buildingFee + utilitySetup + petDeposit + resMo * (renIns + rDebts);
-    const cMax2 = cl2 > 0 ? Math.max(0, (totLiquid - cf2) / cl2) : Infinity;
-    const { incomeMax } = computeMaxRent({...inp, brokerLinear: s.bl, brokerFixed: s.bf});
-    const mr2 = Math.min(cMax2, incomeMax);
-    const cash2 = targetRent * cl2 + cf2;
-    const ok = mr2 >= targetRent - 0.5;
-    bHtml += `<tr${ok ? ' class="anl-current"' : ''}><td>${s.label}${ok ? ' ✓' : ''}</td><td style="color:${ok ? 'var(--green)' : ''}">${fmt(mr2)}</td><td>${fmt(cash2)}</td></tr>`;
-  });
-  bHtml += '</tbody></table>';
-  el('lev-broker-table-wrap').innerHTML = bHtml;
-  el('lev-broker-badge').textContent = 'Options';
-  el('lev-broker-badge').className = 'lev-badge lev-badge-amber';
-  setText('lev-broker-sub', 'See how different broker fee structures affect your max rent:');
-
-  // Lever 4: Reserve
-  const resMoScenarios = [0, 1, 2, 3];
-  let rHtml = '<table class="anl-table" style="margin-top:6px"><thead><tr><th>Reserve</th><th>Max Rent</th><th>Cash for Target</th></tr></thead><tbody>';
-  resMoScenarios.forEach(rm => {
-    const cl2 = firstMonthMult + secDepMult + brokerLinear + rm;
-    const cf2 = brokerFixed + appFee + buildingFee + utilitySetup + petDeposit + rm * (renIns + rDebts);
-    const cMax2 = cl2 > 0 ? Math.max(0, (totLiquid - cf2) / cl2) : Infinity;
-    const mr2 = Math.min(cMax2, computeMaxRent({...inp, resMo: rm}).incomeMax || Infinity);
-    const cashForTarget = targetRent * cl2 + cf2;
-    const ok = mr2 >= targetRent - 0.5;
-    rHtml += `<tr${ok ? ' class="anl-current"' : ''}><td>${rm} mo${ok ? ' ✓' : ''}</td><td style="color:${ok ? 'var(--green)' : ''}">${fmt(mr2)}</td><td>${fmt(cashForTarget)}</td></tr>`;
-  });
-  rHtml += '</tbody></table>';
-  el('lev-reserve-table-wrap').innerHTML = rHtml;
-  el('lev-reserve-badge').textContent = 'Options';
-  el('lev-reserve-badge').className = 'lev-badge lev-badge-amber';
-  setText('lev-reserve-sub', 'Reducing your required reserve buffer frees up cash:');
-
-  // Lever 5: Guarantor
-  el('lev-guarantor').style.display = '';
-  const incNeededForGuarantor = targetRent * gMult;
-  const guarantorHtml = `<p style="font-size:.82rem;color:var(--slate-600)">A guarantor (co-signer) with combined income ≥ <strong>${fmt(incNeededForGuarantor)}/yr</strong> (${gMult}× rent) could satisfy the income requirement. Many landlords also accept institutional guarantors (e.g., Insurent, TheGuarantors).</p>`;
-  el('lev-guarantor-text').innerHTML = guarantorHtml;
-
-  // Gap grid: cash × income
-  const cashSteps = [0, 5000, 10000, 25000];
-  const incSteps = [0, 10000, 25000, 50000];
-  let gridHtml = '<table class="aft-gap-tbl"><thead><tr><th>Cash +</th>';
-  incSteps.forEach(inc => { gridHtml += `<th>Inc +${inc === 0 ? '$0' : '$' + (inc / 1000) + 'k'}</th>`; });
-  gridHtml += '</tr></thead><tbody>';
-  cashSteps.forEach(cash => {
-    gridHtml += `<tr><td>Cash +${cash === 0 ? '$0' : '$' + (cash / 1000) + 'k'}</td>`;
-    incSteps.forEach(incAdd => {
-      const inp2 = { ...inp, totLiquid: totLiquid + cash, annInc: annInc + incAdd, moInc: (annInc + incAdd) / 12 };
-      const mr2 = computeMaxRent(inp2).maxRent;
-      const diff2 = mr2 - targetRent;
-      let cls = diff2 >= -0.5 ? 'cell-ok' : (diff2 >= -300 ? 'cell-close' : 'cell-far');
-      gridHtml += `<td class="${cls}">${fmt(mr2)}</td>`;
-    });
-    gridHtml += '</tr>';
-  });
-  gridHtml += '</tbody></table>';
-  el('aft-gap-grid').innerHTML = gridHtml;
-}
-
-/* ═══════════════════════════════════════════════════
-   STORAGE
-═══════════════════════════════════════════════════ */
-function saveToStorage() {
-  if (!state.saveEnabled) return;
-  try {
-    const data = {
-      annualIncome: el('annual-income').value,
-      recurringDebts: el('recurring-debts').value,
-      incomeMult: el('income-mult').value,
-      useDTI: el('use-dti-cb').checked,
-      maxDTIPct: el('max-dti-pct').value,
-      guarantor: el('guarantor-cb').checked,
-      guarantorMult: el('guarantor-mult').value,
-      firstMonthMult: el('first-month-mult').value,
-      secDepMult: el('sec-dep-mult').value,
-      appFee: el('app-fee').value,
-      buildingFee: el('building-fee').value,
-      utilitySetup: el('utility-setup').value,
-      petDeposit: el('pet-deposit').value,
-      brokerFeeType: el('broker-fee-type').value,
-      brokerFeePct: el('broker-fee-pct').value,
-      brokerFeeMonths: el('broker-fee-months').value,
-      brokerFeeFlat: el('broker-fee-flat').value,
-      rentersInsurance: el('renters-insurance').value,
-      reserveMonths: el('reserve-months').value,
-      accounts: state.accounts,
-      targetOverride: state.targetOverride,
-      saveEnabled: true,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) { /* ignore */ }
-}
-
-function restoreInputs() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    if (!d || !d.saveEnabled) return;
-    state.saveEnabled = true;
-    el('save-toggle-cb').checked = true;
-    if (d.annualIncome != null) el('annual-income').value = d.annualIncome;
-    if (d.recurringDebts != null) el('recurring-debts').value = d.recurringDebts;
-    if (d.incomeMult != null) el('income-mult').value = d.incomeMult;
-    if (d.useDTI != null) el('use-dti-cb').checked = d.useDTI;
-    if (d.maxDTIPct != null) el('max-dti-pct').value = d.maxDTIPct;
-    if (d.guarantor != null) el('guarantor-cb').checked = d.guarantor;
-    if (d.guarantorMult != null) el('guarantor-mult').value = d.guarantorMult;
-    if (d.firstMonthMult != null) el('first-month-mult').value = d.firstMonthMult;
-    if (d.secDepMult != null) el('sec-dep-mult').value = d.secDepMult;
-    if (d.appFee != null) el('app-fee').value = d.appFee;
-    if (d.buildingFee != null) el('building-fee').value = d.buildingFee;
-    if (d.utilitySetup != null) el('utility-setup').value = d.utilitySetup;
-    if (d.petDeposit != null) el('pet-deposit').value = d.petDeposit;
-    if (d.brokerFeeType != null) el('broker-fee-type').value = d.brokerFeeType;
-    if (d.brokerFeePct != null) el('broker-fee-pct').value = d.brokerFeePct;
-    if (d.brokerFeeMonths != null) el('broker-fee-months').value = d.brokerFeeMonths;
-    if (d.brokerFeeFlat != null) el('broker-fee-flat').value = d.brokerFeeFlat;
-    if (d.rentersInsurance != null) el('renters-insurance').value = d.rentersInsurance;
-    if (d.reserveMonths != null) el('reserve-months').value = d.reserveMonths;
-    if (Array.isArray(d.accounts) && d.accounts.length) state.accounts = d.accounts;
-    if (d.targetOverride != null) {
-      state.targetOverride = d.targetOverride;
-      el('target-price').value = d.targetOverride;
-    }
-  } catch (e) { /* ignore */ }
-  updateBrokerFeeVisibility();
-  updateGuarantorVisibility();
-  updateDTIVisibility();
-  onIncome();
-}
-
-function onSaveToggle() {
-  state.saveEnabled = el('save-toggle-cb').checked;
-  if (!state.saveEnabled) {
-    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
-  } else {
-    saveToStorage();
-  }
-}
-
-/* ═══════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-  // Sync preset button labels/values from MEDIANS constant
-  document.querySelectorAll('.preset-btn[data-key]').forEach(btn => {
-    const key = btn.dataset.key;
-    if (MEDIANS[key] != null) {
-      btn.dataset.val = MEDIANS[key];
-      btn.textContent = btn.textContent.split('$')[0] + '$' + MEDIANS[key].toLocaleString();
-    }
-  });
-  restoreInputs();
-  renderAccounts();
-  updateBrokerFeeVisibility();
-  updateGuarantorVisibility();
-  updateDTIVisibility();
-  onIncome();
-});
-</script>
-</body>
-</html>
