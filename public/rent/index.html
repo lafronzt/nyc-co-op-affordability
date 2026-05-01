@@ -6,9 +6,9 @@
 <title>NYC Rent Affordability Finder | Calculate Your Max Affordable Rent</title>
 <meta name="description" content="Free NYC rent affordability calculator. Enter your income and assets to instantly find your maximum affordable monthly rent — factoring in the 40× income rule, FARE Act broker fees, security deposit law, and move-in cash requirements.">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://www.nyc-rent-affordability.com/">
+<link rel="canonical" href="https://www.nyc-affordability.com/rent/">
 <meta property="og:type"        content="website">
-<meta property="og:url"         content="https://www.nyc-rent-affordability.com/">
+<meta property="og:url"         content="https://www.nyc-affordability.com/rent/">
 <meta property="og:title"       content="NYC Rent Affordability Finder | Calculate Your Max Affordable Rent">
 <meta property="og:description" content="Free NYC rent affordability calculator. Find your max affordable monthly rent from your financial profile — covering income screening, FARE Act broker fees, security deposit law, and move-in cash requirements.">
 <meta property="og:locale"      content="en_US">
@@ -16,17 +16,13 @@
 <meta name="twitter:title"      content="NYC Rent Affordability Finder">
 <meta name="twitter:description" content="Free NYC rent affordability calculator. Reverse-engineer your max affordable monthly rent from your income, assets, and move-in assumptions.">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"NYC Rent Affordability Finder","url":"https://www.nyc-rent-affordability.com/","description":"Find your maximum affordable monthly rent from your financial profile, covering NYC income screening, FARE Act broker fee rules, and move-in cash requirements.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"areaServed":{"@type":"City","name":"New York City","sameAs":"https://www.wikidata.org/wiki/Q60"}}
+{"@context":"https://schema.org","@type":"WebApplication","name":"NYC Rent Affordability Finder","url":"https://www.nyc-affordability.com/rent/","description":"Find your maximum affordable monthly rent from your financial profile, covering NYC income screening, FARE Act broker fee rules, and move-in cash requirements.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"areaServed":{"@type":"City","name":"New York City","sameAs":"https://www.wikidata.org/wiki/Q60"}}
 </script>
 <style>
 /* ===== RESET & VARIABLES ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --rent:         #134e38;
-  --rent-mid:     #0e3d2c;
-  --rent-lite:    #d1fae5;
-  --rent-bd:      #6ee7b7;
   --navy:         #0a1628;
   --navy-mid:     #142240;
   --blue:         #2563eb;
@@ -51,6 +47,16 @@
   --g900:         #111827;
   --border:       #e2e4e9;
   --r:            8px;
+  --header-h:     56px;
+  /* Navy palette extensions */
+  --navy-dark:    #0f2a54;
+  --navy-deep:    #0d1f3c;
+  --navy-border:  #1e3a5f;
+  --navy-muted:   #4a6fa5;
+  --navy-text:    #e2e8f0;
+  --navy-link:    #6b8ab8;
+  --navy-subtext: #c0d8f0;
+  --sky-lt:       #f0f9ff;
 }
 
 body {
@@ -64,12 +70,12 @@ body {
 
 /* ===== HEADER ===== */
 .app-header {
-  background: var(--rent);
+  background: var(--navy);
   padding: 13px 24px;
   display: flex;
   align-items: center;
   gap: 14px;
-  border-bottom: 2px solid var(--rent-mid);
+  border-bottom: 2px solid var(--navy-border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -78,13 +84,13 @@ body {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.2px;
-  color: #d1fae5;
+  color: var(--navy-text);
   white-space: nowrap;
 }
-.app-header h1 em { font-style: normal; color: var(--rent-bd); }
+.app-header h1 em { font-style: normal; color: var(--gold); }
 .app-header .tagline {
   font-size: 12px;
-  color: #a7f3d0;
+  color: #ffffff;
   line-height: 1.3;
   max-width: 380px;
   display: none;
@@ -99,43 +105,46 @@ body {
 }
 .toggle-track {
   width: 30px; height: 16px;
-  background: var(--rent-mid);
+  background: var(--navy-border);
   border-radius: 8px; position: relative; transition: background .2s; flex-shrink: 0;
 }
 .toggle-thumb {
   position: absolute; left: 2px; top: 2px;
   width: 12px; height: 12px;
-  background: #4a8a6e;
+  background: var(--navy-link);
   border-radius: 50%; transition: left .2s, background .2s;
 }
 .save-toggle input:checked + .toggle-track { background: var(--blue); }
 .save-toggle input:checked + .toggle-track .toggle-thumb { left: 16px; background: #fff; }
-.toggle-label { font-size: 11px; color: #a7f3d0; }
+.toggle-label { font-size: 11px; color: var(--navy-subtext); }
 
 /* ===== MAIN LAYOUT ===== */
 main.app-layout {
-  max-width: 1320px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: 520px 1fr;
+  grid-template-columns: 1fr 430px;
   gap: 20px;
-  padding: 20px 16px 60px;
+  max-width: 1300px;
+  margin: 20px auto;
+  padding: 0 20px 60px;
   align-items: start;
 }
 @media (max-width: 1060px) {
   main.app-layout { grid-template-columns: 1fr; }
 }
 
-.inputs-panel { display: flex; flex-direction: column; gap: 14px; }
+.inputs-panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .results-panel {
-  position: sticky; top: 56px;
-  max-height: calc(100vh - 72px);
+  position: sticky;
+  top: calc(var(--header-h) + 20px);
+  max-height: calc(100vh - var(--header-h) - 40px);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--g300) transparent;
 }
 @media (max-width: 1060px) { .results-panel { position: static; max-height: none; } }
 
 /* ===== COLLAPSIBLE SECTIONS (How/Assumptions) ===== */
-.info-wrap { max-width: 1320px; margin: 0 auto; padding: 0 16px 10px; }
+.info-wrap { max-width: 1300px; margin: 0 auto 20px; padding: 0 20px; }
 .info-btn {
   display: flex; align-items: center; gap: 6px;
   width: 100%; text-align: left;
@@ -184,7 +193,7 @@ main.app-layout {
 .card-title.no-toggle { cursor: default; }
 .card-title.no-toggle:hover { background: transparent; }
 .snum {
-  background: var(--rent); color: #fff;
+  background: var(--navy); color: #fff;
   border-radius: 50%; width: 17px; height: 17px;
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 9px; font-weight: 700; flex-shrink: 0;
@@ -254,17 +263,17 @@ main.app-layout {
   cursor: pointer;
 }
 .toggle-row input[type="checkbox"] {
-  width: 14px; height: 14px; accent-color: var(--rent); flex-shrink: 0; cursor: pointer;
+  width: 14px; height: 14px; accent-color: var(--blue); flex-shrink: 0; cursor: pointer;
 }
 .toggle-row small { font-size: 11px; color: var(--g400); font-weight: 400; }
 
 /* Broker note box */
 .broker-note {
-  background: var(--rent-lite); border: 1px solid var(--rent-bd);
+  background: var(--blue-xlt); border: 1px solid var(--blue-lt);
   border-radius: 5px; padding: 8px 10px;
-  font-size: 11.5px; color: #064e3b; line-height: 1.5;
+  font-size: 11.5px; color: var(--g600); line-height: 1.5;
 }
-.broker-note a { color: #065f46; }
+.broker-note a { color: var(--blue); }
 
 /* ===== ACCOUNTS TABLE ===== */
 .acct-wrap { overflow-x: auto; }
@@ -318,7 +327,7 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 }
 .tot-lbl { font-size: 10px; color: var(--g500); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 2px; }
 .tot-val { font-size: 16px; font-weight: 700; color: var(--g900); font-variant-numeric: tabular-nums; }
-.tot-val.primary { color: var(--rent); }
+.tot-val.primary { color: var(--blue); }
 
 /* ===== RESULTS CARD ===== */
 .results-card {
@@ -329,31 +338,31 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 
 /* Hero */
 .hero {
-  background: var(--rent);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
   padding: 20px 18px 16px; text-align: center;
 }
 .hero-eyebrow {
   font-size: 9.5px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.5px; color: #a7f3d0; margin-bottom: 5px;
+  letter-spacing: 1.5px; color: #ffffff; margin-bottom: 5px;
   display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .hero-eyebrow::before, .hero-eyebrow::after {
-  content: ""; height: 1px; width: 20px; background: var(--rent-mid);
+  content: ""; height: 1px; width: 20px; background: var(--navy-border);
 }
 .hero-price {
   font-size: 44px; font-weight: 800; font-variant-numeric: tabular-nums;
-  letter-spacing: -2px; color: #f0fdf4; line-height: 1.05;
+  letter-spacing: -2px; color: var(--sky-lt); line-height: 1.05;
   margin-bottom: 4px;
 }
-.hero-price.zero { color: #4a6fa5; }
-.hero-mo { display: block; font-size: 13px; font-weight: 400; color: #a7f3d0; margin-top: 1px; }
+.hero-price.zero { color: var(--navy-muted); }
+.hero-mo { display: block; font-size: 13px; font-weight: 400; color: var(--navy-subtext); margin-top: 1px; }
 .hero-binding {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.09);
   border-radius: 20px; padding: 5px 13px;
-  font-size: 11.5px; color: var(--rent-lite); margin-bottom: 0;
+  font-size: 11.5px; color: #ffffff; margin-bottom: 0;
 }
-.binding-val { color: var(--rent-bd); font-weight: 700; }
+.binding-val { color: var(--gold); font-weight: 700; }
 .hero-warn {
   margin-top: 8px; padding: 6px 11px;
   background: rgba(220,38,38,.15); border: 1px solid rgba(220,38,38,.3);
@@ -375,8 +384,8 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   margin-bottom: -1px; text-align: center;
 }
 .tab-btn:hover { color: var(--g800); background: var(--g50); }
-.tab-btn.active { color: var(--rent); border-bottom-color: var(--rent-bd); }
-.tab-btn[aria-selected="true"] { color: var(--rent); border-bottom-color: var(--rent-bd); }
+.tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+.tab-btn[aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); }
 
 /* Target rent row */
 .target-row {
@@ -417,7 +426,7 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   border-radius: 10px; cursor: pointer; color: var(--g600);
   font-family: inherit; font-weight: 500; transition: background .1s, border-color .1s, color .1s;
 }
-.btn-preset:hover { background: var(--g50); border-color: var(--rent); color: var(--rent); }
+.btn-preset:hover { background: var(--g50); border-color: var(--blue); color: var(--blue); }
 
 /* Snap blocks */
 .snap-block { margin-bottom: 14px; }
@@ -437,7 +446,7 @@ table.acct-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .snap-row.indent .sr-val { color: var(--g500); font-size: 12px; font-weight: 500; }
 .snap-row.subtot { border-top: 1px solid var(--g200); padding-top: 5px; border-bottom: none; margin-top: 1px; }
 .snap-row.subtot .sr-lbl, .snap-row.subtot .sr-val { font-weight: 700; color: var(--g900); font-size: 13px; }
-.snap-row.avail .sr-val { color: var(--rent); font-weight: 700; }
+.snap-row.avail .sr-val { color: var(--blue); font-weight: 700; }
 hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 .sr-val.pos { color: var(--green) !important; }
 .sr-val.neg { color: var(--red) !important; }
@@ -464,21 +473,21 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 
 /* ===== ANALYSIS TAB ===== */
 .anl-hero {
-  background: linear-gradient(135deg, var(--rent) 0%, var(--rent-mid) 100%);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
   padding: 15px 18px; margin: -14px -16px 14px;
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
   text-align: center;
 }
 .anl-hero-col .anl-eyebrow {
   font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1.2px; color: #6ee7b7; margin-bottom: 3px;
+  letter-spacing: 1.2px; color: var(--gold); margin-bottom: 3px;
 }
 .anl-hero-col .anl-price {
   font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums;
-  letter-spacing: -1px; color: #f0fdf4; line-height: 1.05;
+  letter-spacing: -1px; color: var(--sky-lt); line-height: 1.05;
 }
 .anl-hero-col .anl-sub {
-  font-size: 11px; color: #a7f3d0; margin-top: 2px;
+  font-size: 11px; color: var(--navy-subtext); margin-top: 2px;
 }
 .anl-hero-col .anl-sub strong { color: #fff; }
 .anl-hero-col.border-l { border-left: 1px solid rgba(255,255,255,.12); }
@@ -500,8 +509,8 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
   text-transform: uppercase; letter-spacing: 0.5px;
   border-bottom: 1px solid var(--g300); padding-bottom: 6px;
 }
-.scen-tbl tr.cur { background: rgba(19,78,56,.05); font-weight: 600; }
-.scen-tbl tr.cur td:first-child::after { content: " •"; color: var(--rent); font-size: 10px; }
+.scen-tbl tr.cur { background: rgba(37,99,235,.06); font-weight: 600; }
+.scen-tbl tr.cur td:first-child::after { content: " •"; color: var(--blue); font-size: 10px; }
 .val-pos { color: var(--green); font-weight: 700; }
 .val-neg { color: var(--red); font-weight: 700; }
 
@@ -517,23 +526,23 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 /* ===== AFFORD TARGET TAB ===== */
 .aft-card[hidden] { display: none; }
 .aft-tgt-bar {
-  background: var(--rent); padding: 12px 16px;
+  background: var(--navy); padding: 12px 16px;
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   margin: -14px -16px 14px;
 }
 .aft-tgt-bar .aft-lbl {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
-  font-weight: 700; color: #6ee7b7; white-space: nowrap;
+  font-weight: 700; color: var(--gold); white-space: nowrap;
 }
 .aft-tgt-wrap {
   display: flex; align-items: stretch;
-  border: 1px solid var(--rent-mid);
-  background: #0b3d28; border-radius: 5px; overflow: hidden;
+  border: 1px solid var(--navy-border);
+  background: var(--navy-deep); border-radius: 5px; overflow: hidden;
   flex: 1; min-width: 120px;
   transition: border-color .15s, box-shadow .15s;
 }
-.aft-tgt-wrap:focus-within { border-color: var(--rent-bd); box-shadow: 0 0 0 2px rgba(110,231,183,.3); }
-.aft-tgt-wrap .px { background: var(--rent-mid); border-right: 1px solid #0a3424; padding: 0 8px; font-size: 14px; color: #a7f3d0; font-weight: 600; display: flex; align-items: center; }
+.aft-tgt-wrap:focus-within { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(37,99,235,.3); }
+.aft-tgt-wrap .px { background: var(--navy-mid); border-right: 1px solid var(--navy-border); padding: 0 8px; font-size: 14px; color: var(--navy-subtext); font-weight: 600; display: flex; align-items: center; }
 .aft-tgt-wrap input {
   border: none; outline: none; background: transparent;
   padding: 7px 9px; font-size: 15px; font-weight: 700;
@@ -542,7 +551,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 }
 .aft-tgt-wrap input::-webkit-inner-spin-button,
 .aft-tgt-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
-.aft-tgt-bar .btn-reset { font-size: 11px; color: var(--rent-bd); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; font-weight: 500; white-space: nowrap; }
+.aft-tgt-bar .btn-reset { font-size: 11px; color: var(--gold); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; font-weight: 500; white-space: nowrap; }
 .aft-tgt-bar .btn-reset:hover { text-decoration: underline; }
 
 .aft-prompt { padding: 28px 20px; text-align: center; font-size: 13px; color: var(--g500); line-height: 1.65; }
@@ -612,8 +621,8 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 .res-lev-tbl th, .res-lev-tbl td { padding: 5px 7px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--g100); }
 .res-lev-tbl th:first-child, .res-lev-tbl td:first-child { text-align: left; }
 .res-lev-tbl thead th { font-size: 9.5px; font-weight: 700; color: var(--g500); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--g300); }
-.res-lev-tbl tr.cur-row { background: rgba(19,78,56,.05); font-weight: 600; }
-.res-lev-tbl tr.cur-row td:first-child::after { content: " •"; color: var(--rent); font-size: 10px; }
+.res-lev-tbl tr.cur-row { background: rgba(37,99,235,.06); font-weight: 600; }
+.res-lev-tbl tr.cur-row td:first-child::after { content: " •"; color: var(--blue); font-size: 10px; }
 
 /* Combined gap grid */
 .aft-grid-wrap { overflow-x: auto; }
@@ -636,29 +645,29 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 
 /* ===== FOOTER ===== */
 .app-footer {
-  background: var(--rent);
-  color: rgba(255,255,255,.7);
+  background: var(--navy);
+  color: var(--navy-muted);
   font-size: 12px; padding: 22px 24px;
-  line-height: 1.7; border-top: 2px solid var(--rent-mid);
+  line-height: 1.7; border-top: 2px solid var(--navy-border);
 }
 .app-footer .footer-inner {
-  max-width: 1320px; margin: 0 auto;
+  max-width: 1300px; margin: 0 auto;
   display: flex; flex-wrap: wrap; gap: 24px 48px;
 }
 .app-footer .footer-col { flex: 1; min-width: 160px; }
 .app-footer .footer-heading {
   font-size: 10px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1px;
-  color: #a7f3d0; margin-bottom: 8px;
+  color: var(--navy-link); margin-bottom: 8px;
 }
 .app-footer ul { list-style: none; padding: 0; margin: 0; }
 .app-footer li { margin-bottom: 4px; }
-.app-footer a { color: #6ee7b7; text-decoration: none; }
-.app-footer a:hover { color: #d1fae5; text-decoration: underline; }
+.app-footer a { color: var(--navy-muted); text-decoration: none; }
+.app-footer a:hover { color: var(--navy-text); text-decoration: underline; }
 .footer-disclaimer {
-  width: 100%; border-top: 1px solid var(--rent-mid);
+  width: 100%; border-top: 1px solid var(--navy-border);
   margin-top: 16px; padding-top: 14px;
-  font-size: 11px; color: rgba(255,255,255,.5);
+  font-size: 11px; color: rgba(255,255,255,.6);
 }
 
 /* Screen-reader only */
