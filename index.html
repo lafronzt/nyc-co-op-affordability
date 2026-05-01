@@ -61,7 +61,9 @@
   --r:        10px;
 }
 
-html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
@@ -325,7 +327,7 @@ body {
   <h1>NYC <em>Affordability</em></h1>
 </header>
 
-<div class="hero">
+<main><div class="hero">
   <div class="hero-eyebrow">Free NYC Housing Calculators</div>
   <h2>Know your numbers<br>before you sign anything.</h2>
   <p>Three calculators built for how NYC housing actually works — co-ops with board reserves, condos with closing-cost math, and rentals with the FARE Act rules.</p>
@@ -414,6 +416,7 @@ body {
     </div>
   </div>
 </div>
+</main>
 
 <footer class="site-footer">
   <div class="footer-inner">

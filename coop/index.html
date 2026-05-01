@@ -1869,7 +1869,7 @@ hr.snap-div {
       <ul style="list-style:none;padding:0;margin:0;">
         <li><a href="/condo/">NYC Condo Affordability</a></li>
         <li><a href="/rent/">NYC Rent Affordability</a></li>
-        <li><a href="/">NYC Affordability Hub</a></li>
+        <li><a href="https://www.nyc-affordability.com/">NYC Affordability Hub</a></li>
       </ul>
     </div>
     <p class="footer-disclaimer">
@@ -1898,7 +1898,28 @@ const state = {
 // ═══════════════════════════════════════
 // LOCAL STORAGE
 // ═══════════════════════════════════════
-const LS_KEY = 'nyc_coop_inputs';
+const LS_KEY     = 'nyc_coop_inputs';
+const SHARED_KEY = 'nyc_shared_profile';
+
+function saveSharedProfile(accounts, annualIncome, otherDebts) {
+  try { localStorage.setItem(SHARED_KEY, JSON.stringify({ accounts, annualIncome, otherDebts })); } catch(e) {}
+}
+function loadSharedProfile() {
+  try { const s = localStorage.getItem(SHARED_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+}
+function applySharedProfile(shared) {
+  if (!shared) return;
+  if (Array.isArray(shared.accounts) && shared.accounts.length) {
+    state.accounts = shared.accounts.map(a => ({
+      ...a,
+      closing: a.closing !== undefined ? a.closing : (a.liquidity || 0) === 100,
+    }));
+    renderAccounts();
+  }
+  const sv = (id, v) => { if (v !== undefined) { const el = $(id); if (el) el.value = v; } };
+  sv('annual-income', shared.annualIncome);
+  sv('other-debts',   shared.otherDebts);
+}
 
 function isSaveEnabled() {
   return $('save-toggle-cb').checked;
@@ -1928,6 +1949,7 @@ function saveToStorage(inp) {
     }
   };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
+  saveSharedProfile(inp.accounts, inp.annualIncome, inp.otherDebts);
 }
 
 function loadFromStorage() {
@@ -3463,6 +3485,15 @@ document.addEventListener('DOMContentLoaded', () => {
     $('save-toggle-cb').checked = true;
     restoreInputs(saved);   // sets state.accounts + scalar DOM values
   }
+  // Apply shared financial profile (accounts/income/debts from any calculator with save on)
+  applySharedProfile(loadSharedProfile());
+
+  // Cross-tab sync: when another calculator saves, update accounts/income/debts here
+  window.addEventListener('storage', e => {
+    if (e.key !== SHARED_KEY) return;
+    applySharedProfile(loadSharedProfile());
+    onChange();
+  });
 
   // Toggle: enable saves immediately, or clear storage when turned off
   $('save-toggle-cb').addEventListener('change', e => {
