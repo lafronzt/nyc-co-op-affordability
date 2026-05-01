@@ -1,5 +1,5 @@
 /**
- * Cloudflare Pages Function — multi-domain host-based routing
+ * Cloudflare Worker / Pages Function — multi-domain host-based routing
  *
  * Hub domain (landing page):
  *   nyc-affordability.com          → / (pass through as-is)
@@ -12,16 +12,16 @@
  *   nyc-rent-affordability.com     → /rent
  *
  * Default Pages domain / unknown hosts: pass through as-is.
- * Each section's root / maps to its index.html; all sub-paths are
- * attempted verbatim, with a SPA-style fallback to section index.html
+ * Each section's root / maps to its directory root; all sub-paths are
+ * attempted verbatim, with a SPA-style fallback to the section root
  * on 404 so deep links on custom domains work.
  *
  * To add a new domain:
  *   1. Add an entry to DOMAIN_ROUTES below (both apex and www), or to
  *      DOMAIN_REDIRECTS when retiring a standalone calculator domain.
  *      Use '' as the prefix for hub/root domains; use '/slug' for section domains.
- *   2. Add the custom domain in Cloudflare Pages → Custom domains.
- *   3. Point the domain's DNS to the Pages project.
+ *   2. Add the custom domain to the Worker route/custom domain setup.
+ *   3. Point the domain's DNS to the Worker.
  */
 
 const CANONICAL_HOST = 'www.nyc-affordability.com';
@@ -42,8 +42,18 @@ const DOMAIN_ROUTES = {
   'www.nyc-rent-affordability.com':  '/rent',
 };
 
+export default {
+  async fetch(request, env) {
+    return handleRequest(request, env);
+  },
+};
+
 export async function onRequest(context) {
-  const url     = new URL(context.request.url);
+  return handleRequest(context.request, context.env);
+}
+
+async function handleRequest(request, env) {
+  const url     = new URL(request.url);
   const host    = url.hostname.toLowerCase();
   const reqPath = url.pathname;
 
@@ -51,17 +61,17 @@ export async function onRequest(context) {
   const redirectPrefix = DOMAIN_REDIRECTS[host];
 
   if (redirectPrefix) {
-    return migrateLocalStorageThenRedirect(context.request, url, redirectPrefix);
+    return migrateLocalStorageThenRedirect(request, url, redirectPrefix);
   }
 
   // Hub domain or unrecognised host — serve files as-is from root.
   if (prefix === '' || prefix === undefined) {
-    return context.env.ASSETS.fetch(context.request);
+    return env.ASSETS.fetch(request);
   }
 
   // Section domain — rewrite to subdirectory with full path preservation.
-  // / on the custom domain → /prefix/index.html
-  // /some/path            → /prefix/some/path  (fallback → /prefix/index.html)
+  // / on the custom domain → /prefix/
+  // /some/path            → /prefix/some/path  (fallback → /prefix/)
   // Clone the URL so method, headers, and query params are all preserved.
   //
   // Strip any duplicate prefix (e.g. /condo/foo on nyc-condo-affordability.com
@@ -69,17 +79,17 @@ export async function onRequest(context) {
   const strippedPath = reqPath.startsWith(prefix + '/') ? reqPath.slice(prefix.length) : reqPath;
 
   const rewrittenUrl = new URL(url);
-  rewrittenUrl.pathname = strippedPath === '/' ? prefix + '/index.html' : prefix + strippedPath;
+  rewrittenUrl.pathname = strippedPath === '/' ? prefix + '/' : prefix + strippedPath;
 
-  const res = await context.env.ASSETS.fetch(new Request(rewrittenUrl, context.request));
+  const res = await env.ASSETS.fetch(new Request(rewrittenUrl.toString(), request));
 
   // Only fall back to index.html for navigation requests — assets (CSS/JS/images)
   // that are genuinely missing should return 404, not the app shell.
   const isNavRequest = !rewrittenUrl.pathname.match(/\.[^/]+$/);
   if (res.status === 404 && isNavRequest) {
     const fallbackUrl = new URL(url);
-    fallbackUrl.pathname = prefix + '/index.html';
-    return context.env.ASSETS.fetch(new Request(fallbackUrl, context.request));
+    fallbackUrl.pathname = prefix + '/';
+    return env.ASSETS.fetch(new Request(fallbackUrl.toString(), request));
   }
   return res;
 }
