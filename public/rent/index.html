@@ -719,8 +719,9 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 
     <!-- Card 1: Account Balances -->
     <div class="card">
-      <div class="card-title no-toggle">
+      <div class="card-title" id="card-title-1" aria-expanded="true" aria-controls="card-body-1">
         <span class="snum">1</span> Account Balances
+        <span class="card-chev open" aria-hidden="true">▲</span>
       </div>
       <div class="card-body" id="card-body-1">
         <div class="acct-wrap">
@@ -1926,7 +1927,7 @@ function activateTab(tabName) {
 
 /* ── collapsible cards ── */
 function initCollapsibleCards() {
-  for (let i = 2; i <= 6; i++) {
+  for (let i = 1; i <= 6; i++) {
     const titleEl = $(`card-title-${i}`);
     const bodyEl  = $(`card-body-${i}`);
     if (!titleEl || !bodyEl) continue;
