@@ -49,14 +49,16 @@ export async function onRequest(context) {
   // Section domain — rewrite to subdirectory with full path preservation.
   // / on the custom domain → /prefix/index.html
   // /some/path            → /prefix/some/path  (fallback → /prefix/index.html)
-  const rewritten = reqPath === '/'
-    ? prefix + '/index.html'
-    : prefix + reqPath;
+  // Clone the URL so method, headers, and query params are all preserved.
+  const rewrittenUrl = new URL(url);
+  rewrittenUrl.pathname = reqPath === '/' ? prefix + '/index.html' : prefix + reqPath;
 
-  const res = await context.env.ASSETS.fetch(new URL(rewritten, url));
+  const res = await context.env.ASSETS.fetch(new Request(rewrittenUrl, context.request));
 
   if (res.status === 404) {
-    return context.env.ASSETS.fetch(new URL(prefix + '/index.html', url));
+    const fallbackUrl = new URL(url);
+    fallbackUrl.pathname = prefix + '/index.html';
+    return context.env.ASSETS.fetch(new Request(fallbackUrl, context.request));
   }
   return res;
 }
