@@ -1319,7 +1319,7 @@ function calculate(inp) {
   const resOk  = resMo === 0 || pcMonths >= resMo;
 
   return {
-    avail: weightedAssets, weightedAssets, moInc, K, cc, carrying,
+    weightedAssets, moInc, K, cc, carrying,
     cashMax, dtiMaxPrice: dtiMaxP,
     maxPrice, binding,
     tgt, downPmt, loanAmt, moMtg,
@@ -1620,7 +1620,7 @@ function updateResults(r) {
   if (state.reservesEnabled) {
     tx('s-res-req',    fmt$(r.resReq));
     tx('s-total-cash', fmt$(r.totalCash));
-    tx('s-avail',      fmt$(r.avail));
+    tx('s-avail',      fmt$(r.weightedAssets));
     const surplusEl = $('s-surplus');
     surplusEl.textContent = fmt$(r.surplus);
     surplusEl.className = 'sr-val ' + (r.surplus >= 0 ? 'pos' : 'neg');

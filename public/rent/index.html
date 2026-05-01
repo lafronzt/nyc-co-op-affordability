@@ -1352,13 +1352,12 @@ function renderAccounts() {
   state.accounts.forEach((acct, i) => {
     const tr = document.createElement('tr');
     const moveInValue = acct.balance * acct.liquidity / 100;
-    const reserveValue = moveInValue;
     tr.innerHTML = `
       <td><input type="text" value="${escHtml(acct.name)}" data-i="${i}" data-f="name" aria-label="Account name"></td>
       <td><input type="number" value="${acct.balance}" data-i="${i}" data-f="balance" min="0" step="1000" style="width:90px" aria-label="Balance"></td>
       <td><input type="number" value="${acct.liquidity}" data-i="${i}" data-f="liquidity" min="0" max="100" step="5" style="width:60px" aria-label="Liquidity percent"></td>
       <td><div class="avail-cell${moveInValue > 0 ? '' : ' dim'}" id="mi-${i}">${moveInValue > 0 ? fmt(moveInValue) : '—'}</div></td>
-      <td><div class="avail-cell" id="res-${i}">${fmt(reserveValue)}</div></td>
+      <td><div class="avail-cell" id="res-${i}">${fmt(moveInValue)}</div></td>
       <td class="del-cell">${i >= 2 ? `<button class="btn-del" data-i="${i}" type="button" aria-label="Delete row ${i + 1}">&times;</button>` : ''}</td>
     `;
     tbody.appendChild(tr);
