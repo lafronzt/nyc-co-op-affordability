@@ -7,19 +7,16 @@
  * Legacy calculator domains (canonical redirects):
  *   nyc-co-op-affordability.com    → https://www.nyc-affordability.com/coop/
  *
- * Calculator domains (with full path preservation):
- *   nyc-condo-affordability.com    → /condo
- *   nyc-rent-affordability.com     → /rent
- *
  * Default Pages domain / unknown hosts: pass through as-is.
- * Each section's root / maps to its directory root; all sub-paths are
- * attempted verbatim, with a SPA-style fallback to the section root
- * on 404 so deep links on custom domains work.
+ * Calculator paths are served under the primary domain:
+ *   nyc-affordability.com/coop/
+ *   nyc-affordability.com/condo/
+ *   nyc-affordability.com/rent/
  *
  * To add a new domain:
  *   1. Add an entry to DOMAIN_ROUTES below (both apex and www), or to
  *      DOMAIN_REDIRECTS when retiring a standalone calculator domain.
- *      Use '' as the prefix for hub/root domains; use '/slug' for section domains.
+ *      Use '' as the prefix for hub/root domains; use '/slug' for future section domains.
  *   2. Add the custom domain to the Worker route/custom domain setup.
  *   3. Point the domain's DNS to the Worker.
  */
@@ -32,14 +29,9 @@ const DOMAIN_REDIRECTS = {
 };
 
 // '' prefix = hub domain, serve root as-is.
-// '/slug'   = section domain, rewrite paths under /slug.
 const DOMAIN_ROUTES = {
   'nyc-affordability.com':           '',
   'www.nyc-affordability.com':       '',
-  'nyc-condo-affordability.com':     '/condo',
-  'www.nyc-condo-affordability.com': '/condo',
-  'nyc-rent-affordability.com':      '/rent',
-  'www.nyc-rent-affordability.com':  '/rent',
 };
 
 export default {
@@ -69,13 +61,13 @@ async function handleRequest(request, env) {
     return env.ASSETS.fetch(request);
   }
 
-  // Section domain — rewrite to subdirectory with full path preservation.
+  // Future section domain — rewrite to subdirectory with full path preservation.
   // / on the custom domain → /prefix/
   // /some/path            → /prefix/some/path  (fallback → /prefix/)
   // Clone the URL so method, headers, and query params are all preserved.
   //
-  // Strip any duplicate prefix (e.g. /condo/foo on nyc-condo-affordability.com
-  // must not become /condo/condo/foo).
+  // Strip any duplicate prefix so /slug/foo on a section domain does not
+  // become /slug/slug/foo.
   const strippedPath = reqPath.startsWith(prefix + '/') ? reqPath.slice(prefix.length) : reqPath;
 
   const rewrittenUrl = new URL(url);
