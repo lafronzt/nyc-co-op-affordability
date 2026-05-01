@@ -143,6 +143,17 @@ a{color:#2563eb}
   var target = ${JSON.stringify(target.toString())};
   var keys = ['nyc_coop_inputs', 'nyc_shared_profile'];
   var payload = {};
+
+  function encodeUtf8Base64(value) {
+    var bytes = new TextEncoder().encode(value);
+    var binary = '';
+    var chunkSize = 0x8000;
+    for (var i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(binary);
+  }
+
   keys.forEach(function (key) {
     try {
       var value = localStorage.getItem(key);
@@ -151,8 +162,10 @@ a{color:#2563eb}
   });
   try {
     if (Object.keys(payload).length) {
-      var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      target += '#migrate-local-storage=' + encodeURIComponent(encoded);
+      var encoded = encodeUtf8Base64(JSON.stringify(payload));
+      var targetUrl = new URL(target);
+      targetUrl.hash = 'migrate-local-storage=' + encodeURIComponent(encoded);
+      target = targetUrl.toString();
     }
   } catch (e) {}
   location.replace(target);

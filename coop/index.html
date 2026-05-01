@@ -1970,7 +1970,7 @@ function importMigratedLocalStorage() {
   let imported = false;
   try {
     const encoded = decodeURIComponent(window.location.hash.slice(marker.length));
-    const payload = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    const payload = JSON.parse(decodeUtf8Base64(encoded));
     [LS_KEY, SHARED_KEY].forEach(key => {
       if (typeof payload[key] === 'string') {
         localStorage.setItem(key, payload[key]);
@@ -1985,6 +1985,15 @@ function importMigratedLocalStorage() {
     window.history.replaceState(null, '', window.location.pathname + window.location.search);
   }
   return imported;
+}
+
+function decodeUtf8Base64(value) {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 function restoreInputs(data) {
