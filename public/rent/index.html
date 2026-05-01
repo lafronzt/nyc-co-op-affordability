@@ -799,7 +799,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
           I have / plan to use a guarantor <small>(co-signer)</small>
         </label>
         <div class="form-row" id="guarantor-row" hidden>
-          <label class="lbl" for="guarantor-mult">Guarantor income multiplier<small>NYC guarantors typically need 80× monthly rent</small></label>
+          <label class="lbl" for="guarantor-mult">Guarantor income multiplier<small>NYC guarantors typically need 80× monthly rent — the Afford Target tab will show the exact income your guarantor must earn</small></label>
           <div class="iw"><input type="number" id="guarantor-mult" class="w60" min="20" max="120" step="1" value="80"><span class="sx">×</span></div>
         </div>
       </div>
@@ -1210,7 +1210,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
     <h3>Reserve Buffer</h3>
     <p>The calculator keeps N months of total housing costs (rent + insurance + debts) in savings after paying all move-in costs. This is a personal finance cushion — landlords don't require it, but it's good practice.</p>
     <h3>Guarantor</h3>
-    <p>A guarantor (co-signer) vouches for your rent. NYC landlords typically require the guarantor's income to be ≥ 80× monthly rent. The guarantor tab shows the income needed from a guarantor to qualify at your target rent.</p>
+    <p>A guarantor (co-signer) vouches for your rent obligations. NYC landlords typically require the guarantor's annual income to be ≥ 80× the monthly rent. Enabling the guarantor option does not change your own max rent — it surfaces a lever in the <strong>Afford Target</strong> tab showing exactly how much annual income the guarantor must demonstrate to qualify at any rent you enter.</p>
   </div>
 
   <button class="info-btn" id="assump-btn" aria-expanded="false" aria-controls="assump-body" type="button">
@@ -1484,10 +1484,6 @@ function calculate(inp) {
     : Infinity;
   const maxRent_income = Math.max(0, Math.min(maxRent_mult, maxRent_dti));
 
-  const maxRent_guarantor = inp.guarantorEnabled
-    ? inp.annualIncome / inp.guarantorMult
-    : null;
-
   const maxRent = Math.min(maxRent_income, maxRent_cash);
 
   let binding;
@@ -1502,7 +1498,6 @@ function calculate(inp) {
   return {
     weightedAssets,
     maxRent, maxRent_cash, maxRent_income, maxRent_mult, maxRent_dti,
-    maxRent_guarantor,
     binding, fixedMovein, fixedReserve, bMult, bFixed,
   };
 }
