@@ -1,6 +1,6 @@
 # NYC Affordability
 
-A suite of free, single-page NYC housing affordability calculators, each deployed as its own custom domain via a Cloudflare Pages multi-domain routing setup.
+A suite of free, single-page NYC housing affordability calculators, each deployed as its own custom domain via a Cloudflare Worker with Static Assets.
 
 | Calculator | Domain | Path |
 |---|---|---|
@@ -13,7 +13,7 @@ A suite of free, single-page NYC housing affordability calculators, each deploye
 
 ## How domain routing works
 
-A single Cloudflare Pages Function at [`/functions/[[path]].js`](functions/%5B%5Bpath%5D%5D.js) intercepts every request and routes based on the incoming `hostname`:
+A single Cloudflare Worker entrypoint at [`/functions/[[path]].js`](functions/%5B%5Bpath%5D%5D.js) intercepts every request and routes based on the incoming `hostname`:
 
 ```
 nyc-affordability.com              →  / (hub landing page, pass through)
@@ -21,18 +21,18 @@ nyc-affordability.com/coop/        →  /coop/ (co-op calculator)
 nyc-co-op-affordability.com        →  localStorage migration page, then https://www.nyc-affordability.com/coop/
 nyc-condo-affordability.com        →  /condo/[path]
 nyc-rent-affordability.com         →  /rent/[path]
-default Pages URL / unknown        →  pass through (serves /index.html at root)
+default Worker URL / unknown       →  pass through (serves /index.html at root)
 ```
 
 Full **path preservation** is enabled for active section domains: a request to `nyc-condo-affordability.com/some/path` is rewritten to `/condo/some/path`. If the asset is not found (HTTP 404), the function falls back to the section's `index.html` so deep links always work. The legacy co-op domain preserves paths while migrating saved browser inputs, so `www.nyc-co-op-affordability.com/details` lands on `https://www.nyc-affordability.com/coop/details`.
 
 The co-op migration has to run in the browser because `localStorage` is scoped by domain. The legacy domain serves a short noindex migration page that copies `nyc_coop_inputs` and `nyc_shared_profile` into a URL fragment, opens the canonical `/coop/` page, and the canonical page immediately imports those values and removes the fragment from browser history. Non-HTML requests still receive a normal 301 redirect.
 
-The default Pages domain also serves all paths directly by file-system structure:
-- `[pages-url]/` → landing page
-- `[pages-url]/coop/` → co-op calculator
-- `[pages-url]/condo/` → condo calculator
-- `[pages-url]/rent/` → rent calculator
+The default Worker domain also serves all paths directly by file-system structure:
+- `[worker-url]/` → landing page
+- `[worker-url]/coop/` → co-op calculator
+- `[worker-url]/condo/` → condo calculator
+- `[worker-url]/rent/` → rent calculator
 
 ### Adding a new domain
 
@@ -42,10 +42,10 @@ The default Pages domain also serves all paths directly by file-system structure
    'www.example.com': '/example',
    ```
    To retire a standalone calculator domain in favor of the hub, add it to `DOMAIN_REDIRECTS` instead.
-2. Create the static page at `/example/index.html`.
-3. In Cloudflare Pages → your project → **Custom domains**, add the domain.
-4. Update DNS (CNAME or ALIAS to the Pages project URL).
-5. Add cross-links in the footer of each existing page and on `/index.html`.
+2. Create the static page at `/public/example/index.html`.
+3. In Cloudflare Workers → your Worker → **Settings** → **Domains & Routes**, add the domain or route.
+4. Update DNS as needed for the Worker custom domain or route.
+5. Add cross-links in the footer of each existing page and on `/public/index.html`.
 
 ---
 
@@ -53,15 +53,16 @@ The default Pages domain also serves all paths directly by file-system structure
 
 ```
 /
-├── index.html               ← Landing page (NYC Affordability hub)
-├── coop/
-│   └── index.html           ← NYC Co-op Affordability calculator
-├── condo/
-│   └── index.html           ← NYC Condo Affordability calculator
-├── rent/
-│   └── index.html           ← NYC Rent Affordability calculator
+├── public/
+│   ├── index.html           ← Landing page (NYC Affordability hub)
+│   ├── coop/
+│   │   └── index.html       ← NYC Co-op Affordability calculator
+│   ├── condo/
+│   │   └── index.html       ← NYC Condo Affordability calculator
+│   └── rent/
+│       └── index.html       ← NYC Rent Affordability calculator
 ├── functions/
-│   └── [[path]].js          ← Cloudflare Pages routing function
+│   └── [[path]].js          ← Cloudflare Worker routing entrypoint
 ├── wrangler.toml
 └── README.md
 ```
@@ -72,21 +73,21 @@ All calculators are **pure HTML/CSS/JS** — no build step, no dependencies, no 
 
 ## Deploy
 
-### Cloudflare Pages (recommended)
+### Cloudflare Workers
 
 1. Fork or clone this repo.
-2. In **Cloudflare Pages → Create project → Connect repo**.
-3. Leave the build command blank; set the build output directory to `/` (or leave as default).
-4. Deploy.
-5. Add each custom domain under **Settings → Custom domains** and configure DNS.
+2. In **Cloudflare Workers & Pages → Create → Worker → Import a repository**, connect the repo.
+3. Use this repo's `wrangler.toml` as the deployment config.
+4. Deploy on push.
+5. Add each custom domain under the Worker's **Settings → Domains & Routes** and configure DNS.
 
 ### Local preview
 
 ```bash
-npx wrangler pages dev .
+npx wrangler dev --local
 ```
 
-This runs the Pages Function locally so host-based routing works. You can test it by passing a custom `Host` header:
+This runs the Worker locally so host-based routing works. You can test it by passing a custom `Host` header:
 
 ```bash
 curl -H "Host: nyc-condo-affordability.com" http://localhost:8788/
@@ -121,13 +122,13 @@ Or just open the files directly in a browser — each calculator works standalon
 
 ---
 
-## Cloudflare Pages configuration notes
+## Cloudflare Workers configuration notes
 
-- **Build command:** *(leave blank)*
-- **Build output directory:** `/` (root of the repo)
+- **Entrypoint:** `functions/[[path]].js`
+- **Assets directory:** `public`
 - **Compatibility date:** see `wrangler.toml`
-- The `[[path]]` function filename uses double brackets — this is a Cloudflare Pages catch-all route pattern, not a typo.
-- `context.env.ASSETS` is the Cloudflare Pages asset-binding. It is only available in Pages Functions, not standalone Workers.
+- `run_worker_first = true` is required so host-based routing runs before static assets are served.
+- `env.ASSETS` is the Workers Static Assets binding used by the Worker to serve files from `public`.
 
 ---
 

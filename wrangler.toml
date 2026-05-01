@@ -1,5 +1,8 @@
 name = "nyc-affordability"
 compatibility_date = "2026-04-30"
+main = "functions/[[path]].js"
 
 [assets]
-directory = "."
+directory = "public"
+binding = "ASSETS"
+run_worker_first = true
