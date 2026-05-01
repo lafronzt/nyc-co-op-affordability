@@ -500,10 +500,10 @@ label{font-size:.78rem;font-weight:600;color:var(--slate-600);display:flex;align
 
         <div class="preset-row">
           <span class="preset-label">Quick:</span>
-          <button class="preset-btn" data-val="3995" onclick="applyPreset(this)">Citywide $3,995</button>
-          <button class="preset-btn" data-val="4750" onclick="applyPreset(this)">Manhattan $4,750</button>
-          <button class="preset-btn" data-val="3750" onclick="applyPreset(this)">Brooklyn $3,750</button>
-          <button class="preset-btn" data-val="3100" onclick="applyPreset(this)">Queens $3,100</button>
+          <button class="preset-btn" data-val="3995" data-key="citywide" onclick="applyPreset(this)">Citywide $3,995</button>
+          <button class="preset-btn" data-val="4750" data-key="manhattan" onclick="applyPreset(this)">Manhattan $4,750</button>
+          <button class="preset-btn" data-val="3750" data-key="brooklyn" onclick="applyPreset(this)">Brooklyn $3,750</button>
+          <button class="preset-btn" data-val="3100" data-key="queens" onclick="applyPreset(this)">Queens $3,100</button>
         </div>
 
         <div class="results-section">
@@ -794,6 +794,14 @@ let anlTimer = null;
 let aftTimer = null;
 
 const STORAGE_KEY = 'nyc_rent_inputs';
+
+// Market median rents (StreetEasy Mar 2026) — update here to reflect in analysis and presets
+const MEDIANS = {
+  citywide:  3995,
+  manhattan: 4750,
+  brooklyn:  3750,
+  queens:    3100,
+};
 
 /* ═══════════════════════════════════════════════════
    HELPERS
@@ -1165,8 +1173,8 @@ function renderAnalysisView(inp) {
   setText('anl-hero-main', fmt(maxRent));
   setText('anl-hero-binding', binding);
   setText('anl-hero-movein', fmt(totalCashAtMax));
-  setText('anl-hero-compare', 'Citywide median: $3,995');
-  const diff = maxRent - 3995;
+  setText('anl-hero-compare', 'Citywide median: ' + fmt(MEDIANS.citywide));
+  const diff = maxRent - MEDIANS.citywide;
   setText('anl-hero-gain', diff >= 0 ? '+' + fmt(diff) + ' vs median' : fmt(diff) + ' vs median');
 
   // Helper: compute max rent with overridden broker
@@ -1502,6 +1510,14 @@ function onSaveToggle() {
    INIT
 ═══════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
+  // Sync preset button labels/values from MEDIANS constant
+  document.querySelectorAll('.preset-btn[data-key]').forEach(btn => {
+    const key = btn.dataset.key;
+    if (MEDIANS[key] != null) {
+      btn.dataset.val = MEDIANS[key];
+      btn.textContent = btn.textContent.split('$')[0] + '$' + MEDIANS[key].toLocaleString();
+    }
+  });
   restoreInputs();
   renderAccounts();
   updateBrokerFeeVisibility();
