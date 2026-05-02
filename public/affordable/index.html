@@ -958,7 +958,7 @@ function calculate(inp) {
     const unitHh100  = inp.amiRef[stdHh] || AMI_BASE[stdHh];
     const affordableRent = Math.round(unitHh100 * band / 100 * 0.30 / 12);
     const minIncome  = affordableRent * 40;
-    const eligible   = inp.income <= limit && inp.income >= minIncome;
+    const eligible   = inp.income <= limit;
     return {
       band,
       limit:        Math.round(limit),
