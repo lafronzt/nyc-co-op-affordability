@@ -926,8 +926,9 @@ function getBandShortName(band) {
 function getAmiRef() {
   const ref = {};
   for (let i = 1; i <= 8; i++) {
-    const el = $('ami-ref-' + i);
-    ref[i] = el ? (parseFloat(el.value) || AMI_BASE[i]) : AMI_BASE[i];
+    const el  = $('ami-ref-' + i);
+    const val = el ? parseFloat(el.value) : NaN;
+    ref[i] = (Number.isFinite(val) && val > 0) ? val : AMI_BASE[i];
   }
   return ref;
 }
@@ -936,7 +937,7 @@ function getAmiRef() {
 function readInputs() {
   return {
     hhSize:     parseInt($('hh-size').value)         || 2,
-    income:     parseFloat($('annual-income').value) || 0,
+    income:     Math.max(0, parseFloat($('annual-income').value) || 0),
     unitSize:   $('unit-size').value                 || '1br',
     borough:    $('borough').value                   || 'any',
     targetBand: parseInt($('target-band').value)     || 60,
