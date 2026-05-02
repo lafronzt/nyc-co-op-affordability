@@ -162,10 +162,24 @@ tbody tr:last-child td { border-bottom:none; }
 }
 .btn-del:hover { color:var(--red); background:#fef2f2; }
 .save-state { font-size:12px; color:var(--g500); }
+.asmp-details { border-top:1px solid var(--g100); }
+.asmp-details summary {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 18px 11px; cursor:pointer; list-style:none; user-select:none;
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--g500);
+}
+.asmp-details summary::-webkit-details-marker { display:none; }
+.asmp-details summary::after { content:'▸'; font-size:11px; color:var(--g400); transition:transform .2s; }
+.asmp-details[open] summary::after { transform:rotate(90deg); }
+.asmp-details summary:hover { background:var(--g50); }
 .assumptions { display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--g100); }
 .assumption-col { background:#fff; padding:16px 18px; }
-.assumption-col h3 { font-size:12px; color:var(--g800); margin-bottom:8px; }
-.assumption-col p { font-size:12px; color:var(--g500); line-height:1.6; }
+.assumption-col h3 { font-size:11px; font-weight:700; color:var(--g700); margin-bottom:10px; text-transform:uppercase; letter-spacing:.6px; }
+.asmp-fields { display:grid; gap:10px; }
+.asmp-field label { display:block; font-size:11px; color:var(--g500); margin-bottom:3px; }
+.asmp-field .input-wrap { font-size:12px; }
+.asmp-field .input-wrap input { font-size:12px; padding:6px 8px; }
+.asmp-field .input-wrap span { font-size:11px; padding:0 6px; }
 .app-footer {
   background:var(--navy); color:#4a6fa5; font-size:12px; padding:28px 24px; line-height:1.7;
   border-top:2px solid #1e3a5f;
@@ -310,9 +324,7 @@ tbody tr:last-child td { border-bottom:none; }
       <table aria-label="Rent co-op condo comparison">
         <thead><tr><th>Metric</th><th>Rent</th><th>Co-op</th><th>Condo</th></tr></thead>
         <tbody>
-          <tr><td>Max affordable rent</td><td id="t-rent-max-rent">&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-          <tr><td>Max co-op price</td><td>&mdash;</td><td id="t-coop-max-price">&mdash;</td><td>&mdash;</td></tr>
-          <tr><td>Max condo price</td><td>&mdash;</td><td>&mdash;</td><td id="t-condo-max-price">&mdash;</td></tr>
+          <tr><td>Maximum</td><td id="t-rent-max-rent">&mdash;</td><td id="t-coop-max-price">&mdash;</td><td id="t-condo-max-price">&mdash;</td></tr>
           <tr><td>Cash required</td><td id="t-rent-cash">&mdash;</td><td id="t-coop-cash">&mdash;</td><td id="t-condo-cash">&mdash;</td></tr>
           <tr><td>Monthly housing cost</td><td id="t-rent-monthly">&mdash;</td><td id="t-coop-monthly">&mdash;</td><td id="t-condo-monthly">&mdash;</td></tr>
           <tr><td>DTI</td><td id="t-rent-dti">&mdash;</td><td id="t-coop-dti">&mdash;</td><td id="t-condo-dti">&mdash;</td></tr>
@@ -322,24 +334,82 @@ tbody tr:last-child td { border-bottom:none; }
         </tbody>
       </table>
     </div>
-  </section>
-
-  <section class="section-card">
-    <div class="section-title">Default assumptions</div>
-    <div class="assumptions">
-      <div class="assumption-col">
-        <h3>Rent</h3>
-        <p>40x income screening, no tenant-paid broker fee, one month security deposit, $15 renters insurance, and a 2-month reserve buffer.</p>
+    <details class="asmp-details" id="asmp-details">
+      <summary>Adjust assumptions <span>Click to expand</span></summary>
+      <div class="assumptions">
+        <div class="assumption-col">
+          <h3>Rent</h3>
+          <div class="asmp-fields">
+            <div class="asmp-field">
+              <label for="a-rent-mult">Income multiplier</label>
+              <div class="input-wrap"><span>×</span><input type="number" id="a-rent-mult" min="10" max="60" step="1" value="40"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-rent-insurance">Renters insurance</label>
+              <div class="input-wrap"><span>$/mo</span><input type="number" id="a-rent-insurance" min="0" step="1" value="15"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-rent-reserve">Reserve buffer</label>
+              <div class="input-wrap"><span>mo</span><input type="number" id="a-rent-reserve" min="0" max="12" step="1" value="2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="assumption-col">
+          <h3>Co-op</h3>
+          <div class="asmp-fields">
+            <div class="asmp-field">
+              <label for="a-coop-dp">Down payment</label>
+              <div class="input-wrap"><span>%</span><input type="number" id="a-coop-dp" min="10" max="50" step="1" value="20"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-coop-rate">Mortgage rate</label>
+              <div class="input-wrap"><span>%</span><input type="number" id="a-coop-rate" min="1" max="15" step="0.05" value="6.25"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-coop-maint">Monthly maintenance</label>
+              <div class="input-wrap"><span>$</span><input type="number" id="a-coop-maint" min="0" step="50" value="1200"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-coop-dti">Board DTI limit</label>
+              <div class="input-wrap"><span>%</span><input type="number" id="a-coop-dti" min="10" max="50" step="1" value="28"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-coop-reserve">Reserve requirement</label>
+              <div class="input-wrap"><span>mo</span><input type="number" id="a-coop-reserve" min="0" max="36" step="1" value="12"></div>
+            </div>
+          </div>
+        </div>
+        <div class="assumption-col">
+          <h3>Condo</h3>
+          <div class="asmp-fields">
+            <div class="asmp-field">
+              <label for="a-condo-dp">Down payment</label>
+              <div class="input-wrap"><span>%</span><input type="number" id="a-condo-dp" min="10" max="50" step="1" value="20"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-condo-rate">Mortgage rate</label>
+              <div class="input-wrap"><span>%</span><input type="number" id="a-condo-rate" min="1" max="15" step="0.05" value="6.30"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-condo-cc">Common charges</label>
+              <div class="input-wrap"><span>$/mo</span><input type="number" id="a-condo-cc" min="0" step="50" value="1000"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-condo-tax">Property taxes</label>
+              <div class="input-wrap"><span>$/mo</span><input type="number" id="a-condo-tax" min="0" step="50" value="1250"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-condo-ins">HO insurance</label>
+              <div class="input-wrap"><span>$/mo</span><input type="number" id="a-condo-ins" min="0" step="5" value="75"></div>
+            </div>
+            <div class="asmp-field">
+              <label for="a-condo-dti">Lender DTI limit</label>
+              <div class="input-wrap"><span>%</span><input type="number" id="a-condo-dti" min="10" max="60" step="1" value="43"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="assumption-col">
-        <h3>Co-op</h3>
-        <p>20% down, 6.25% 30-year mortgage, $1,200 monthly maintenance, 28% board DTI, 12 months of mortgage plus maintenance reserves.</p>
-      </div>
-      <div class="assumption-col">
-        <h3>Condo</h3>
-        <p>20% down, 6.30% 30-year mortgage, $1,000 common charges, $1,250 property taxes, $75 insurance, 43% lender DTI, and no reserve requirement by default.</p>
-      </div>
-    </div>
+    </details>
   </section>
 </main>
 
@@ -482,10 +552,16 @@ function closingAssets(accounts) {
   return accounts.reduce((s, a) => s + (a.closing ? a.balance : 0), 0);
 }
 
+const ASMP = {
+  rent:  { incomeMult: 40, rentersInsurance: 15, reserveMonths: 2 },
+  coop:  { mortgageRate: 6.25, dpPct: 20, maint: 1200, maxDTIPct: 28, reserveMo: 12 },
+  condo: { mortgageRate: 6.30, dpPct: 20, commonCharges: 1000, propTaxes: 1250, hoInsurance: 75, maxDtiPct: 43 },
+};
+
 function calcRent(base) {
   const inp = {
     ...base,
-    incomeMult: 40,
+    incomeMult: ASMP.rent.incomeMult,
     dtiEnabled: false,
     dtiPct: 35,
     secDepositMonths: 1,
@@ -497,8 +573,8 @@ function calcRent(base) {
     brokerFeePct: 15,
     brokerFeeMonths: 1,
     brokerFlat: 3000,
-    rentersInsurance: 15,
-    reserveMonths: 2,
+    rentersInsurance: ASMP.rent.rentersInsurance,
+    reserveMonths: ASMP.rent.reserveMonths,
   };
   const assets = weightedAssets(inp.accounts);
   const moInc = inp.annualIncome / 12;
@@ -520,12 +596,12 @@ function calcRent(base) {
 function calcCoop(base) {
   const inp = {
     ...base,
-    mortgageRate: 6.25,
+    mortgageRate: ASMP.coop.mortgageRate,
     loanTerm: 30,
-    dpPct: 20,
-    reserveMo: 12,
-    maxDTIPct: 28,
-    maint: 1200,
+    dpPct: ASMP.coop.dpPct,
+    reserveMo: ASMP.coop.reserveMo,
+    maxDTIPct: ASMP.coop.maxDTIPct,
+    maint: ASMP.coop.maint,
     fcAtty: 4000,
     fcBankAtty: 1500,
     fcCoop: 750,
@@ -594,15 +670,15 @@ function bsearchMaxPrice(testFn, hi) {
 function calcCondo(base) {
   const inp = {
     ...base,
-    mortgageRate: 6.30,
+    mortgageRate: ASMP.condo.mortgageRate,
     loanTerm: 30,
-    dpPct: 20,
+    dpPct: ASMP.condo.dpPct,
     reserveMo: 6,
     reservesEnabled: false,
-    maxDtiPct: 43,
-    commonCharges: 1000,
-    propTaxes: 1250,
-    hoInsurance: 75,
+    maxDtiPct: ASMP.condo.maxDtiPct,
+    commonCharges: ASMP.condo.commonCharges,
+    propTaxes: ASMP.condo.propTaxes,
+    hoInsurance: ASMP.condo.hoInsurance,
     fcAtty: 5000,
     fcLender: 3500,
     fcAppraisal: 1000,
@@ -744,6 +820,27 @@ $('add-account').addEventListener('click', () => {
   renderAccountEditor();
   render();
 });
+// Assumption input handlers
+[
+  ['a-rent-mult',      v => { ASMP.rent.incomeMult        = v; }],
+  ['a-rent-insurance', v => { ASMP.rent.rentersInsurance  = v; }],
+  ['a-rent-reserve',   v => { ASMP.rent.reserveMonths     = v; }],
+  ['a-coop-dp',        v => { ASMP.coop.dpPct             = v; }],
+  ['a-coop-rate',      v => { ASMP.coop.mortgageRate      = v; }],
+  ['a-coop-maint',     v => { ASMP.coop.maint             = v; }],
+  ['a-coop-dti',       v => { ASMP.coop.maxDTIPct         = v; }],
+  ['a-coop-reserve',   v => { ASMP.coop.reserveMo         = v; }],
+  ['a-condo-dp',       v => { ASMP.condo.dpPct            = v; }],
+  ['a-condo-rate',     v => { ASMP.condo.mortgageRate     = v; }],
+  ['a-condo-cc',       v => { ASMP.condo.commonCharges    = v; }],
+  ['a-condo-tax',      v => { ASMP.condo.propTaxes        = v; }],
+  ['a-condo-ins',      v => { ASMP.condo.hoInsurance      = v; }],
+  ['a-condo-dti',      v => { ASMP.condo.maxDtiPct        = v; }],
+].forEach(([id, setter]) => {
+  const el = $(id);
+  if (el) el.addEventListener('input', () => { setter(num(el.value)); render(); });
+});
+
 window.addEventListener('storage', e => {
   if (e.key !== SHARED_KEY) return;
   loaded = loadProfile();
