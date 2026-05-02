@@ -129,6 +129,7 @@ body {
 .save-toggle input:checked + .toggle-track { background: var(--blue); }
 .save-toggle input:checked + .toggle-track .toggle-thumb { left: 16px; background: #fff; }
 .toggle-label { font-size: 11px; color: var(--afi-subtext); }
+@media (max-width: 480px) { .toggle-label { display: none; } }
 
 /* ===== MAIN LAYOUT ===== */
 main.app-layout {
@@ -994,11 +995,13 @@ function updateResults() {
     '<span class="hero-band-pill ' + r.bandClass.code + '">' +
     r.bandClass.short + ' — ' + r.bandClass.name + '</span>';
 
-  /* AMI Meter: mapped to 0–165% range */
-  const meterPct  = Math.min(r.amiPct, 165);
-  const markerPct = (meterPct / 165 * 100).toFixed(1) + '%';
+  /* AMI Meter: mapped to 0–165% range; clamp label so it never clips the edge */
+  const meterPct    = Math.min(r.amiPct, 165);
+  const rawPct      = meterPct / 165 * 100;
+  const markerPct   = rawPct.toFixed(1) + '%';
+  const labelPct    = Math.min(Math.max(rawPct, 4), 96).toFixed(1) + '%';
   $('ami-marker-ptr').style.left   = markerPct;
-  $('ami-marker-label').style.left = markerPct;
+  $('ami-marker-label').style.left = labelPct;
   $('ami-marker-label').textContent = fmtPct(r.amiPct);
 
   /* Income summary */
