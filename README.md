@@ -8,6 +8,7 @@ A suite of free, single-page NYC apartment, home, and housing affordability calc
 | Co-op Affordability | [nyc-affordability.com/coop](https://www.nyc-affordability.com/coop/) | `/coop/` |
 | Condo Affordability | [nyc-affordability.com/condo](https://www.nyc-affordability.com/condo/) | `/condo/` |
 | Rent Affordability | [nyc-affordability.com/rent](https://www.nyc-affordability.com/rent/) | `/rent/` |
+| Compare All Options | [nyc-affordability.com/compare](https://www.nyc-affordability.com/compare/) | `/compare/` |
 | Co-op legacy domain | [nyc-co-op-affordability.com](https://www.nyc-co-op-affordability.com/) | redirects to `/coop/` |
 
 ---
@@ -21,6 +22,7 @@ nyc-affordability.com              →  / (hub landing page, pass through)
 nyc-affordability.com/coop/        →  /coop/ (co-op calculator)
 nyc-affordability.com/condo/       →  /condo/ (condo calculator)
 nyc-affordability.com/rent/        →  /rent/ (rent calculator)
+nyc-affordability.com/compare/     →  /compare/ (cross-calculator dashboard)
 nyc-co-op-affordability.com        →  localStorage migration page, then https://www.nyc-affordability.com/coop/
 default Worker URL / unknown       →  pass through (serves /index.html at root)
 ```
@@ -34,6 +36,7 @@ The default Worker domain also serves all paths directly by file-system structur
 - `[worker-url]/coop/` → co-op calculator
 - `[worker-url]/condo/` → condo calculator
 - `[worker-url]/rent/` → rent calculator
+- `[worker-url]/compare/` → cross-calculator comparison dashboard
 
 ### Adding a new domain
 
@@ -60,6 +63,8 @@ The default Worker domain also serves all paths directly by file-system structur
 │   │   └── index.html       ← NYC Co-op Affordability calculator
 │   ├── condo/
 │   │   └── index.html       ← NYC Condo Affordability calculator
+│   ├── compare/
+│   │   └── index.html       ← Rent vs co-op vs condo comparison dashboard
 │   └── rent/
 │       └── index.html       ← NYC Rent Affordability calculator
 ├── functions/
@@ -69,6 +74,8 @@ The default Worker domain also serves all paths directly by file-system structur
 ```
 
 All calculators are **pure HTML/CSS/JS** — no build step, no dependencies, no frameworks.
+
+The `/compare/` dashboard is also static. It reads the shared browser profile saved at `nyc_shared_profile` and can update it when the page's Save toggle is enabled, then combines that profile with each calculator's default assumptions to compare max affordable rent, max co-op price, max condo price, cash required, monthly housing cost, DTI, reserve requirement, and binding constraint.
 
 ---
 

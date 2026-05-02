@@ -149,9 +149,12 @@ body {
 }
 .calc-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 24px;
 }
+.calc-card           { grid-column: span 2; }
+.calc-card--row2-left  { grid-column: 2 / 4; }
+.calc-card--row2-right { grid-column: 4 / 6; }
 
 /* ── CALC CARDS ── */
 .calc-card {
@@ -183,6 +186,7 @@ body {
 .card-banner.condo      { background: linear-gradient(135deg, #1a3a6b, #0f2a54); }
 .card-banner.rent       { background: linear-gradient(135deg, #134e38, #0e3d2c); }
 .card-banner.affordable { background: linear-gradient(135deg, #1e1b4b, #111840); }
+.card-banner.compare    { background: linear-gradient(135deg, #78350f, #0f2a54); }
 
 .card-icon {
   font-size: 32px;
@@ -259,6 +263,7 @@ body {
 .cta-condo      { background: #1a3a6b; color: #e2e8f0; }
 .cta-rent       { background: #134e38; color: #e2e8f0; }
 .cta-affordable { background: #1e1b4b; color: #e0e7ff; }
+.cta-compare    { background: #78350f; color: #e2e8f0; }
 
 /* ── FEATURES STRIP ── */
 .features {
@@ -320,6 +325,9 @@ body {
 /* ── RESPONSIVE ── */
 @media (max-width: 1100px) {
   .calc-grid { grid-template-columns: repeat(2, 1fr); }
+  .calc-card,
+  .calc-card--row2-left,
+  .calc-card--row2-right { grid-column: span 1; }
 }
 @media (max-width: 820px) {
   .calc-grid { grid-template-columns: repeat(2, 1fr); max-width: 640px; margin: 0 auto; }
@@ -342,7 +350,7 @@ body {
 <main><div class="hero">
   <div class="hero-eyebrow">Free NYC Housing Calculators</div>
   <h2>Know your numbers<br>before you sign anything.</h2>
-  <p>Four calculators built for how NYC housing actually works — co-ops with board reserves, condos with closing-cost math, rentals with the FARE Act rules, and affordable housing with HPD's AMI framework.</p>
+  <p>Five tools built for how NYC housing actually works — co-ops with board reserves, condos with closing-cost math, rentals with FARE Act rules, affordable housing with HPD's AMI framework, and a side-by-side comparison dashboard.</p>
 </div>
 
 <section class="calc-section">
@@ -405,7 +413,7 @@ body {
     </a>
 
     <!-- Affordable Housing -->
-    <a class="calc-card" href="/affordable/">
+    <a class="calc-card calc-card--row2-left" href="/affordable/">
       <div class="card-banner affordable">
         <div class="card-icon">🏠</div>
         <div class="card-banner-title">NYC Affordable<br>Housing Finder</div>
@@ -419,6 +427,24 @@ body {
           <li>Editable FY2024 AMI reference values</li>
         </ul>
         <span class="card-cta cta-affordable">Open Affordable Finder →</span>
+      </div>
+    </a>
+
+    <!-- Compare -->
+    <a class="calc-card calc-card--row2-right" href="/compare/">
+      <div class="card-banner compare">
+        <div class="card-icon">📊</div>
+        <div class="card-banner-title">Compare<br>All Options</div>
+      </div>
+      <div class="card-body">
+        <p class="card-desc">Use your saved profile to compare rent, co-op, and condo affordability side by side with cash required, monthly cost, DTI, reserves, and binding constraints.</p>
+        <ul class="card-features">
+          <li>Reads your saved browser profile</li>
+          <li>Rent vs co-op vs condo maxes</li>
+          <li>Cash, monthly cost, DTI &amp; reserves</li>
+          <li>Links back into each calculator</li>
+        </ul>
+        <span class="card-cta cta-compare">Open Comparison →</span>
       </div>
     </a>
 
@@ -455,6 +481,7 @@ body {
         <li><a href="/condo/">NYC Condo Affordability</a></li>
         <li><a href="/rent/">NYC Rent Affordability</a></li>
         <li><a href="/affordable/">NYC Affordable Housing Calculator</a></li>
+        <li><a href="/compare/">Compare All Options</a></li>
       </ul>
     </div>
     <div class="footer-col">
