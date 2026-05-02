@@ -397,7 +397,7 @@ function loadProfile() {
 function normalizeAccounts(accounts) {
   return (Array.isArray(accounts) && accounts.length ? accounts : SAMPLE_PROFILE.accounts).map(a => {
     const balance = num(a.balance);
-    const liquidity = a.liquidity !== undefined ? num(a.liquidity) : (a.reserve !== undefined ? num(a.reserve) : (a.closing ? 100 : 0));
+    const liquidity = a.liquidity !== undefined ? num(a.liquidity) : (a.closing ? 100 : (a.reserve !== undefined ? num(a.reserve) : 0));
     const closing = a.closing !== undefined ? !!a.closing : liquidity >= 100;
     return { name: a.name || 'Account', balance, liquidity, closing };
   });
@@ -749,9 +749,7 @@ window.addEventListener('storage', e => {
   loaded = loadProfile();
   profileState = profileInputs(loaded.profile);
   hasSavedProfile = !loaded.isSample;
-  saveEnabled = hasSavedProfile;
-  $('save-toggle-cb').checked = saveEnabled;
-  setText('save-state', saveEnabled ? 'Saved locally' : 'Not saving');
+  // Preserve the user's current Save toggle — don't override it on cross-tab updates
   syncEditorFields();
   render();
 });
