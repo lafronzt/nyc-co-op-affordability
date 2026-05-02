@@ -1314,7 +1314,16 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Sync income to shared profile when user changes it */
   const incomeEl = $('annual-income');
   if (incomeEl) {
-    const syncIncome = () => { const v = parseFloat(incomeEl.value); if (v > 0) saveIncomeToSharedProfile(v); };
+    const syncIncome = () => {
+      if (!$('save-toggle-cb').checked) return;
+      const raw = incomeEl.value.trim();
+      const v = parseFloat(raw);
+      if (raw === '' || isNaN(v)) {
+        try { const e = loadSharedProfile(); if (e) { delete e.annualIncome; localStorage.setItem(SHARED_KEY, JSON.stringify(e)); } } catch(_) {}
+      } else {
+        saveIncomeToSharedProfile(v);
+      }
+    };
     incomeEl.addEventListener('change', syncIncome);
     incomeEl.addEventListener('input', syncIncome);
   }
