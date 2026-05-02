@@ -715,6 +715,9 @@ $('profile-acct-tbody').addEventListener('input', e => {
   if (!Number.isInteger(i) || !field || !profileState.accounts[i]) return;
   profileState.accounts[i][field] = field === 'name' ? e.target.value : num(e.target.value);
   if (field === 'name') { saveSharedProfile(); return; }
+  const acct = profileState.accounts[i];
+  const weightedCell = e.target.closest('tr')?.children[4];
+  if (weightedCell) weightedCell.textContent = money(acct.balance * acct.liquidity / 100);
   saveSharedProfile();
   render();
 });
