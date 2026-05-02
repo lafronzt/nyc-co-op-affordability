@@ -509,7 +509,7 @@ function calcRent(base) {
   const cashMax = Math.min(maxMovein, maxReserve);
   const incomeMax = inp.annualIncome / inp.incomeMult;
   const maxRent = Math.min(cashMax, incomeMax);
-  const binding = cashMax <= incomeMax ? 'Cash / Move-In' : 'Income (40x rule)';
+  const binding = cashMax <= incomeMax ? 'Cash / Move-In' : `Income (${inp.incomeMult}× rule)`;
   const cashRequired = maxRent + (maxRent * inp.secDepositMonths) + fixedMovein + inp.reserveMonths * (maxRent + inp.rentersInsurance + inp.otherDebts);
   const monthlyTotal = maxRent + inp.rentersInsurance;
   const dti = moInc > 0 ? (monthlyTotal + inp.otherDebts) / moInc : 0;
@@ -714,6 +714,7 @@ $('profile-acct-tbody').addEventListener('input', e => {
   const field = e.target.dataset.f;
   if (!Number.isInteger(i) || !field || !profileState.accounts[i]) return;
   profileState.accounts[i][field] = field === 'name' ? e.target.value : num(e.target.value);
+  if (field === 'name') { saveSharedProfile(); return; }
   saveSharedProfile();
   render();
 });
@@ -722,7 +723,6 @@ $('profile-acct-tbody').addEventListener('change', e => {
   if (!Number.isInteger(i) || e.target.dataset.f !== 'closing' || !profileState.accounts[i]) return;
   profileState.accounts[i].closing = e.target.checked;
   saveSharedProfile();
-  renderAccountEditor();
   render();
 });
 $('profile-acct-tbody').addEventListener('click', e => {
