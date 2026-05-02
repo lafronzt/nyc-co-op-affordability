@@ -11,16 +11,16 @@
 <meta property="og:url"         content="https://www.nyc-affordability.com/affordable/">
 <meta property="og:title"       content="NYC Affordable Housing Eligibility Calculator | AMI &amp; Housing Connect">
 <meta property="og:description" content="Find your AMI percentage, check Housing Connect band eligibility, and see HPD affordable rent tables for NYC affordable housing.">
-<meta property="og:image"       content="https://www.nyc-affordability.com/images/general-og.png">
+<meta property="og:image"       content="https://www.nyc-affordability.com/images/affordable-og.png">
 <meta property="og:image:width" content="1731">
 <meta property="og:image:height" content="909">
-<meta property="og:image:alt"   content="NYC Affordable Housing Eligibility Calculator from NYC Affordability.">
+<meta property="og:image:alt"   content="NYC Affordable Housing Calculator — enter household size and income to find AMI percentage and Housing Connect band eligibility.">
 <meta property="og:locale"      content="en_US">
 <meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="NYC Affordable Housing Eligibility Calculator">
+<meta name="twitter:title"       content="NYC Affordable Housing Calculator">
 <meta name="twitter:description" content="Find your AMI percentage and check Housing Connect eligibility for NYC affordable housing.">
-<meta name="twitter:image"       content="https://www.nyc-affordability.com/images/general-og.png">
-<meta name="twitter:image:alt"   content="NYC Affordable Housing Eligibility Calculator from NYC Affordability.">
+<meta name="twitter:image"       content="https://www.nyc-affordability.com/images/affordable-og.png">
+<meta name="twitter:image:alt"   content="NYC Affordable Housing Calculator — enter household size and income to find AMI percentage and Housing Connect band eligibility.">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"NYC Affordable Housing Eligibility Calculator","url":"https://www.nyc-affordability.com/affordable/","description":"Find your AMI percentage, check Housing Connect AMI band eligibility, and see HPD affordable rent tables for NYC affordable housing lotteries.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"areaServed":{"@type":"City","name":"New York City","sameAs":"https://www.wikidata.org/wiki/Q60"}}
 </script>
@@ -863,10 +863,11 @@ table.rent-tbl {
 <script>
 'use strict';
 /* ============================================================
-   NYC Affordable Housing Finder
+   NYC Affordable Housing Calculator
    ============================================================ */
 
-const LS_KEY = 'nyc_affordable_inputs';
+const LS_KEY     = 'nyc_affordable_inputs';
+const SHARED_KEY = 'nyc_shared_profile';
 
 /* ── HUD FY2024 Income Limits — New York HMFA ── */
 const AMI_BASE = {
@@ -1217,6 +1218,22 @@ function initInfoSections() {
   });
 }
 
+/* ── Shared profile (cross-page sync) ── */
+function loadSharedProfile() {
+  try { const s = localStorage.getItem(SHARED_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+}
+function applySharedProfile(shared) {
+  if (!shared) return;
+  const el = $('annual-income');
+  if (el && shared.annualIncome !== undefined) el.value = shared.annualIncome;
+}
+function saveIncomeToSharedProfile(income) {
+  try {
+    const existing = loadSharedProfile() || {};
+    localStorage.setItem(SHARED_KEY, JSON.stringify({ ...existing, annualIncome: income }));
+  } catch(e) {}
+}
+
 /* ── localStorage ── */
 function saveToStorage(inp) {
   try {
@@ -1269,6 +1286,11 @@ document.addEventListener('DOMContentLoaded', () => {
     updateActiveRow(saved.hhSize || 2);
   }
 
+  /* Apply shared profile (income from other calculators), but don't overwrite a locally-saved income */
+  if (!saved || saved.income === undefined) {
+    applySharedProfile(loadSharedProfile());
+  }
+
   /* Initial compute */
   updateResults();
   initCards();
@@ -1287,6 +1309,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!el) return;
     el.addEventListener('change', onChange);
     if (el.type === 'number') el.addEventListener('input', onChange);
+  });
+
+  /* Sync income to shared profile when user changes it */
+  const incomeEl = $('annual-income');
+  if (incomeEl) {
+    const syncIncome = () => { const v = parseFloat(incomeEl.value); if (v > 0) saveIncomeToSharedProfile(v); };
+    incomeEl.addEventListener('change', syncIncome);
+    incomeEl.addEventListener('input', syncIncome);
+  }
+
+  /* React to shared profile updates from other tabs/pages */
+  window.addEventListener('storage', e => {
+    if (e.key !== SHARED_KEY) return;
+    applySharedProfile(loadSharedProfile());
+    updateResults();
   });
 });
 </script>
