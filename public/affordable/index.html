@@ -956,12 +956,13 @@ function calculate(inp) {
     const stdHh      = UNIT_HH[inp.unitSize] || 2;
     const unitHh100  = inp.amiRef[stdHh] || AMI_BASE[stdHh];
     const affordableRent = Math.round(unitHh100 * band / 100 * 0.30 / 12);
-    const eligible   = inp.income <= limit;
+    const minIncome  = affordableRent * 40;
+    const eligible   = inp.income <= limit && inp.income >= minIncome;
     return {
       band,
       limit:        Math.round(limit),
       affordableRent,
-      minIncome:    affordableRent * 40,
+      minIncome,
       eligible,
     };
   });
@@ -1031,14 +1032,22 @@ function updateResults() {
         fmt$(tgt.affordableRent) + '/mo.';
     } else {
       const gap = inp.income - tgt.limit;
+      const overMin = inp.income < tgt.minIncome;
       trEl.className        = 'target-result over';
       trIcon.textContent    = '❌';
-      trTitle.textContent   = 'Over income for ' + inp.targetBand + '% AMI';
-      trSub.textContent     =
-        'Your income (' + fmt$(inp.income) + ') exceeds the ' +
-        inp.targetBand + '% AMI limit of ' + fmt$(tgt.limit) +
-        ' by ' + fmt$(gap) + '. ' +
-        'You may qualify for a higher band — see the list below.';
+      trTitle.textContent   = overMin
+        ? 'Under minimum income for ' + inp.targetBand + '% AMI'
+        : 'Over income for ' + inp.targetBand + '% AMI';
+      trSub.textContent     = overMin
+        ? 'Your income (' + fmt$(inp.income) + ') is below the minimum of ' +
+          fmt$(tgt.minIncome) + ' (40× the ' + fmt$(tgt.affordableRent) + '/mo rent) required by most ' +
+          inp.targetBand + '% AMI listings. ' +
+          'Affordable rent for a ' + UNIT_LABELS[inp.unitSize] + ' at this band: ' + fmt$(tgt.affordableRent) + '/mo.'
+        : 'Your income (' + fmt$(inp.income) + ') exceeds the ' +
+          inp.targetBand + '% AMI limit of ' + fmt$(tgt.limit) +
+          ' by ' + fmt$(gap) + '. ' +
+          'Affordable rent for a ' + UNIT_LABELS[inp.unitSize] + ' at this band: ' + fmt$(tgt.affordableRent) + '/mo. ' +
+          'You may qualify for a higher band — see the list below.';
     }
   }
 
@@ -1056,7 +1065,7 @@ function updateResults() {
           '<span class="band-pct-name">' + getBandShortName(e.band) + '</span>' +
         '</span>' +
         '<span class="band-limit">≤ ' + fmt$(e.limit) + '</span>' +
-        '<span class="band-rent">' + (e.eligible ? fmt$(e.affordableRent) + '/mo' : '—') + '</span>' +
+        '<span class="band-rent">' + fmt$(e.affordableRent) + '/mo</span>' +
         (isTarget ? '<span class="band-target-tag">Your target</span>' : '') +
       '</div>';
   });
@@ -1146,11 +1155,17 @@ function initCards() {
     const body  = $('card-body-' + n);
     if (!title || !body) return;
     const chev = title.querySelector('.card-chev');
-    title.addEventListener('click', () => {
+    title.setAttribute('tabindex', '0');
+    title.setAttribute('role', 'button');
+    const toggle = () => {
       const isOpen = !body.classList.contains('collapsed');
       body.classList.toggle('collapsed', isOpen);
       if (chev) chev.classList.toggle('open', !isOpen);
       title.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    };
+    title.addEventListener('click', toggle);
+    title.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     });
   });
 }
@@ -1177,8 +1192,12 @@ function initTabs() {
     btn.addEventListener('keydown', e => {
       const arr = Array.from(tabs);
       const idx = arr.indexOf(btn);
-      if (e.key === 'ArrowRight') { arr[(idx + 1) % arr.length].click(); arr[(idx + 1) % arr.length].focus(); }
-      if (e.key === 'ArrowLeft')  { arr[(idx - 1 + arr.length) % arr.length].click(); arr[(idx - 1 + arr.length) % arr.length].focus(); }
+      let next = -1;
+      if (e.key === 'ArrowRight') next = (idx + 1) % arr.length;
+      if (e.key === 'ArrowLeft')  next = (idx - 1 + arr.length) % arr.length;
+      if (e.key === 'Home')       next = 0;
+      if (e.key === 'End')        next = arr.length - 1;
+      if (next !== -1) { e.preventDefault(); arr[next].click(); arr[next].focus(); }
     });
   });
 }
@@ -1268,7 +1287,6 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('change', onChange);
     if (el.type === 'number') el.addEventListener('input', onChange);
   });
-  $('annual-income').addEventListener('input', onChange);
 });
 </script>
 </body>
