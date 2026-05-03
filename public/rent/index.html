@@ -1280,7 +1280,7 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
 
 const LS_KEY          = 'nyc_rent_inputs';
 const SHARED_KEY      = 'nyc_shared_profile';
-const ASSUMPTIONS_KEY = 'nyc_shared_assumptions';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions_rent';
 
 function saveSharedProfile(accounts, annualIncome, otherDebts) {
   try { localStorage.setItem(SHARED_KEY, JSON.stringify({ accounts, annualIncome, otherDebts })); } catch(e) {}
@@ -1307,14 +1307,12 @@ function applySharedProfile(shared) {
 }
 
 function loadSharedAssumptions() {
-  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? { rent: JSON.parse(s) } : null; } catch(e) { return null; }
 }
 function saveSharedAssumptions(inp) {
   try {
-    const cur = loadSharedAssumptions() || {};
     localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
-      ...cur,
-      rent: { incomeMult: inp.incomeMult, rentersInsurance: inp.rentersInsurance, reserveMonths: inp.reserveMonths }
+      incomeMult: inp.incomeMult, rentersInsurance: inp.rentersInsurance, reserveMonths: inp.reserveMonths
     }));
   } catch(e) {}
 }

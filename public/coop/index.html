@@ -1934,7 +1934,7 @@ const state = {
 // ═══════════════════════════════════════
 const LS_KEY          = 'nyc_coop_inputs';
 const SHARED_KEY      = 'nyc_shared_profile';
-const ASSUMPTIONS_KEY = 'nyc_shared_assumptions';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions_coop';
 
 function saveSharedProfile(accounts, annualIncome, otherDebts) {
   try { localStorage.setItem(SHARED_KEY, JSON.stringify({ accounts, annualIncome, otherDebts })); } catch(e) {}
@@ -1957,14 +1957,12 @@ function applySharedProfile(shared) {
 }
 
 function loadSharedAssumptions() {
-  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? { coop: JSON.parse(s) } : null; } catch(e) { return null; }
 }
 function saveSharedAssumptions(inp) {
   try {
-    const cur = loadSharedAssumptions() || {};
     localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
-      ...cur,
-      coop: { mortgageRate: inp.mortgageRate, dpPct: inp.dpPct, maint: inp.maint, maxDTIPct: inp.maxDTIPct, reserveMo: inp.reserveMo }
+      mortgageRate: inp.mortgageRate, dpPct: inp.dpPct, maint: inp.maint, maxDTIPct: inp.maxDTIPct, reserveMo: inp.reserveMo
     }));
   } catch(e) {}
 }
@@ -2620,9 +2618,26 @@ function computeOptimizer(inp) {
   const dpDpCC = (dpCCDen2 !== 0) ? (c.dpCCNum * c.K - c.A * c.varFrac) / dpCCDen2 : c.minDp;
 
   const dpHardMax = Math.max(HARD_DP_MAX, c.minDp);
+
+  // Mansion tax creates price cliffs at tier boundaries. The true optimal dp may sit at a kink
+  // where crossing to the next tier makes a higher price unaffordable. Evaluate dp candidates
+  // derived from each tier-boundary price so the optimizer doesn't miss these kinks.
+  const MANSION_KINKS = [1000000, 2000000, 3000000, 5000000, 10000000, 15000000, 20000000, 25000000];
+  const kinkCandidates = [];
+  const denom = 1 - c.resMo * c.K;
+  for (const P of MANSION_KINKS) {
+    const m = calcMansionTax(P);
+    if (c.resMo > 0 && denom !== 0 && P > 0) {
+      kinkCandidates.push((c.avail - c.fixedCC - m - c.resMo * c.maintMo - P * (c.varFrac + c.resMo * c.K)) / (P * denom));
+    }
+    if (P > 0) {
+      kinkCandidates.push((c.dpCCNum - m) / P - c.varFrac);
+    }
+  }
+
   // Evaluate both candidate dp values and the minDp; pick the one yielding highest pAch.
   // Store pAch for each clamped candidate to avoid redundant calls later.
-  const candidates = [dpAnalytical, dpDpCC, c.minDp];
+  const candidates = [dpAnalytical, dpDpCC, c.minDp, ...kinkCandidates];
   let dpOptimal = c.minDp;
   let bestPAch = -Infinity;
   const candidatePAch = {};
@@ -3130,11 +3145,12 @@ function computeAffordTarget(inp) {
   if (target === null) return { state: 'no-target', c, standardMax, optMax };
 
   // At dp = min_dp_required and target price:
+  const mansion        = calcMansionTax(target);
   const mortAtTarget   = target * (1 - c.minDp) * c.K;
-  const cashNeededAtT  = target * (c.minDp + c.varFrac + c.resMo * (1 - c.minDp) * c.K) + c.fixedCC + c.resMo * c.maintMo;
+  const cashNeededAtT  = target * (c.minDp + c.varFrac + c.resMo * (1 - c.minDp) * c.K) + c.fixedCC + mansion + c.resMo * c.maintMo;
   const resGap         = c.resMo > 0 ? Math.max(0, cashNeededAtT - c.avail) : 0;
   // DP/CC gap: only Closing?-checked accounts can cover DP + closing costs
-  const dpCCNeededAtT  = target * (c.minDp + c.varFrac) + c.fixedCC;
+  const dpCCNeededAtT  = target * (c.minDp + c.varFrac) + c.fixedCC + mansion;
   const dpCCGap        = Math.max(0, dpCCNeededAtT - c.totLiquid);
   const cashGap        = Math.max(resGap, dpCCGap);
 
@@ -3169,11 +3185,11 @@ function computeAffordTarget(inp) {
   const dpForCashReserve = c.resMo > 0
     ? ((c.B <= 0 || target <= 0) ? -Infinity
       : (cashDen <= 0) ? Infinity
-      : (c.B / target - c.varFrac - c.resMo * c.K) / cashDen)
+      : ((c.B - mansion) / target - c.varFrac - c.resMo * c.K) / cashDen)
     : Infinity;
-  // DP/CC constraint: dp * target + varFrac*target + fixedCC ≤ totLiquid
+  // DP/CC constraint: dp * target + varFrac*target + fixedCC + mansion ≤ totLiquid
   const dpForCashDpCC = (target > 0 && c.dpCCNum > 0)
-    ? (c.dpCCNum / target - c.varFrac)
+    ? ((c.dpCCNum - mansion) / target - c.varFrac)
     : -Infinity;
   dpForCash = Math.min(
     isFinite(dpForCashReserve) ? dpForCashReserve : Infinity,

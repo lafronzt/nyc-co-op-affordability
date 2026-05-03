@@ -2214,7 +2214,7 @@ function renderRateLever(r) {
 // ═══════════════════════════════════════
 const LS_KEY          = 'nyc_condo_inputs';
 const SHARED_KEY      = 'nyc_shared_profile';
-const ASSUMPTIONS_KEY = 'nyc_shared_assumptions';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions_condo';
 function isSaveEnabled() { return $('save-toggle-cb').checked; }
 
 function saveSharedProfile(accounts, annualIncome, otherDebts) {
@@ -2235,14 +2235,13 @@ function applySharedProfile(shared) {
 }
 
 function loadSharedAssumptions() {
-  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? { condo: JSON.parse(s) } : null; } catch(e) { return null; }
 }
 function saveSharedAssumptions(inp) {
   try {
-    const cur = loadSharedAssumptions() || {};
     localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
-      ...cur,
-      condo: { mortgageRate: inp.mortgageRate, dpPct: inp.dpPct, commonCharges: inp.commonCharges, propTaxes: inp.propTaxes, hoInsurance: inp.hoInsurance, maxDtiPct: inp.maxDtiPct }
+      mortgageRate: inp.mortgageRate, dpPct: inp.dpPct, commonCharges: inp.commonCharges,
+      propTaxes: inp.propTaxes, hoInsurance: inp.hoInsurance, maxDtiPct: inp.maxDtiPct
     }));
   } catch(e) {}
 }
