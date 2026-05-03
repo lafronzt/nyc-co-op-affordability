@@ -349,7 +349,13 @@ tbody tr:last-child td { border-bottom:none; }
             </div>
             <div class="asmp-field">
               <label for="a-rent-reserve">Reserve buffer</label>
-              <div class="input-wrap"><span>mo</span><input type="number" id="a-rent-reserve" min="0" max="12" step="1" value="2"></div>
+              <div class="input-wrap"><select id="a-rent-reserve">
+                <option value="0">None</option>
+                <option value="1">1 month</option>
+                <option value="2" selected>2 months</option>
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+              </select></div>
             </div>
           </div>
         </div>
@@ -426,7 +432,7 @@ tbody tr:last-child td { border-bottom:none; }
     </div>
     <p class="footer-disclaimer">
       This dashboard is for informational purposes only and does not constitute financial, legal, or mortgage advice.
-      It combines your saved profile with each calculator's default assumptions. Open an individual calculator for detailed inputs and source notes.
+      It combines your saved profile with your saved assumptions (editable in the panel above). Open an individual calculator for detailed inputs and source notes.
     </p>
   </div>
 </footer>
@@ -511,7 +517,14 @@ function loadSharedAssumptions() {
 }
 function saveSharedAssumptions() {
   if (!isSaveEnabled()) return;
-  try { localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify(ASMP)); } catch(e) {}
+  try {
+    const cur = loadSharedAssumptions() || {};
+    localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
+      rent:  { ...cur.rent,  ...ASMP.rent  },
+      coop:  { ...cur.coop,  ...ASMP.coop  },
+      condo: { ...cur.condo, ...ASMP.condo },
+    }));
+  } catch(e) {}
 }
 function applySharedAssumptions(asmp) {
   if (!asmp) return;

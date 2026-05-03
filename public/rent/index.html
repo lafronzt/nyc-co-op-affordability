@@ -1322,9 +1322,13 @@ function applySharedAssumptions(asmp) {
   if (!asmp || !asmp.rent) return;
   const r = asmp.rent;
   const sv = (id, v) => { if (v != null) { const el = $(id); if (el) el.value = v; } };
-  sv('income-mult',      r.incomeMult);
+  sv('income-mult',       r.incomeMult);
   sv('renters-insurance', r.rentersInsurance);
-  sv('reserve-months',   r.reserveMonths);
+  // Only apply reserve-months if it matches a valid select option
+  const validReserve = [0, 1, 2, 3, 6];
+  if (r.reserveMonths != null && validReserve.includes(Number(r.reserveMonths))) {
+    sv('reserve-months', r.reserveMonths);
+  }
 }
 
 const DEFAULTS = {
