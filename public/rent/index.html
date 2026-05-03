@@ -1278,8 +1278,9 @@ hr.snap-div { border: none; border-top: 1px dashed var(--g200); margin: 4px 0; }
    NYC Rent Affordability Finder — JavaScript
    ============================================================ */
 
-const LS_KEY     = 'nyc_rent_inputs';
-const SHARED_KEY = 'nyc_shared_profile';
+const LS_KEY          = 'nyc_rent_inputs';
+const SHARED_KEY      = 'nyc_shared_profile';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions_rent';
 
 function saveSharedProfile(accounts, annualIncome, otherDebts) {
   try { localStorage.setItem(SHARED_KEY, JSON.stringify({ accounts, annualIncome, otherDebts })); } catch(e) {}
@@ -1303,6 +1304,29 @@ function applySharedProfile(shared) {
   const sv = (id, v) => { if (v !== undefined) { const el = $(id); if (el) el.value = v; } };
   sv('annual-income', shared.annualIncome);
   sv('other-debts',   shared.otherDebts);
+}
+
+function loadSharedAssumptions() {
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? { rent: JSON.parse(s) } : null; } catch(e) { return null; }
+}
+function saveSharedAssumptions(inp) {
+  try {
+    localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
+      incomeMult: inp.incomeMult, rentersInsurance: inp.rentersInsurance, reserveMonths: inp.reserveMonths
+    }));
+  } catch(e) {}
+}
+function applySharedAssumptions(asmp) {
+  if (!asmp || !asmp.rent) return;
+  const r = asmp.rent;
+  const sv = (id, v) => { if (v != null) { const el = $(id); if (el) el.value = v; } };
+  sv('income-mult',       r.incomeMult);
+  sv('renters-insurance', r.rentersInsurance);
+  // Only apply reserve-months if it matches a valid select option
+  const validReserve = [0, 1, 2, 3, 6];
+  if (r.reserveMonths != null && validReserve.includes(Number(r.reserveMonths))) {
+    sv('reserve-months', r.reserveMonths);
+  }
 }
 
 const DEFAULTS = {
@@ -2000,6 +2024,7 @@ function saveToStorage(inp) {
     }));
   } catch (e) { /* storage full or disabled */ }
   saveSharedProfile(inp.accounts, inp.annualIncome, inp.otherDebts);
+  saveSharedAssumptions(inp);
 }
 
 function loadFromStorage() {
@@ -2065,12 +2090,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Apply shared financial profile (accounts/income/debts from any calculator with save on)
   applySharedProfile(loadSharedProfile());
+  // Apply shared assumptions (overrides defaults with values set on any calculator)
+  applySharedAssumptions(loadSharedAssumptions());
 
   // Cross-tab sync: when another calculator saves, update accounts/income/debts here
   window.addEventListener('storage', e => {
-    if (e.key !== SHARED_KEY) return;
-    applySharedProfile(loadSharedProfile());
-    onChange();
+    if (e.key === SHARED_KEY) {
+      applySharedProfile(loadSharedProfile());
+      onChange();
+    } else if (e.key === ASSUMPTIONS_KEY) {
+      applySharedAssumptions(loadSharedAssumptions());
+      onChange();
+    }
   });
 
   // Initial compute

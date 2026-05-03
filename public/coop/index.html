@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NYC Co-op Affordability Calculator | Calculate Your Max Purchase Price</title>
-<meta name="description" content="Free NYC housing affordability calculator for co-op apartments. Estimate how much home you can afford from income, assets, DTI, costs, and reserves.">
+<meta name="description" content="Free NYC housing affordability calculator for co-op apartments. Estimate how much home you can afford from income, assets, mansion tax, DTI, costs, and reserves.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.nyc-affordability.com/coop/">
 
@@ -577,6 +577,9 @@ table.acct-tbl {
 .snap-row.surplus-row .sr-lbl { font-weight: 600; color: var(--g700); }
 .sr-val.neg { color: var(--red) !important; }
 .sr-val.pos { color: var(--green) !important; }
+.snap-row.mansion-row { background: rgba(245,158,11,.06); border-radius: 4px; padding-left: 4px; padding-right: 4px; }
+.snap-row.mansion-row .sr-lbl { color: #92400e; }
+.snap-row.mansion-row .sr-val { color: #92400e; font-weight: 700; }
 hr.snap-div {
   border: none; border-top: 1px dashed var(--g200); margin: 5px 0;
 }
@@ -1457,7 +1460,7 @@ hr.snap-div {
           <div class="sub-title">Variable Costs</div>
           <div class="form-row" style="margin-bottom:0">
             <label class="lbl" for="var-pct">Combined Variable Rate
-              <small>0.5% default covers loan origination fees for a sub-$1M purchase (no mansion tax, flip tax typically paid by seller). Add 1% if your price crosses $1M (mansion tax kicks in). Add 1–3% if your building charges a buyer-side flip tax — check the proprietary lease.</small>
+              <small>0.5% default covers loan origination fees. Mansion tax is calculated automatically below. Add 1–3% if your building charges a buyer-side flip tax — check the proprietary lease.</small>
             </label>
             <div class="iw w120"><input type="number" id="var-pct" value="0.5" min="0" max="20" step="0.1" style="text-align:right"><span class="sx">%</span></div>
           </div>
@@ -1517,6 +1520,10 @@ hr.snap-div {
           <div class="snap-row indent">
             <span class="sr-lbl">Variable Closing Costs</span>
             <span class="sr-val" id="s-vcc">—</span>
+          </div>
+          <div class="snap-row indent mansion-row" id="mansion-snap-row" style="display:none">
+            <span class="sr-lbl">Mansion Tax <span class="sr-note">(buyer-paid ≥ $1M)</span></span>
+            <span class="sr-val" id="s-mansion">—</span>
           </div>
           <div class="snap-row subtotal">
             <span class="sr-lbl">Total at Close</span>
@@ -1855,7 +1862,7 @@ hr.snap-div {
       <h3>Closing? checkbox vs. Reserve %</h3>
       <p>Each account has two independent settings. <strong>Closing?</strong> — check this for any account you can fully liquidate and wire on closing day (cash, HYSA, brokerage you plan to sell). The full balance then counts toward the down payment and closing costs. <strong>Reserve %</strong> — the fraction of the balance your board credits toward post-closing reserves. Boards typically credit 100% for cash and HYSA, 70–80% for brokerage (market-volatility haircut), and 0% for retirement accounts (401k, IRA, Roth IRA), which appear on Schedule D of the REBNY financial statement rather than as liquid reserves. You can check Closing? on a brokerage account while setting its Reserve % to 80% — meaning you'd wire the full amount at closing but only 80% counts toward your post-close cushion in the board's eyes.</p>
       <h3>Mansion tax is tiered</h3>
-      <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The default variable rate (0.5%) covers loan origination fees only, assuming a sub-$1M purchase. If your target price crosses $1M, add 1% to the variable rate. Flip tax (typically 1–3% of sale price) is usually paid by the seller, but some buildings charge the buyer — check the proprietary lease.</p>
+      <p>New York's <a href="https://www.tax.ny.gov/pdf/publications/real_estate/pub1099.pdf" target="_blank" rel="noopener noreferrer">mansion tax</a> applies to co-op purchases just as it does to condos — you're buying shares in a corporation, but the tax follows the consideration paid. It starts at 1% on purchases of $1M–$2M and steps up to 3.9% above $25M. The tax is <strong>not marginal</strong>: crossing a tier raises the entire bill, so $999,999 owes $0 while $1,000,001 owes ~$10,000. The calculator applies this automatically and shows it as a separate line in the closing cost waterfall. The variable rate field covers loan origination fees and any buyer-side flip tax only — do not add mansion tax there. Flip tax (typically 1–3% of sale price) is usually paid by the seller, but some buildings charge the buyer — check the proprietary lease.</p>
       <h3>This is an estimate — verify everything</h3>
       <p>Co-op board requirements vary significantly. Your building may have stricter DTI limits, different reserve requirements, or an unusual flip tax structure. Always confirm numbers with a <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener noreferrer">licensed mortgage broker</a> (for rate locks and DTI qualification) and a <a href="https://www.nycbar.org/lawyer-referral-service" target="_blank" rel="noopener noreferrer">real estate attorney</a> (for closing costs and the proprietary lease).</p>
     </div>
@@ -1925,8 +1932,9 @@ const state = {
 // ═══════════════════════════════════════
 // LOCAL STORAGE
 // ═══════════════════════════════════════
-const LS_KEY     = 'nyc_coop_inputs';
-const SHARED_KEY = 'nyc_shared_profile';
+const LS_KEY          = 'nyc_coop_inputs';
+const SHARED_KEY      = 'nyc_shared_profile';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions_coop';
 
 function saveSharedProfile(accounts, annualIncome, otherDebts) {
   try { localStorage.setItem(SHARED_KEY, JSON.stringify({ accounts, annualIncome, otherDebts })); } catch(e) {}
@@ -1946,6 +1954,27 @@ function applySharedProfile(shared) {
   const sv = (id, v) => { if (v !== undefined) { const el = $(id); if (el) el.value = v; } };
   sv('annual-income', shared.annualIncome);
   sv('other-debts',   shared.otherDebts);
+}
+
+function loadSharedAssumptions() {
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? { coop: JSON.parse(s) } : null; } catch(e) { return null; }
+}
+function saveSharedAssumptions(inp) {
+  try {
+    localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
+      mortgageRate: inp.mortgageRate, dpPct: inp.dpPct, maint: inp.maint, maxDTIPct: inp.maxDTIPct, reserveMo: inp.reserveMo
+    }));
+  } catch(e) {}
+}
+function applySharedAssumptions(asmp) {
+  if (!asmp || !asmp.coop) return;
+  const c = asmp.coop;
+  const sv = (id, v) => { if (v != null) { const el = $(id); if (el) el.value = v; } };
+  sv('mtg-rate',      c.mortgageRate);
+  sv('dp-pct',        c.dpPct);
+  sv('reserve-mo',    c.reserveMo);
+  sv('max-dti',       c.maxDTIPct);
+  sv('monthly-maint', c.maint);
 }
 
 function isSaveEnabled() {
@@ -1977,6 +2006,7 @@ function saveToStorage(inp) {
   };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   saveSharedProfile(inp.accounts, inp.annualIncome, inp.otherDebts);
+  saveSharedAssumptions(inp);
 }
 
 function loadFromStorage() {
@@ -1998,7 +2028,7 @@ function importMigratedLocalStorage() {
   try {
     const encoded = decodeURIComponent(window.location.hash.slice(marker.length));
     const payload = JSON.parse(decodeUtf8Base64(encoded));
-    [LS_KEY, SHARED_KEY].forEach(key => {
+    [LS_KEY, SHARED_KEY, ASSUMPTIONS_KEY].forEach(key => {
       if (typeof payload[key] === 'string') {
         localStorage.setItem(key, payload[key]);
         imported = true;
@@ -2052,6 +2082,35 @@ function restoreInputs(data) {
 }
 
 // ═══════════════════════════════════════
+// MANSION TAX (NYS + NYC — applies to co-ops)
+// Piecewise, applied to full purchase price. Not marginal.
+// ═══════════════════════════════════════
+function calcMansionTax(price) {
+  if (price < 1000000)  return 0;
+  if (price < 2000000)  return price * 0.0100;
+  if (price < 3000000)  return price * 0.0125;
+  if (price < 5000000)  return price * 0.0150;
+  if (price < 10000000) return price * 0.0225;
+  if (price < 15000000) return price * 0.0325;
+  if (price < 20000000) return price * 0.0350;
+  if (price < 25000000) return price * 0.0375;
+  return price * 0.039;
+}
+
+// Binary search: largest price where testFn(price) is true (testFn must be monotone decreasing)
+function bsearchMaxP(testFn, hi = 50000000) {
+  if (!testFn(0)) return 0;
+  if (testFn(hi))  return hi;
+  let lo = 0;
+  for (let i = 0; i < 80; i++) {
+    const mid = (lo + hi) / 2;
+    if (testFn(mid)) lo = mid; else hi = mid;
+    if (hi - lo < 1) break;
+  }
+  return lo;
+}
+
+// ═══════════════════════════════════════
 // PURE CALCULATE FUNCTION
 // ═══════════════════════════════════════
 function calculate(inp) {
@@ -2088,26 +2147,27 @@ function calculate(inp) {
     }
   }
 
+  // Total variable+mansion cash needed for the DP/CC pool at a given price
+  const ccAtP     = p => p * varFrac + calcMansionTax(p);  // variable + mansion (both proportional to price)
+  const closeAtP  = p => fixedCC + ccAtP(p) + p * dp;      // total closing cash
+  const resAtP    = p => closeAtP(p) + resMo * (maintMo + p * (1 - dp) * K); // total cash with reserves
+
   // --- Reserve-constrained max price (all weighted assets cover DP+CC+reserves) ---
-  // If no post-close reserve is required, this constraint should not cap price;
-  // DP/closing costs are handled by the closing-cash pool below.
-  const cashNum = avail - fixedCC - resMo * maintMo;
-  const cashDen = dp + varFrac + resMo * (1 - dp) * K;
+  // If no post-close reserve is required, this constraint does not cap price.
   const reserveMax = resMo > 0
-    ? ((cashDen > 0) ? Math.max(0, cashNum / cashDen) : 0)
+    ? bsearchMaxP(p => resAtP(p) <= avail)
     : Infinity;
 
   // --- DP/CC-constrained max price (only Closing?-checked accounts cover DP + closing costs) ---
   const dpCCNum = totLiquid - fixedCC;
-  const dpCCDen = dp + varFrac;
-  // When dpCCDen is 0 (no DP and no variable CC), the DP/CC constraint does not bind — use Infinity.
-  // When dpCCNum <= 0, not even fixed closing costs are covered — no deal is possible.
-  const dpCCMax = (dpCCDen > 0) ? Math.max(0, dpCCNum / dpCCDen) : (dpCCNum > 0 ? Infinity : 0);
+  const dpCCMax = dpCCNum <= 0
+    ? 0
+    : bsearchMaxP(p => p * dp + ccAtP(p) <= dpCCNum);
 
   // --- Effective cash ceiling is the tighter of the two constraints ---
   const cashMax = Math.min(reserveMax, isFinite(dpCCMax) ? dpCCMax : reserveMax);
 
-  // --- DTI-constrained max price ---
+  // --- DTI-constrained max price (linear — closed form still applies) ---
   const maxMoMtg    = dtiMax * moInc - maintMo - oDebts;
   const maxLoan     = (K > 0) ? Math.max(0, maxMoMtg) / K : Infinity;
   const dtiMaxPrice = ((1 - dp) > 0) ? Math.max(0, maxLoan / (1 - dp)) : Infinity;
@@ -2123,7 +2183,8 @@ function calculate(inp) {
 
   const downPmt      = tgt * dp;
   const varCC        = tgt * varFrac;
-  const totalAtClose = downPmt + fixedCC + varCC;
+  const mansion      = calcMansionTax(tgt);
+  const totalAtClose = downPmt + fixedCC + varCC + mansion;
   const maintRes     = resMo * maintMo;
   const loanAmt      = tgt * (1 - dp);
   const moMtg        = loanAmt * K;
@@ -2144,7 +2205,7 @@ function calculate(inp) {
     avail, totLiquid, fixedCC,
     cashMax, dtiMaxPrice: isFinite(dtiMaxPrice) ? dtiMaxPrice : null,
     maxPrice, binding, moInc,
-    tgt, downPmt, varCC, totalAtClose,
+    tgt, downPmt, varCC, mansion, totalAtClose,
     maintRes, loanAmt, moMtg, mtgRes,
     totalCash, dpSurplus, surplus, pcLiquid, pcMonths,
     maintMo, moTotal, dtiActual, dtiMax,
@@ -2382,6 +2443,14 @@ function updateResults(r) {
   tx('s-dp',         fmt$(r.downPmt));
   tx('s-fcc',        fmt$(r.fixedCC));
   tx('s-vcc',        fmt$(r.varCC));
+  const mansionRow = $('mansion-snap-row');
+  if (r.mansion > 0) {
+    mansionRow.style.display = '';
+    mansionRow.classList.add('mansion-row');
+    tx('s-mansion', fmt$(r.mansion));
+  } else {
+    mansionRow.style.display = 'none';
+  }
   tx('s-atclose',    fmt$(r.totalAtClose));
   tx('s-dp-avail',   fmt$(r.totLiquid));
   tx('s-maint-res',  fmt$(r.maintRes));
@@ -2471,25 +2540,19 @@ function deriveConstants(inp) {
   return { avail, totLiquid, moInc, dtiMax, resMo, maintMo, oDebts, fixedCC, varFrac, minDp, K, A, B, dpCCNum };
 }
 
-// Price ceilings as a function of dp (0..1)
+// Price ceilings as a function of dp (0..1) — uses binary search to account for mansion tax
 function priceAtDp(c, dp) {
-  // Reserve constraint: all weighted assets cover DP + CC + reserves
-  const d = (dp + c.varFrac + c.resMo * (1 - dp) * c.K);
+  // Reserve constraint: avail covers DP + fixedCC + varCC + mansion + reserves
   const pRes = c.resMo > 0
-    ? ((d > 0 && c.B > 0) ? c.B / d : 0)
+    ? bsearchMaxP(p => p * dp + c.fixedCC + p * c.varFrac + calcMansionTax(p) + c.resMo * (c.maintMo + p * (1 - dp) * c.K) <= c.avail)
     : Infinity;
 
-  // DP/CC constraint: only Closing?-checked accounts cover DP + variable CC.
-  // When dDpCC is 0 (no DP and no variable CC), this constraint does not bind (Infinity).
-  // When dpCCNum <= 0, the constraint is violated at any positive price (0).
-  const dDpCC = dp + c.varFrac;
+  // DP/CC constraint: only Closing?-checked accounts cover DP + variable CC + mansion
   let pDpCC;
-  if (dDpCC <= 0) {
-    pDpCC = Infinity;             // no DP or variable CC — constraint doesn't apply
-  } else if (c.dpCCNum <= 0) {
-    pDpCC = 0;                    // closing-eligible assets don't even cover fixed CC
+  if (c.dpCCNum <= 0) {
+    pDpCC = 0;
   } else {
-    pDpCC = c.dpCCNum / dDpCC;
+    pDpCC = bsearchMaxP(p => p * dp + p * c.varFrac + calcMansionTax(p) <= c.dpCCNum);
   }
 
   // Effective cash ceiling: tighter of reserve and DP/CC constraints
@@ -2507,7 +2570,8 @@ function dealAtPriceDp(c, price, dp) {
   const loanAmt      = price * (1 - dp);
   const moMtg        = loanAmt * c.K;
   const varCC        = price * c.varFrac;
-  const totalAtClose = downPmt + c.fixedCC + varCC;
+  const mansion      = calcMansionTax(price);
+  const totalAtClose = downPmt + c.fixedCC + varCC + mansion;
   const maintRes     = c.resMo * c.maintMo;
   const mtgRes       = c.resMo * moMtg;
   const totalCash    = totalAtClose + maintRes + mtgRes;
@@ -2517,7 +2581,7 @@ function dealAtPriceDp(c, price, dp) {
   const dti          = c.moInc > 0 ? (moTotal + c.oDebts) / c.moInc : 0;
   const pcLiquid     = c.avail - totalAtClose;
   const pcMonths     = moTotal > 0 ? pcLiquid / moTotal : 0;
-  return { downPmt, loanAmt, moMtg, varCC, totalAtClose, maintRes, mtgRes, totalCash, dpSurplus, surplus, moTotal, dti, pcLiquid, pcMonths };
+  return { downPmt, loanAmt, moMtg, varCC, mansion, totalAtClose, maintRes, mtgRes, totalCash, dpSurplus, surplus, moTotal, dti, pcLiquid, pcMonths };
 }
 
 function computeOptimizer(inp) {
@@ -2554,9 +2618,26 @@ function computeOptimizer(inp) {
   const dpDpCC = (dpCCDen2 !== 0) ? (c.dpCCNum * c.K - c.A * c.varFrac) / dpCCDen2 : c.minDp;
 
   const dpHardMax = Math.max(HARD_DP_MAX, c.minDp);
+
+  // Mansion tax creates price cliffs at tier boundaries. The true optimal dp may sit at a kink
+  // where crossing to the next tier makes a higher price unaffordable. Evaluate dp candidates
+  // derived from each tier-boundary price so the optimizer doesn't miss these kinks.
+  const MANSION_KINKS = [1000000, 2000000, 3000000, 5000000, 10000000, 15000000, 20000000, 25000000];
+  const kinkCandidates = [];
+  const denom = 1 - c.resMo * c.K;
+  for (const P of MANSION_KINKS) {
+    const m = calcMansionTax(P);
+    if (c.resMo > 0 && denom !== 0 && P > 0) {
+      kinkCandidates.push((c.avail - c.fixedCC - m - c.resMo * c.maintMo - P * (c.varFrac + c.resMo * c.K)) / (P * denom));
+    }
+    if (P > 0) {
+      kinkCandidates.push((c.dpCCNum - m) / P - c.varFrac);
+    }
+  }
+
   // Evaluate both candidate dp values and the minDp; pick the one yielding highest pAch.
   // Store pAch for each clamped candidate to avoid redundant calls later.
-  const candidates = [dpAnalytical, dpDpCC, c.minDp];
+  const candidates = [dpAnalytical, dpDpCC, c.minDp, ...kinkCandidates];
   let dpOptimal = c.minDp;
   let bestPAch = -Infinity;
   const candidatePAch = {};
@@ -3064,11 +3145,12 @@ function computeAffordTarget(inp) {
   if (target === null) return { state: 'no-target', c, standardMax, optMax };
 
   // At dp = min_dp_required and target price:
+  const mansion        = calcMansionTax(target);
   const mortAtTarget   = target * (1 - c.minDp) * c.K;
-  const cashNeededAtT  = target * (c.minDp + c.varFrac + c.resMo * (1 - c.minDp) * c.K) + c.fixedCC + c.resMo * c.maintMo;
+  const cashNeededAtT  = target * (c.minDp + c.varFrac + c.resMo * (1 - c.minDp) * c.K) + c.fixedCC + mansion + c.resMo * c.maintMo;
   const resGap         = c.resMo > 0 ? Math.max(0, cashNeededAtT - c.avail) : 0;
   // DP/CC gap: only Closing?-checked accounts can cover DP + closing costs
-  const dpCCNeededAtT  = target * (c.minDp + c.varFrac) + c.fixedCC;
+  const dpCCNeededAtT  = target * (c.minDp + c.varFrac) + c.fixedCC + mansion;
   const dpCCGap        = Math.max(0, dpCCNeededAtT - c.totLiquid);
   const cashGap        = Math.max(resGap, dpCCGap);
 
@@ -3103,11 +3185,11 @@ function computeAffordTarget(inp) {
   const dpForCashReserve = c.resMo > 0
     ? ((c.B <= 0 || target <= 0) ? -Infinity
       : (cashDen <= 0) ? Infinity
-      : (c.B / target - c.varFrac - c.resMo * c.K) / cashDen)
+      : ((c.B - mansion) / target - c.varFrac - c.resMo * c.K) / cashDen)
     : Infinity;
-  // DP/CC constraint: dp * target + varFrac*target + fixedCC ≤ totLiquid
+  // DP/CC constraint: dp * target + varFrac*target + fixedCC + mansion ≤ totLiquid
   const dpForCashDpCC = (target > 0 && c.dpCCNum > 0)
-    ? (c.dpCCNum / target - c.varFrac)
+    ? ((c.dpCCNum - mansion) / target - c.varFrac)
     : -Infinity;
   dpForCash = Math.min(
     isFinite(dpForCashReserve) ? dpForCashReserve : Infinity,
@@ -3557,12 +3639,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Apply shared financial profile (accounts/income/debts from any calculator with save on)
   applySharedProfile(loadSharedProfile());
+  // Apply shared assumptions (overrides defaults with values set on any calculator)
+  applySharedAssumptions(loadSharedAssumptions());
 
   // Cross-tab sync: when another calculator saves, update accounts/income/debts here
   window.addEventListener('storage', e => {
-    if (e.key !== SHARED_KEY) return;
-    applySharedProfile(loadSharedProfile());
-    onChange();
+    if (e.key === SHARED_KEY) {
+      applySharedProfile(loadSharedProfile());
+      onChange();
+    } else if (e.key === ASSUMPTIONS_KEY) {
+      applySharedAssumptions(loadSharedAssumptions());
+      onChange();
+    }
   });
 
   // Toggle: enable saves immediately, or clear storage when turned off
