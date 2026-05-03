@@ -434,7 +434,8 @@ tbody tr:last-child td { border-bottom:none; }
 <script>
 'use strict';
 
-const SHARED_KEY = 'nyc_shared_profile';
+const SHARED_KEY      = 'nyc_shared_profile';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions';
 const SAMPLE_PROFILE = {
   annualIncome: 150000,
   otherDebts: 0,
@@ -503,6 +504,35 @@ function saveSharedProfile() {
   } catch(e) {
     setText('save-state', 'Unable to save in this browser');
   }
+}
+
+function loadSharedAssumptions() {
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+}
+function saveSharedAssumptions() {
+  if (!isSaveEnabled()) return;
+  try { localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify(ASMP)); } catch(e) {}
+}
+function applySharedAssumptions(asmp) {
+  if (!asmp) return;
+  if (asmp.rent)  Object.assign(ASMP.rent,  asmp.rent);
+  if (asmp.coop)  Object.assign(ASMP.coop,  asmp.coop);
+  if (asmp.condo) Object.assign(ASMP.condo, asmp.condo);
+  const sv = (id, v) => { if (v != null) { const el = $(id); if (el) el.value = v; } };
+  sv('a-rent-mult',      ASMP.rent.incomeMult);
+  sv('a-rent-insurance', ASMP.rent.rentersInsurance);
+  sv('a-rent-reserve',   ASMP.rent.reserveMonths);
+  sv('a-coop-dp',        ASMP.coop.dpPct);
+  sv('a-coop-rate',      ASMP.coop.mortgageRate);
+  sv('a-coop-maint',     ASMP.coop.maint);
+  sv('a-coop-dti',       ASMP.coop.maxDTIPct);
+  sv('a-coop-reserve',   ASMP.coop.reserveMo);
+  sv('a-condo-dp',       ASMP.condo.dpPct);
+  sv('a-condo-rate',     ASMP.condo.mortgageRate);
+  sv('a-condo-cc',       ASMP.condo.commonCharges);
+  sv('a-condo-tax',      ASMP.condo.propTaxes);
+  sv('a-condo-ins',      ASMP.condo.hoInsurance);
+  sv('a-condo-dti',      ASMP.condo.maxDtiPct);
 }
 
 function renderAccountEditor() {
@@ -775,12 +805,14 @@ function render() {
 syncEditorFields();
 $('save-toggle-cb').checked = saveEnabled;
 setText('save-state', saveEnabled ? 'Saved locally' : 'Not saving');
+applySharedAssumptions(loadSharedAssumptions());
 render();
 
 $('save-toggle-cb').addEventListener('change', e => {
   saveEnabled = e.target.checked;
   if (saveEnabled) {
     saveSharedProfile();
+    saveSharedAssumptions();
   } else {
     setText('save-state', 'Not saving');
   }
@@ -841,17 +873,21 @@ $('add-account').addEventListener('click', () => {
   ['a-condo-dti',      v => { ASMP.condo.maxDtiPct        = v; }],
 ].forEach(([id, setter]) => {
   const el = $(id);
-  if (el) el.addEventListener('input', () => { setter(num(el.value)); render(); });
+  if (el) el.addEventListener('input', () => { setter(num(el.value)); saveSharedAssumptions(); render(); });
 });
 
 window.addEventListener('storage', e => {
-  if (e.key !== SHARED_KEY) return;
-  loaded = loadProfile();
-  profileState = profileInputs(loaded.profile);
-  hasSavedProfile = !loaded.isSample;
-  // Preserve the user's current Save toggle — don't override it on cross-tab updates
-  syncEditorFields();
-  render();
+  if (e.key === SHARED_KEY) {
+    loaded = loadProfile();
+    profileState = profileInputs(loaded.profile);
+    hasSavedProfile = !loaded.isSample;
+    // Preserve the user's current Save toggle — don't override it on cross-tab updates
+    syncEditorFields();
+    render();
+  } else if (e.key === ASSUMPTIONS_KEY) {
+    applySharedAssumptions(loadSharedAssumptions());
+    render();
+  }
 });
 </script>
 </body>

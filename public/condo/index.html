@@ -2212,8 +2212,9 @@ function renderRateLever(r) {
 // ═══════════════════════════════════════
 // LOCAL STORAGE
 // ═══════════════════════════════════════
-const LS_KEY     = 'nyc_condo_inputs';
-const SHARED_KEY = 'nyc_shared_profile';
+const LS_KEY          = 'nyc_condo_inputs';
+const SHARED_KEY      = 'nyc_shared_profile';
+const ASSUMPTIONS_KEY = 'nyc_shared_assumptions';
 function isSaveEnabled() { return $('save-toggle-cb').checked; }
 
 function saveSharedProfile(accounts, annualIncome, otherDebts) {
@@ -2232,6 +2233,31 @@ function applySharedProfile(shared) {
   sv('annual-income', shared.annualIncome);
   sv('other-debts',   shared.otherDebts);
 }
+
+function loadSharedAssumptions() {
+  try { const s = localStorage.getItem(ASSUMPTIONS_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; }
+}
+function saveSharedAssumptions(inp) {
+  try {
+    const cur = loadSharedAssumptions() || {};
+    localStorage.setItem(ASSUMPTIONS_KEY, JSON.stringify({
+      ...cur,
+      condo: { mortgageRate: inp.mortgageRate, dpPct: inp.dpPct, commonCharges: inp.commonCharges, propTaxes: inp.propTaxes, hoInsurance: inp.hoInsurance, maxDtiPct: inp.maxDtiPct }
+    }));
+  } catch(e) {}
+}
+function applySharedAssumptions(asmp) {
+  if (!asmp || !asmp.condo) return;
+  const c = asmp.condo;
+  const sv = (id, v) => { if (v != null) { const el = $(id); if (el) el.value = v; } };
+  sv('mtg-rate',       c.mortgageRate);
+  sv('dp-pct',         c.dpPct);
+  sv('common-charges', c.commonCharges);
+  sv('prop-taxes',     c.propTaxes);
+  sv('ho-insurance',   c.hoInsurance);
+  sv('max-dti',        c.maxDtiPct);
+}
+
 function saveToStorage(inp) {
   if (!isSaveEnabled()) return;
   if (!inp) inp = readInputs();
@@ -2252,6 +2278,7 @@ function saveToStorage(inp) {
   };
   try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch(e) {}
   saveSharedProfile(inp.accounts, inp.annualIncome, inp.otherDebts);
+  saveSharedAssumptions(inp);
 }
 function loadFromStorage() {
   try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
@@ -2328,12 +2355,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saved) { $('save-toggle-cb').checked = true; restoreInputs(saved); }
   // Apply shared financial profile (accounts/income/debts from any calculator with save on)
   applySharedProfile(loadSharedProfile());
+  // Apply shared assumptions (overrides defaults with values set on any calculator)
+  applySharedAssumptions(loadSharedAssumptions());
 
   // Cross-tab sync: when another calculator saves, update accounts/income/debts here
   window.addEventListener('storage', e => {
-    if (e.key !== SHARED_KEY) return;
-    applySharedProfile(loadSharedProfile());
-    onChange();
+    if (e.key === SHARED_KEY) {
+      applySharedProfile(loadSharedProfile());
+      onChange();
+    } else if (e.key === ASSUMPTIONS_KEY) {
+      applySharedAssumptions(loadSharedAssumptions());
+      onChange();
+    }
   });
 
   $('save-toggle-cb').addEventListener('change', e => e.target.checked ? saveToStorage() : clearStorage());
