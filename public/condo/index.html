@@ -2048,12 +2048,17 @@ function computeAffordTarget(inp) {
     if (dp20 >= 0.20) {
       dpForDti = dp20;
     } else {
-      const PMI_TIERS = [[0.15, 0.0052], [0.10, 0.0070], [0.05, 0.0095], [0, 0.0120]];
-      dpForDti = dp20;
-      for (const [lo, rate] of PMI_TIERS) {
+      // dp20 < 0.20 → dp=0.20 satisfies DTI; check if a lower dp (in a PMI tier) also works.
+      // Tiers ordered from highest dp to lowest dp; check both lo and hi bounds so a solution
+      // that falls above the tier's upper bound returns exactly hi (the PMI-drop boundary).
+      const PMI_TIERS = [[0.15, 0.20, 0.0052], [0.10, 0.15, 0.0070], [0.05, 0.10, 0.0095], [0, 0.05, 0.0120]];
+      dpForDti = 0.20; // conservative fallback: dp=0.20 always satisfies since dp20 < 0.20
+      for (const [lo, hi, rate] of PMI_TIERS) {
         const effK = c.K + rate / 12;
         const dpTier = 1 - c.A / (target * effK);
-        if (dpTier >= lo) { dpForDti = dpTier; break; }
+        if (dpTier >= hi) { dpForDti = hi; break; } // whole tier fails; minimum is hi
+        if (dpTier >= lo) { dpForDti = dpTier; break; } // solution within this tier
+        // dpTier < lo: entire tier satisfied, continue to lower tier
       }
     }
   }
