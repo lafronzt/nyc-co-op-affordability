@@ -2017,15 +2017,16 @@ function computeAffordTarget(inp) {
   // Check feasibility at target with minDp
   const loanAtT     = target * (1 - c.minDp);
   const moMtgAtT    = loanAtT * c.K;
+  const moPmiAtT    = calcPmiMonthly(loanAtT, c.minDp);
   const ccAtT       = computeCC(target, c.minDp, inp);
   const totalAtCloseT = target * c.minDp + ccAtT.total;
-  const resReqAtT   = c.resMo * (moMtgAtT + c.carrying);
+  const resReqAtT   = c.resMo * (moMtgAtT + moPmiAtT + c.carrying);
 
   const dpCCGap  = Math.max(0, totalAtCloseT - c.weightedAssets);
   const resGap   = c.resMo > 0 ? Math.max(0, totalAtCloseT + resReqAtT - c.weightedAssets) : 0;
   const cashGap  = Math.max(dpCCGap, resGap);
 
-  const incomeNeededMo  = c.dtiMax > 0 ? (moMtgAtT + c.carrying + c.oDebts) / c.dtiMax : Infinity;
+  const incomeNeededMo  = c.dtiMax > 0 ? (moMtgAtT + moPmiAtT + c.carrying + c.oDebts) / c.dtiMax : Infinity;
   const incomeNeededAnn = incomeNeededMo * 12;
   const incomeGap       = Math.max(0, incomeNeededAnn - (inp.annualIncome||0));
 
@@ -2042,7 +2043,20 @@ function computeAffordTarget(inp) {
   let dpForDti;
   if (c.A <= 0) { dpForDti = Infinity; }
   else if (target <= 0 || c.K <= 0) { dpForDti = 0; }
-  else { dpForDti = 1 - c.A / (target * c.K); }
+  else {
+    const dp20 = 1 - c.A / (target * c.K);
+    if (dp20 >= 0.20) {
+      dpForDti = dp20;
+    } else {
+      const PMI_TIERS = [[0.15, 0.0052], [0.10, 0.0070], [0.05, 0.0095], [0, 0.0120]];
+      dpForDti = dp20;
+      for (const [lo, rate] of PMI_TIERS) {
+        const effK = c.K + rate / 12;
+        const dpTier = 1 - c.A / (target * effK);
+        if (dpTier >= lo) { dpForDti = dpTier; break; }
+      }
+    }
+  }
 
   // Cash ceiling dp: binary search max dp such that weighted assets cover dp*target + cc(target,dp)
   let dpForCash;
@@ -2073,8 +2087,8 @@ function computeAffordTarget(inp) {
   else if (dpForDti < c.minDp) dpOutcome = 'C';
   else dpOutcome = 'A';
 
-  // Lever 4: max common charges
-  const maintDtiMax  = c.dtiMax * c.moInc - moMtgAtT - (inp.propTaxes||0) - (inp.hoInsurance||0) - c.oDebts;
+  // Lever 4: max common charges (PMI reduces DTI budget available for common charges)
+  const maintDtiMax  = c.dtiMax * c.moInc - moMtgAtT - moPmiAtT - (inp.propTaxes||0) - (inp.hoInsurance||0) - c.oDebts;
   const maxCC        = Math.max(0, maintDtiMax);
   const ccGap        = Math.max(0, (inp.commonCharges||0) - maxCC);
 

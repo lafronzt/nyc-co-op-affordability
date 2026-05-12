@@ -2653,15 +2653,22 @@ function computeOptimizer(inp) {
   }
 
   // Unclamped intersection of the reserve curve (pRes) and DTI curve.
-  // This is the analytical optimum when the DP/CC constraint is not binding.
-  const num = c.K * c.B - c.A * (c.varFrac + c.resMo * c.K);
-  const den = c.A * (1 - c.resMo * c.K) + c.K * c.B;
-  const dpAnalytical = c.resMo > 0 && den !== 0 ? num / den : c.minDp;
-
-  // Also find intersection of pDpCC and DTI curve:
-  //   dpCCNum / (dp + varFrac) = A / ((1-dp)*K)
-  //   => A*(dp+varFrac) = dpCCNum*(1-dp)*K
-  //   => dp*(A + dpCCNum*K) = dpCCNum*K - A*varFrac
+  // Computed for each PMI tier (effK = K + pmiRate/12) since the curves shift between tiers.
+  // The plain-K version is the no-PMI zone baseline; tier versions cover dp < 20%.
+  const PMI_TIER_RATES = [0, 0.0052, 0.0070, 0.0095, 0.0120]; // 0 = no PMI (dp>=0.20)
+  const pmiTierCandidates = [];
+  for (const rate of PMI_TIER_RATES) {
+    const eK = c.K + rate / 12;
+    const num = eK * c.B - c.A * (c.varFrac + c.resMo * eK);
+    const den = c.A * (1 - c.resMo * eK) + eK * c.B;
+    if (c.resMo > 0 && den !== 0) pmiTierCandidates.push(num / den);
+    const dpCCDen = c.A + c.dpCCNum * eK;
+    if (dpCCDen !== 0) pmiTierCandidates.push((c.dpCCNum * eK - c.A * c.varFrac) / dpCCDen);
+  }
+  // Baseline no-PMI analytical candidates (kept for dpUnclamped tracking below)
+  const baseNum = c.K * c.B - c.A * (c.varFrac + c.resMo * c.K);
+  const baseDen = c.A * (1 - c.resMo * c.K) + c.K * c.B;
+  const dpAnalytical = c.resMo > 0 && baseDen !== 0 ? baseNum / baseDen : c.minDp;
   const dpCCDen2 = c.A + c.dpCCNum * c.K;
   const dpDpCC = (dpCCDen2 !== 0) ? (c.dpCCNum * c.K - c.A * c.varFrac) / dpCCDen2 : c.minDp;
 
@@ -2685,9 +2692,10 @@ function computeOptimizer(inp) {
 
   // Evaluate both candidate dp values and the minDp; pick the one yielding highest pAch.
   // Store pAch for each clamped candidate to avoid redundant calls later.
-  // PMI kink: at dp=0.20, PMI drops to 0 — explicitly evaluate both sides of the threshold
-  const PMI_DP_KINKS = [0.20, 0.15, 0.10, 0.05];
-  const candidates = [dpAnalytical, dpDpCC, c.minDp, ...kinkCandidates, ...PMI_DP_KINKS];
+  // PMI creates a kink at each tier boundary (0.20, 0.15, 0.10, 0.05) where the effective K
+  // changes. Include both the exact boundary and an epsilon-below value to sample both sides.
+  const PMI_DP_KINKS = [0.20, 0.20 - 1e-6, 0.15, 0.15 - 1e-6, 0.10, 0.10 - 1e-6, 0.05, 0.05 - 1e-6];
+  const candidates = [dpAnalytical, dpDpCC, c.minDp, ...kinkCandidates, ...PMI_DP_KINKS, ...pmiTierCandidates];
   let dpOptimal = c.minDp;
   let bestPAch = -Infinity;
   const candidatePAch = {};
@@ -3247,13 +3255,23 @@ function computeAffordTarget(inp) {
     }
   }
   // dp_for_cash: maximum dp such that cash covers everything (both reserve and DP/CC constraints)
+  // Reserve requirement includes PMI, so effective K varies by dp tier — solve piecewise.
   let dpForCash;
-  const cashDen = (1 - c.resMo * c.K);
-  const dpForCashReserve = c.resMo > 0
-    ? ((c.B <= 0 || target <= 0) ? -Infinity
-      : (cashDen <= 0) ? Infinity
-      : ((c.B - mansion) / target - c.varFrac - c.resMo * c.K) / cashDen)
-    : Infinity;
+  let dpForCashReserve;
+  if (c.resMo === 0 || c.B <= 0 || target <= 0) {
+    dpForCashReserve = c.resMo === 0 ? Infinity : -Infinity;
+  } else {
+    // Try no-PMI zone (dp >= 0.20) first, then each PMI tier from highest dp down
+    const CASH_TIERS = [[0.20, 0], [0.15, 0.0052], [0.10, 0.0070], [0.05, 0.0095], [0, 0.0120]];
+    dpForCashReserve = -Infinity;
+    for (const [lo, rate] of CASH_TIERS) {
+      const eK = c.K + rate / 12;
+      const cd = 1 - c.resMo * eK;
+      if (cd <= 0) continue;
+      const dp = ((c.B - mansion) / target - c.varFrac - c.resMo * eK) / cd;
+      if (dp >= lo) { dpForCashReserve = dp; break; }
+    }
+  }
   // DP/CC constraint: dp * target + varFrac*target + fixedCC + mansion ≤ totLiquid
   const dpForCashDpCC = (target > 0 && c.dpCCNum > 0)
     ? ((c.dpCCNum - mansion) / target - c.varFrac)
